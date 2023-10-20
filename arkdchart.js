@@ -33,7 +33,7 @@ async function fetchPriceData(period) {
         const responseData = await response.json();
         const prices = responseData.data.price;
 
-        prices.sort((a, b) => a.timestamp - b.timestamp);
+        prices.sort((a, b) => a.intervalStamp - b.intervalStamp);
 
         // Initialize variables to store the transformed data
         dataPoints = [];
