@@ -133,7 +133,7 @@ var options = {
         },
     },
     title: {
-        text: '$WIZA/$KDA',
+        text: '$KDA/$WIZA',
         align: 'left',
         style: {
             color: 'white'
