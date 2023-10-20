@@ -133,7 +133,7 @@ var options = {
         },
     },
     title: {
-        text: '$KPP/$KDA',
+        text: '$KDA/$KPP',
         align: 'left',
         style: {
             color: 'white'
