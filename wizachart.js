@@ -98,6 +98,9 @@ var options = {
         data: dataPoints,
     }],
     chart: {
+        toolbar: {
+            show: true
+        },
         foreColor: 'white',
         type: 'candlestick',
         height: 500
