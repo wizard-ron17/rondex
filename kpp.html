@@ -71,7 +71,7 @@
         width: 30px;
         height: 30px;
         background-color: white;
-        border-radius: 10%;
+        border-radius: 5px;
         position: absolute;
         top: 0;
         left: 0;
@@ -192,6 +192,7 @@
     </style>
   </head>
   <body>
+    <!-- Switch Container BEGIN -->
     <div class="switch-container">
       <div class="toggle-switch">
         <input type="checkbox" id="periodToggle">
@@ -200,6 +201,8 @@
         <span id="period1D">1D</span>
       </div>
     </div>
+    <!-- Switch Container END -->
+ 
     <h1>RonDEX</h1>
 
     <!-- Chart div BEGIN -->
@@ -210,6 +213,19 @@
         <script src="kppchart.js"></script> 
     </div>
     <!-- Chart div END -->
+
+    <!-- Nav BEGIN -->
+    <nav>
+      <label for="touch"><span id="drop">Tokens</span></label>               
+      <input type="checkbox" id="touch"> 
+      <ul class="slide">
+        <li><a href="#"><img src="https://kapepe.xyz/assets/images/image03.jpg" alt="KPP Logo" class="token-logo">$KPP</a></li>
+        <li><a href="https://rondex.xyz/wiza"><img src="https://assets.kdlaunch.com/tokens/wiza.jpg" alt="WIZA Logo" class="token-logo">$WIZA</a></li> 
+        <li><a href="https://rondex.xyz/arkd"><img src="https://assets.kdlaunch.com/tokens//arkade.png" alt="ARKD Logo" class="token-logo">$ARKD</a></li>
+        <li><a href="https://rondex.xyz/mok"><img src="https://assets.kdlaunch.com/tokens/mok-logo.png" alt="MOK Logo" class="token-logo">$MOK</a></li>
+      </ul>
+    </nav>
+    <!-- Nav END -->
 
     <!-- Swap Container BEGIN -->
     <div class="swap-container">
