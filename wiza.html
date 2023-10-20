@@ -39,7 +39,7 @@
       #chart {
         width: auto;
         height: 500px;
-        margin: 5px 0px;
+        margin: 5px 5px;
       }
       .switch-container {
         position: absolute;
@@ -71,7 +71,7 @@
         width: 30px;
         height: 30px;
         background-color: white;
-        border-radius: 10%;
+        border-radius: 5px;
         position: absolute;
         top: 0;
         left: 0;
@@ -100,10 +100,99 @@
       .toggle-switch input[type="checkbox"]:checked + .switch::before {
         transform: translateX(30px);
       }
+      li a {
+        text-decoration: none;
+        color: #ffffff;
+        text-align: left;
+        align-items: left;
+      }
+      nav {
+        width : 100px;
+        height: 30px; 
+        background: #2d2f31;
+        margin : 0 0;
+        position: absolute;
+        top: 15px;
+        left: 100px;
+        border-radius: 5px; 
+        padding: 0px;
+      }
+      #drop {
+        padding: 0px;
+        height: 20px;
+        width: 100px;
+        background: #2d2f31; 
+        color: white;
+        font-size: 17px;
+        text-align: center;
+        cursor: pointer;
+        display: block;
+        border-radius: 5px;
+        z-index: 9999;
+        margin-top: 5px;
+        top: 15px;
+        left: 100px;
+      }
+      #drop label {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #drop:hover {
+        color: magenta;
+      }
+      #drop::after {
+        z-index: 9999;
+        background: #2d2f31;
+        border-radius: 5px;
+      }
+      .slide {
+        clear: both;
+        width: 87px;
+        height: 0px;
+        overflow: hidden;
+        text-align: left;
+        transition: height .4s ease;
+        background: hsl(210, 4%, 18%);
+        border-radius: 5px;
+      }
+      .slide li {
+        padding: 7px 0;
+        list-style: none;
+        text-align: left;
+        display: block;
+        align-items: left;
+        margin-right: 0px;
+      }
+      .slide a {
+        align-items: left;
+        text-align: left;
+      }
+      .slide a:hover {
+        color: magenta;
+      }
+      #touch {
+        position: absolute;
+        opacity: 0; 
+        height: 0px;
+        width: 0px;
+      }    
+      #touch:checked + .slide {
+        height: 140px;
+        width: 87px;
+        border-radius: 5px;
+      } 
+      .token-logo {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        vertical-align: middle;
+        margin-left: 0px;
       }
     </style>
   </head>
   <body>
+    <!-- Switch Container BEGIN -->
     <div class="switch-container">
       <div class="toggle-switch">
         <input type="checkbox" id="periodToggle">
@@ -112,6 +201,8 @@
         <span id="period1D">1D</span>
       </div>
     </div>
+    <!-- Swap Container END -->
+ 
     <h1>RonDEX</h1>
 
     <!-- Chart div BEGIN -->
@@ -122,6 +213,19 @@
         <script src="wizachart.js"></script> 
     </div>
     <!-- Chart div END -->
+
+    <!-- Nav BEGIN -->
+    <nav>
+      <label for="touch"><span id="drop">Tokens</span></label>               
+      <input type="checkbox" id="touch"> 
+      <ul class="slide">
+        <li><a href="#"><img src="https://assets.kdlaunch.com/tokens/wiza.jpg" alt="WIZA Logo" class="token-logo">$WIZA</a></li> 
+        <li><a href="https://rondex.xyz/kapepe"><img src="https://kapepe.xyz/assets/images/image03.jpg" alt="KPP Logo" class="token-logo">$KPP</a></li>
+        <li><a href="https://rondex.xyz/arkd"><img src="https://assets.kdlaunch.com/tokens//arkade.png" alt="ARKD Logo" class="token-logo">$ARKD</a></li>
+        <li><a href="https://rondex.xyz/mok"><img src="https://assets.kdlaunch.com/tokens/mok-logo.png" alt="MOK Logo" class="token-logo">$MOK</a></li>
+      </ul>
+    </nav>
+    <!-- Nav END -->
 
     <!-- Swap Container BEGIN -->
     <div class="swap-container">
