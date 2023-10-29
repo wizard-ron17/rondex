@@ -11,15 +11,21 @@
         font-family: Arial, sans-serif;
         background-color: #1a1a1a;
         color: #fff;
+        margin: 0 0;
       }
-      h1, h2 {
+      h1 {
         text-align: center;
-        margin: 0px 0;
+        margin: 10px 0px;
+        font-size: 35px;
+      }
+      h2 {
+        text-align: center;
+        margin: 0px 0px;
         font-size: 35px;
       }
       .chart-container {
         margin: 10px;
-        height: 500px;
+        height: 400px;
         width: auto;
         border: 1px solid #eee;
         border-radius: 15px;
@@ -28,23 +34,75 @@
       }
       .swap-container {
         margin: 10px;
-        height: 300px;
+        height: 250px;
         width: auto;
         border: 1px solid #eee;
         border-radius: 15px;
         overflow: hidden;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        padding: 10px 10px;
       }
-      #chart {
-        width: auto;
-        height: 500px;
-        margin: 5px 0px;
+      .tradingview-widget-container {
+        margin-top: 0px;
+        padding: 0px 0px;
       }
     </style>
   </head>
   <body>
-    <h1>RonDEX</h1>
+    <!-- TradingView Ticker Tape Widget BEGIN -->
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+  {
+  "symbols": [
+    {
+      "proName": "FOREXCOM:SPXUSD",
+      "title": "S&P 500"
+    },
+    {
+      "proName": "FOREXCOM:NSXUSD",
+      "title": "US 100"
+    },
+    {
+      "proName": "FX_IDC:EURUSD",
+      "title": "EUR to USD"
+    },
+    {
+      "proName": "BITSTAMP:BTCUSD",
+      "title": "Bitcoin"
+    },
+    {
+      "proName": "BITSTAMP:ETHUSD",
+      "title": "Ethereum"
+    },
+    {
+      "proName": "BITSTAMP:DOGEUSD",
+      "title": "Dogecoin"
+    },
+    {
+      "proName": "BINANCE:KDAUSD",
+      "title": "Kadena"
+    },
+    {
+      "proName": "BINANCE:FLUXUSDT",
+      "title": "Flux"
+    },
+    {
+      "proName": "MEXC:NEOXUSDT",
+      "title": "Neoxa (GPUDAO❤️)"
+    }
+  ],
+  "showSymbolLogo": true,
+  "colorTheme": "dark",
+  "isTransparent": false,
+  "largeChartUrl": "https://rondex.xyz/",
+  "displayMode": "adaptive",
+  "locale": "en"
+}
+  </script>
+</div>
+<!-- TradingView Ticker Tape Widget END -->
+    
+<h1>RonDEX</h1>
 
     <!-- Chart div BEGIN -->
     <div class="chart-container">
@@ -55,19 +113,19 @@
           new TradingView.widget(
             {
               "width": "auto",
-              "height": "500px",
+              "height": "400px",
               "symbol": "BINANCE:KDAUSD",
               "interval": "H",
               "timezone": "Etc/UTC",
               "theme": "dark",
               "style": "1",
               "locale": "en",
-              "toolbar_bg": 'white',
+              "toolbar_bg": "white",
               "enable_publishing": true,
               "allow_symbol_change": true,
               "hide_side_toolbar": false,
               "withdateranges": false,
-              "container_id": "tradingview_69c82"
+              "container_id": "chart-container"
             }
           );
         </script>
