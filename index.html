@@ -45,6 +45,111 @@
         margin-top: 0px;
         padding: 0px 0px;
       }
+      li a {
+        text-decoration: none;
+        color: #ffffff;
+        text-align: left;
+        align-items: left;
+      }
+      nav {
+        width : 100px;
+        height: 30px; 
+        background: #2d2f31;
+        margin : 0 0;
+        position: absolute;
+        top: 60px;
+        left: 10px;
+        border-radius: 5px; 
+        padding: 0px;
+      }
+      #drop {
+        padding: 0px;
+        height: 20px;
+        width: 100px;
+        background: #2d2f31; 
+        color: white;
+        font-size: 17px;
+        text-align: center;
+        cursor: pointer;
+        display: block;
+        border-radius: 5px;
+        z-index: 9999;
+        margin-top: 5px;
+        top: 55px;
+        left: 100px;
+      }
+      #drop label {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #drop:hover {
+        color: magenta;
+      }
+      #drop::after {
+        z-index: 9999;
+        background: #2d2f31;
+        border-radius: 5px;
+      }
+      .slide {
+        clear: both;
+        width: 87px;
+        height: 0px;
+        overflow: hidden;
+        text-align: left;
+        transition: height .4s ease;
+        background: hsl(210, 4%, 18%);
+        border-radius: 5px;
+      }
+      .slide li {
+        padding: 7px 0;
+        list-style: none;
+        text-align: left;
+        display: block;
+        align-items: left;
+        margin-right: 0px;
+      }
+      .slide a {
+        align-items: left;
+        text-align: left;
+      }
+      .slide a:hover {
+        color: magenta;
+      }
+      #touch {
+        position: absolute;
+        opacity: 0; 
+        height: 0px;
+        width: 0px;
+      }    
+      #touch:checked + .slide {
+        height: 140px;
+        width: 87px;
+        border-radius: 5px;
+      } 
+      .token-logo {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        vertical-align: middle;
+        margin-left: 0px;
+      }
+      .tradingview-widget-container {
+        margin-top: 0px;
+        padding: 0px 0px;
+      }
+      /* Style for mobile screens */
+      @media (max-width: 400px) {
+      #drop {
+        margin-top: 5px;
+      }
+      h1 {
+        margin-bottom: 50px;
+      }
+      nav {
+        margin-top: 40px;
+      }
+      }
     </style>
   </head>
   <body>
@@ -60,7 +165,7 @@
     },
     {
       "proName": "FOREXCOM:NSXUSD",
-      "title": "US 100"
+      "title": "NASDAQ 100"
     },
     {
       "proName": "FX_IDC:EURUSD",
@@ -95,7 +200,7 @@
   "colorTheme": "dark",
   "isTransparent": false,
   "largeChartUrl": "https://rondex.xyz/",
-  "displayMode": "adaptive",
+  "displayMode": "",
   "locale": "en"
 }
   </script>
@@ -132,7 +237,17 @@
       </div>
       </div>
     <!-- Chart div END -->
-
+    <!-- Nav BEGIN -->
+    <nav>
+      <label for="touch"><span id="drop">KDA Tokens</span></label>               
+      <input type="checkbox" id="touch"> 
+      <ul class="slide">
+        <li><a href="#"><img src="https://assets.kdlaunch.com/tokens/wiza.jpg" alt="WIZA Logo" class="token-logo">$WIZA</a></li> 
+        <li><a href="https://rondex.xyz/kpp"><img src="https://kapepe.xyz/assets/images/image03.jpg" alt="KPP Logo" class="token-logo">$KPP</a></li>
+        <li><a href="https://rondex.xyz/arkd"><img src="https://assets.kdlaunch.com/tokens//arkade.png" alt="ARKD Logo" class="token-logo">$ARKD</a></li>
+      </ul>
+    </nav>
+    <!-- Nav END -->  
     <!-- Swap Container BEGIN -->
     <div class="swap-container">
       <h2>Swap - Soon Soon</h2>
