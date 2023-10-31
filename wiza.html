@@ -6,11 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Use advanced charting and trading for KDA tokens">
     <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/wizard-ron17/rondex/main/favicon.ico">
+    <!-- CSS Styling Begin -->
     <style>
       body {
         font-family: Arial, sans-serif;
         background-color: #1a1a1a;
         color: #fff;
+        margin: 0 0;
       }
       h1, h2 {
         text-align: center;
@@ -19,7 +21,7 @@
       }
       .chart-container {
         margin: 10px;
-        height: 500px;
+        height: 400px;
         width: auto;
         border: 1px solid #eee;
         border-radius: 15px;
@@ -28,7 +30,7 @@
       }
       .swap-container {
         margin: 10px;
-        height: 300px;
+        height: 250px;
         width: auto;
         border: 1px solid #eee;
         border-radius: 15px;
@@ -38,12 +40,12 @@
       }
       #chart {
         width: auto;
-        height: 500px;
+        height: 400px;
         margin: 5px 5px;
       }
       .switch-container {
         position: absolute;
-        top: 15px; /* Adjust top value as needed */
+        top: 55px; /* Adjust top value as needed */
         left: 20px; /* Adjust left value as needed */
       }
       .toggle-switch {
@@ -112,7 +114,7 @@
         background: #2d2f31;
         margin : 0 0;
         position: absolute;
-        top: 15px;
+        top: 55px;
         left: 100px;
         border-radius: 5px; 
         padding: 0px;
@@ -130,7 +132,7 @@
         border-radius: 5px;
         z-index: 9999;
         margin-top: 5px;
-        top: 15px;
+        top: 55px;
         left: 100px;
       }
       #drop label {
@@ -189,6 +191,10 @@
         vertical-align: middle;
         margin-left: 0px;
       }
+      .tradingview-widget-container {
+        margin-top: 0px;
+        padding: 0px 0px;
+      }
       /* Style for mobile screens */
       @media (max-width: 600px) {
       #drop {
@@ -205,8 +211,62 @@
       }
       }
     </style>
+    <!-- CSS Styling End - Can be placed in seperate file -->
   </head>
   <body>
+    <!-- TradingView Ticker Tape Widget BEGIN -->
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+  {
+  "symbols": [
+    {
+      "proName": "FOREXCOM:SPXUSD",
+      "title": "S&P 500"
+    },
+    {
+      "proName": "FOREXCOM:NSXUSD",
+      "title": "NASDAQ 100"
+    },
+    {
+      "proName": "FX_IDC:EURUSD",
+      "title": "EUR to USD"
+    },
+    {
+      "proName": "BITSTAMP:BTCUSD",
+      "title": "Bitcoin"
+    },
+    {
+      "proName": "BITSTAMP:ETHUSD",
+      "title": "Ethereum"
+    },
+    {
+      "proName": "BITSTAMP:DOGEUSD",
+      "title": "Dogecoin"
+    },
+    {
+      "proName": "BINANCE:KDAUSD",
+      "title": "Kadena"
+    },
+    {
+      "proName": "BINANCE:FLUXUSDT",
+      "title": "Flux"
+    },
+    {
+      "proName": "MEXC:NEOXUSDT",
+      "title": "Neoxa (GPUDAO❤️)"
+    }
+  ],
+  "showSymbolLogo": true,
+  "colorTheme": "dark",
+  "isTransparent": false,
+  "largeChartUrl": "https://rondex.xyz/",
+  "displayMode": "",
+  "locale": "en"
+}
+  </script>
+</div>
+<!-- TradingView Ticker Tape Widget END -->
     <!-- Switch Container BEGIN -->
     <div class="switch-container">
       <div class="toggle-switch">
