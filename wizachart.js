@@ -100,7 +100,7 @@ var options = {
     chart: {
         foreColor: 'white',
         type: 'candlestick',
-        height: 500
+        height: '400px'
     },
     grid: {
         show: true,
