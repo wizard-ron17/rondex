@@ -151,8 +151,8 @@ var options = {
     },
     yaxis: {
         tickAmount: 10,
-        min: 0.008,
-        max: 0.04,
+        min: 0.0085,
+        max: 0.05,
         tooltip: {
             enabled: true
         },
