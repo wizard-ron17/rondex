@@ -40,31 +40,31 @@ async function fetchPriceData(period) {
 
         // Iterate over the prices and create groups of 4 & calculate OHLC
         for (let i = 0; i < prices.length; i += 4) {
-          if (i + 3 < prices.length) {
-            // Calculate Open, High, Low, and Close
-            const open = parseFloat(prices[i].priceInKda);
-            const high = Math.max(
-              parseFloat(prices[i].priceInKda),
-              parseFloat(prices[i + 1].priceInKda),
-              parseFloat(prices[i + 2].priceInKda),
-              parseFloat(prices[i + 3].priceInKda)
-            );
-            const low = Math.min(
-              parseFloat(prices[i].priceInKda),
-              parseFloat(prices[i + 1].priceInKda),
-              parseFloat(prices[i + 2].priceInKda),
-              parseFloat(prices[i + 3].priceInKda)
-            );
-            const close = parseFloat(prices[i + 3].priceInKda);
+            if (i + 3 < prices.length) {
+                // Calculate Open, High, Low, and Close
+                const open = parseFloat(prices[i].priceInKda);
+                const high = Math.max(
+                    parseFloat(prices[i].priceInKda),
+                    parseFloat(prices[i + 1].priceInKda),
+                    parseFloat(prices[i + 2].priceInKda),
+                    parseFloat(prices[i + 3].priceInKda)
+                );
+                const low = Math.min(
+                    parseFloat(prices[i].priceInKda),
+                    parseFloat(prices[i + 1].priceInKda),
+                    parseFloat(prices[i + 2].priceInKda),
+                    parseFloat(prices[i + 3].priceInKda)
+                );
+                const close = parseFloat(prices[i + 3].priceInKda);
 
-            // Extract timestamp
-            const intervalStamp = parseFloat(prices[i].intervalStamp);
+                // Extract timestamp
+                const intervalStamp = parseFloat(prices[i].intervalStamp);
 
-            // Create a data point with x (timestamp) and y (Open, High, Low, Close)
-            const dataPoint = {
-                x: intervalStamp,
-                y: [open, high, low, close]
-            };
+                // Create a data point with x (timestamp) and y (Open, High, Low, Close)
+                const dataPoint = {
+                    x: intervalStamp,
+                    y: [open, high, low, close]
+                };
 
                 // Add the data point to the array
                 dataPoints.push(dataPoint);
@@ -79,6 +79,9 @@ async function fetchPriceData(period) {
             name: 'WIZA Price',
             data: dataPoints
         }]);
+
+        // Update the y-axis scale based on the selected period
+        updateYAxisScale(period);
     } catch (error) {
         console.error('Error fetching price data:', error);
     }
@@ -151,21 +154,47 @@ var options = {
     },
     yaxis: {
         tickAmount: 10,
-        min: 0.0085,
-        max: 0.06,
         tooltip: {
             enabled: true
         },
         labels: {
             formatter: function (value) {
                 // Use the toFixed method to control decimal places (e.g., 4 decimal places)
-                return value.toFixed(4);
+                return parseFloat(value.toFixed(4));
             }
         }
     }
 };
 
 var chart = new ApexCharts(document.querySelector("#chart"), options);
+
+function updateYAxisScale(period) {
+    // Adjust the y-axis scale based on the selected period
+    if (period === "1H") {
+        chart.updateOptions({
+            yaxis: {
+                min: 0.03,
+                max: 0.06,
+             labels: {
+                    formatter: function (value) {
+                        // Use the toFixed method to control decimal places (e.g., 4 decimal places)
+                        return parseFloat(value.toFixed(4));
+            }}}
+        });
+    } else {
+        // Default scale for 1D or other periods
+        chart.updateOptions({
+            yaxis: {
+                min: 0.0085,
+                max: 0.06,
+              labels: {
+                    formatter: function (value) {
+                        // Use the toFixed method to control decimal places (e.g., 4 decimal places)
+                        return parseFloat(value.toFixed(4));
+            }}}
+        });
+    }
+}
 
 function initializeChart() {
     chart.render();
