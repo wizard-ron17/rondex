@@ -174,7 +174,7 @@ function updateYAxisScale(period) {
         chart.updateOptions({
             yaxis: {
                 min: 0.03,
-                max: 0.06,
+                max: 0.07,
              labels: {
                     formatter: function (value) {
                         // Use the toFixed method to control decimal places (e.g., 4 decimal places)
