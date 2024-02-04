@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Advanced charting, stats, and transaction history for $WIZA">
-    <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/wizard-ron17/rondex/main/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
-    <title>RonDEX - $WIZA</title>
+    <title>RonDEX</title>
     <style>
         body {
             font-family: 'Orbitron', sans-serif;
@@ -232,7 +230,7 @@
             padding: 0px 0px;
         }
 
-        /* Style for mobile screens */
+        /* -------------MOBILE FORMATTING BEGIN------------ */
         @media (max-width: 600px) {
             #drop {
                 margin-top: 5px;
@@ -249,7 +247,22 @@
             nav {
                 margin-top: 40px;
             }
+
+            .content.txns {
+                font-size: 7px;
+            }
+
+            .record-list th, .record-list td {
+                padding: 0px; /* Adjust padding as needed */
+                text-align: center;
+                border: 1px solid #555; /* Add borders to cells */
+            }
+
+            .content.stats span, .content.stats p {
+                font-size: 16px !important;
+            }
         }
+        /* ---------------MOBILE FORMATTING END------------ */
 
         /* Additional styles for the slider and content */
         .slider-container {
@@ -452,8 +465,18 @@
     <div class="toggle-switch">
         <input type="checkbox" id="periodToggle">
         <label for="periodToggle" class="switch"></label>
-        <span id="period1H">1H</span>
-        <span id="period1D">1D</span>
+        <span id="period1H" onclick="toggleCheckbox()">1H</span>
+        <span id="period1D" onclick="toggleCheckbox()">1D</span>
+        <script>
+        function toggleCheckbox() {
+          const checkbox = document.getElementById('periodToggle');
+          checkbox.checked = !checkbox.checked;
+
+          // Trigger a change event on the checkbox
+          const event = new Event('change');
+          checkbox.dispatchEvent(event);
+          }
+        </script>
     </div>
 </div>
 <!-- Switch Container END -->
