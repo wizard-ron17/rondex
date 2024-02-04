@@ -22,6 +22,34 @@
             font-family: 'Orbitron', sans-serif;
         }
 
+        .animate-character {
+            background-image: linear-gradient(
+                -225deg,
+                #fff 0%, /* White */
+                #E41968 25%, /* Kadena Pink */
+                #fff 50%, /* Kadena Orange */
+                #4A9079 75%, /* Kadena Green */
+                #fff 100%
+            );
+            background-size: auto auto;
+            background-clip: border-box;
+            background-size: 200% auto;
+            color: #000000;
+            background-clip: text;
+            text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textclip 7s linear infinite;
+            font-size: 35px;
+            text-align: center;
+        }
+
+        @keyframes textclip {
+            to {
+                background-position: 200% center;
+            }
+        }
+
         .chart-container {
             margin: 10px;
             margin-top: 5px;
@@ -474,7 +502,7 @@
     </div>
 </div>
 <!-- Switch Container END -->
-<h1>RonDEX</h1>
+<h1 class="animate-character">RonDEX</h1>
 <!-- Chart div BEGIN -->
 <div class="chart-container">
     <div id="chart"></div>
