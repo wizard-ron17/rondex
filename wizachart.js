@@ -143,7 +143,7 @@ var options = {
         }
     },
     noData: {
-        text: 'Loading...'
+        text: 'Loading...WTF Ron!!'
     },
     tooltip: {
         enabled: true,
@@ -171,15 +171,20 @@ var chart = new ApexCharts(document.querySelector("#chart"), options);
 function updateYAxisScale(period) {
     // Adjust the y-axis scale based on the selected period
     if (period === "1H") {
+        const max1H = Math.max(...dataPoints.map(point => point.y[1])); // Get the max of 1H dataPoints
+        const min1H = Math.min(...dataPoints.map(point => point.y[1])); // Get the min of 1H dataPoints
+
         chart.updateOptions({
             yaxis: {
-                min: 0.03,
-                max: 0.07,
-             labels: {
+                min: 0.95*min1H,
+                max: 1.05*max1H,
+                labels: {
                     formatter: function (value) {
                         // Use the toFixed method to control decimal places (e.g., 4 decimal places)
                         return parseFloat(value.toFixed(4));
-            }}}
+                    }
+                }
+            }
         });
     } else {
         // Default scale for 1D or other periods
@@ -187,11 +192,13 @@ function updateYAxisScale(period) {
             yaxis: {
                 min: 0.0085,
                 max: 0.07,
-              labels: {
+                labels: {
                     formatter: function (value) {
                         // Use the toFixed method to control decimal places (e.g., 4 decimal places)
                         return parseFloat(value.toFixed(4));
-            }}}
+                    }
+                }
+            }
         });
     }
 }
