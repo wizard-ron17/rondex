@@ -1,5 +1,3 @@
-// wizatxns.js
-
 // Fetch data from the API
 async function fetchTransactionData() {
     const query = `{
