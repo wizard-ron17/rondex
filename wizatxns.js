@@ -42,6 +42,21 @@ async function fetchTransactionData() {
     }
 }
 
+// Function to format date as relative time
+function formatRelativeTime(timestamp) {
+    const currentDate = new Date();
+    const transactionDate = new Date(timestamp);
+    const timeDifference = currentDate - transactionDate;
+    const minutesAgo = Math.floor(timeDifference / (1000 * 60));
+
+    if (minutesAgo < 60) {
+        return `${minutesAgo}m ago`;
+    } else {
+        const hoursAgo = Math.floor(minutesAgo / 60);
+        return `${hoursAgo}h ago`;
+    }
+}
+
 // Update the table with transaction data
 function updateTransactionTable(transactions) {
     const tableBody = document.getElementById('recordTableBody');
@@ -57,10 +72,10 @@ function updateTransactionTable(transactions) {
         const transactionType = transaction.token0.tokenSymbol === 'KDA' ? 'BUY' : 'SELL';
 
         // Display only the first 3 and last 4 characters of the account with dots in the middle
-        const truncatedAccount = `${transaction.account.slice(0, 5)}.....${transaction.account.slice(-4)}`;
+        const truncatedAccount = `${transaction.account.slice(0, 5)}...`;
 
         row.innerHTML = `
-            <td>${formatDate(transaction.timestamp)}</td>
+            <td>${formatRelativeTime(transaction.timestamp)}</td>
             <td class="${transactionType.toLowerCase()}">${transactionType}</td>
             <td>${formatTokenInfo(transaction.token0, transaction.token0Amount)}</td>
             <td>${formatTokenInfo(transaction.token1, transaction.token1Amount)}</td>
