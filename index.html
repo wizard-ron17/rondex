@@ -16,7 +16,7 @@
       }
       h1 {
         text-align: center;
-        margin: 10px 0px;
+        margin: 0px;
         font-size: 35px;
       }
       h2 {
@@ -24,26 +24,56 @@
         margin: 0px 0px;
         font-size: 35px;
       }
+      .animate-character {
+            background-image: linear-gradient(
+                -225deg,
+                #fff 0%, /* White */
+                #E41968 25%, /* Kadena Pink */
+                #fff 50%, /* Kadena Orange */
+                #4A9079 75%, /* Kadena Green */
+                #fff 100%
+            );
+            background-size: auto auto;
+            background-clip: border-box;
+            background-size: 200% auto;
+            color: #000000;
+            background-clip: text;
+            text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textclip 7s linear infinite;
+            font-size: 35px;
+            text-align: center;
+        }
+
+        @keyframes textclip {
+            to {
+                background-position: 200% center;
+            }
+        }
       .chart-container {
-        margin: 10px;
+        margin-left: 10px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        margin-top: 5px;
         height: 400px;
         width: auto;
-        border: 1px solid #eee;
+        border: 1px solid #555;
         border-radius: 15px;
         overflow: hidden;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       }
       .swap-container {
         margin: 10px;
-        height: 245px;
+        height: 220px;
         width: auto;
-        border: 1px solid #eee;
+        border: 1px solid #555;
         border-radius: 15px;
         overflow: hidden;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       }
       .tradingview-widget-container {
-        margin-top: 0px;
+        margin: 0px;
         padding: 0px 0px;
       }
       li a {
@@ -56,12 +86,13 @@
         width : 100px;
         height: 30px; 
         background: #2d2f31;
-        margin : 0 0;
+        margin: 0;
         position: absolute;
-        top: 60px;
+        top: 55px;
         left: 10px;
         border-radius: 5px; 
         padding: 0px;
+        font-size: 12px;
       }
       #drop {
         padding: 0px;
@@ -76,6 +107,7 @@
         border-radius: 5px;
         z-index: 9999;
         margin-top: 5px;
+        margin-bottom: 5px;
         top: 55px;
         left: 100px;
       }
@@ -85,7 +117,7 @@
         align-items: center;
       }
       #drop:hover {
-        color: lime;
+        color: #4A9079;
       }
       #drop::after {
         z-index: 9999;
@@ -115,7 +147,7 @@
         text-align: left;
       }
       .slide a:hover {
-        color: lime;
+        color: #4A9079;
       }
       #touch {
         position: absolute;
@@ -159,56 +191,48 @@
   <div class="tradingview-widget-container__widget"></div>
   <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
   {
-  "symbols": [
-    {
-      "proName": "FOREXCOM:SPXUSD",
-      "title": "S&P 500"
-    },
-    {
-      "proName": "FOREXCOM:NSXUSD",
-      "title": "NASDAQ 100"
-    },
-    {
-      "proName": "FX_IDC:EURUSD",
-      "title": "EUR to USD"
-    },
-    {
-      "proName": "BITSTAMP:BTCUSD",
-      "title": "Bitcoin"
-    },
-    {
-      "proName": "BITSTAMP:ETHUSD",
-      "title": "Ethereum"
-    },
-    {
-      "proName": "BITSTAMP:DOGEUSD",
-      "title": "Dogecoin"
-    },
-    {
-      "proName": "BINANCE:KDAUSD",
-      "title": "Kadena"
-    },
-    {
-      "proName": "BINANCE:FLUXUSDT",
-      "title": "Flux"
-    },
-    {
-      "proName": "MEXC:NEOXUSDT",
-      "title": "Neoxa (GPUDAO❤️)"
-    }
-  ],
-  "showSymbolLogo": true,
-  "colorTheme": "dark",
-  "isTransparent": false,
-  "largeChartUrl": "https://rondex.xyz/",
-  "displayMode": "",
-  "locale": "en"
-}
+    "symbols": [
+                {
+                    "proName": "COINBASE:BTCUSD",
+                    "title": "Bitcoin"
+                },
+                {
+                    "proName": "COINBASE:ETHUSD",
+                    "title": "Ethereum"
+                },
+                {
+                    "proName": "COINBASE:SOLUSD",
+                    "title": "Solana"
+                },
+                {
+                    "proName": "BINANCE:KDAUSD",
+                    "title": "Kadena"
+                },
+                {
+                    "proName": "BINANCE:FLUXUSD",
+                    "title": "Flux"
+                },
+                {
+                    "proName": "MEXC:NEOXUSDT",
+                    "title": "Neoxa"
+                },
+                {
+                    "proName": "GATEIO:ALPHUSDT",
+                    "title": "Alephium"
+                }
+            ],
+    "showSymbolLogo": true,
+    "colorTheme": "dark",
+    "isTransparent": false,
+    "largeChartUrl": "https://rondex.xyz/",
+    "displayMode": "",
+    "locale": "en"
+  }
   </script>
 </div>
 <!-- TradingView Ticker Tape Widget END -->
     
-<h1>RonDEX</h1>
+<h1 class="animate-character">RonDEX</h1>
 
     <!-- Chart div BEGIN -->
     <div class="chart-container">
