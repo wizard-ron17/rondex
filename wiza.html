@@ -68,7 +68,7 @@
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.0);
-            padding: 10px 10px;
+            padding: 10px 0px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -326,18 +326,18 @@
 
         .content {
             display: none;
-            padding: 10px;
+            padding: 0px;
             width: 100%;
             box-sizing: border-box;
         }
 
         .content.active {
-            display: block;
+            display: inline;
         }
       
         .content.txns {
             width: 100%; /* Set the desired width */
-            margin: auto; /* Center the container */
+            margin: 0 0; /* Center the container */
             overflow-x: auto; /* Add horizontal scrollbar if needed */
         }
 
@@ -350,7 +350,9 @@
         max-height: 500px; /* Set the maximum height for the table container */
         width: 100%;
         overflow-y: auto; /* Enable vertical scrolling */
-        margin-top: 0px; /* Adjust top margin as needed */
+        margin-top: 10px; /* Adjust top margin as needed */
+        margin-left: 0;
+        margin-right: 0;
     }
 
     .record-list {
@@ -368,7 +370,7 @@
     }  
 
     .record-list th, .record-list td {
-        padding: 10px; /* Adjust padding as needed */
+        padding: 5px; /* Adjust padding as needed */
         text-align: center;
         border: 1px solid #555; /* Add borders to cells */
     }
