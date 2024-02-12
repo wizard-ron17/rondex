@@ -62,6 +62,9 @@ function updateTransactionTable(transactions) {
     // Clear existing rows
     tableBody.innerHTML = '';
 
+    // Specify the hash for which you want to replace the account text
+    const targetHash = 'k:f8c01f1b062ebccc7164dd61479a655b9a6373bb2642904b2b1617230cdc51cc';
+
     // Populate the table with new data
     transactions.forEach(transaction => {
         const row = document.createElement('tr');
@@ -72,17 +75,31 @@ function updateTransactionTable(transactions) {
         // Display only the first 3 and last 4 characters of the account with dots in the middle
         const truncatedAccount = `${transaction.account.slice(0, 5)}...`;
 
-        row.innerHTML = `
-            <td>${formatRelativeTime(transaction.timestamp)}</td>
-            <td class="${transactionType.toLowerCase()}">${transactionType}</td>
-            <td>${formatTokenInfo(transaction.token0, transaction.token0Amount)}</td>
-            <td>${formatTokenInfo(transaction.token1, transaction.token1Amount)}</td>
-            <td><a href="https://kdaexplorer.com/account/${transaction.account}" target="_blank">${truncatedAccount}</a></td>
-        `;
+        // Check if the account matches the target hash
+        if (transaction.account === targetHash) {
+            // If it matches, set text to 'MW' and apply red color
+            row.innerHTML = `
+                <td>${formatRelativeTime(transaction.timestamp)}</td>
+                <td class="${transactionType.toLowerCase()}">${transactionType}</td>
+                <td>${formatTokenInfo(transaction.token0, transaction.token0Amount)}</td>
+                <td>${formatTokenInfo(transaction.token1, transaction.token1Amount)}</td>
+                <td><a href="https://kdaexplorer.com/account/${transaction.account}" target="_blank" style="color: red; font-weight: bold;">MW</a></td>
+            `;
+        } else {
+            // If it doesn't match, proceed with the regular display
+            row.innerHTML = `
+                <td>${formatRelativeTime(transaction.timestamp)}</td>
+                <td class="${transactionType.toLowerCase()}">${transactionType}</td>
+                <td>${formatTokenInfo(transaction.token0, transaction.token0Amount)}</td>
+                <td>${formatTokenInfo(transaction.token1, transaction.token1Amount)}</td>
+                <td><a href="https://kdaexplorer.com/account/${transaction.account}" target="_blank">${truncatedAccount}</a></td>
+            `;
+        }
 
         tableBody.appendChild(row);
     });
 }
+
 
 // Function to format date
 function formatDate(timestamp) {
