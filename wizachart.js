@@ -188,10 +188,12 @@ function updateYAxisScale(period) {
         });
     } else {
         // Default scale for 1D or other periods
+        const max1D = Math.max(...dataPoints.map(point => point.y[1])); // Get the max of 1H dataPoints
+        const min1D = Math.min(...dataPoints.map(point => point.y[1]));
         chart.updateOptions({
             yaxis: {
-                min: 0.0085,
-                max: 0.07,
+                min: 0.99*min1D,
+                max: 1.01*max1D,
                 labels: {
                     formatter: function (value) {
                         // Use the toFixed method to control decimal places (e.g., 4 decimal places)
