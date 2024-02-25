@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LP Token Value Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 20px;
+      background-color: #1a1a1a;
+      color: #fff;
+    }
+
+    h2 {
+      color: #ff8c00;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #ff8c00;
+      text-align: center;
+    }
+
+    input {
+      width: auto;
+      padding: 10px;
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      background-color: #333;
+      color: #fff;
+      border: 1px solid #ff8c00;
+      border-radius: 4px;
+      appearance: none; /* Remove the increase and decrease arrows */
+    }
+
+    button {
+      background-color: #ff8c00;
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      display: block;
+      margin: 0 auto;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #e07b00;
+    }
+
+    #result {
+      margin-top: 20px;
+      text-align: center;
+      color: #ff8c00;
+    }
+
+    .result-line {
+      margin-bottom: 15px;
+    }
+
+    .value {
+      font-size: 18px;
+      color: #fff;
+    }
+
+    .price-text {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .disclaimer {
+      font-size: 12px;
+      color: #ccc;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* Donate Section Styles */
+    #donate-container {
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+      width: 500px;
+      margin: 0 auto;
+    }
+
+    #donate-container {
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+      width: 80%; /* Set a default width for larger screens */
+      margin: 0 auto; /* Center the container */
+
+      /* Media query for smaller screens (adjust max-width as needed) */
+      @media screen and (max-width: 600px) {
+        width: 90%; /* Adjust width for better readability on mobile */
+      }
+    }
+
+    #donate-explanation {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+
+    #donate-address {
+      color: #fff;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      width: 100%; /* Make the donate address full-width on all screens */
+      box-sizing: border-box; /* Ensure padding and border are included in the width */
+       @media screen and (max-width: 600px) {
+        font-size: 12px; /* Adjust width for better readability on mobile */
+      }
+    }
+
+    #copy-button {
+      background-color: #ff8c00;
+      color: #fff;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+      width: auto; /* Make the copy button full-width on all screens */
+      box-sizing: border-box; /* Ensure padding and border are included in the width */
+    }
+
+    #copy-button:hover {
+      background-color: #e07b00;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Ron's AYIN/ALPH LP Calculator</h2>
+  
+  <label for="lpTokens">Enter LP tokens:</label>
+  <input type="number" id="lpTokens" placeholder="LP Tokens">
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div id="result"></div>
+
+  <div class="disclaimer">Disclaimer: These values are approximate.</div>
+
+  <!-- Donate Section -->
+  <div id="donate-container">
+    <p id="donate-explanation">
+      Support Ron for building this tool! Consider making a donation to this Alephium address:
+    </p>
+    <div id="donate-address">19KzzRrWpSPJw89ujfYBBaQzkWdL6qcVSUbEs8CFvceqe</div>
+    <button id="copy-button" onclick="copyDonateAddress()">COPY</button>
+  </div>
+
+  <script>
+    function calculate() {
+      const lpTokens = parseFloat(document.getElementById('lpTokens').value);
+
+      // Fetch API data
+      const apiUrl = 'https://api.mobula.io/api/1/market/pair?blockchain=alephium&address=25ywM8iGxKpZWuGA5z6DXKGcZCXtPBmnbQyJEsjvjjWTy&asset=ayin';
+      
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const pooledAlph = parseFloat(data.data.token0.approximateReserveToken);
+          const pooledAyin = parseFloat(data.data.token1.approximateReserveToken);
+          const priceAlph = data.data.token0.price;
+          const priceAyin = data.data.token1.price;
+
+          const liquidity = Math.sqrt(pooledAlph * pooledAyin);
+
+          const valueOfAlph = (pooledAlph / liquidity) * lpTokens;
+          const valueOfAyin = (pooledAyin / liquidity) * lpTokens;
+          const totalValue = valueOfAlph * 2; // Assuming ALPH is the first token
+          const USDvalueAlph = valueOfAlph * priceAlph;
+          const USDvalueAyin = valueOfAyin * priceAyin;
+          const USDtotalValue = totalValue * priceAlph;
+
+          const resultElement = document.getElementById('result');
+          resultElement.innerHTML = `
+            <div class="result-line">
+              <p class="value">Your ALPH in LP:</p>
+              <p class="value">${valueOfAlph.toFixed(4)} $ALPH <span class="price-text">($${USDvalueAlph.toFixed(2)} USD)</span></p>
+            </div>
+            <div class="result-line">
+              <p class="value">Your AYIN in LP:</p>
+              <p class="value">${valueOfAyin.toFixed(4)} $AYIN <span class="price-text">($${USDvalueAyin.toFixed(2)} USD)</span></p>
+            </div>
+            <div class="result-line">
+              <p class="value">Total Value:</p>
+              <p class="value">${totalValue.toFixed(4)} $ALPH <span class="price-text">($${USDtotalValue.toFixed(2)} USD)</span></p>
+            </div>`;
+        })
+        .catch(err => console.error(err));
+    }
+
+    function copyDonateAddress() {
+      const donateAddress = document.getElementById('donate-address').innerText;
+      navigator.clipboard.writeText(donateAddress)
+        .then(() => alert("Ron's Alph Address copied to clipboard!"))
+        .catch(err => console.error(err));
+    }
+  </script>
+
+</body>
+</html>
