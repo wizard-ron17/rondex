@@ -105,6 +105,20 @@ var options = {
         type: 'candlestick',
         height: '400px'
     },
+    states: {
+        normal: {
+            filter: {
+                type: 'none',
+                value: 0,
+            }
+        },
+        hover: {
+            filter: {
+                type: 'lighten',
+                value: 0.15,
+            }
+        },
+    },
     grid: {
         show: true,
         borderColor: '#373d3f',
