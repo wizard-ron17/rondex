@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Calculate the value of your ALPHNGU LP Tokens!">
+  <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/wizard-ron17/rondex/main/favicon.ico">
+  <title>Ron's LP Tool</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 20px;
+      background-color: #1a1a1a;
+      color: #fff;
+    }
+
+    h2 {
+      color: #00ff00;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #00ff00;
+      text-align: center;
+    }
+
+    input {
+      width: auto;
+      padding: 10px;
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      background-color: #333;
+      color: #fff;
+      border: 1px solid #00ff00;
+      border-radius: 4px;
+      appearance: none; /* Remove the increase and decrease arrows */
+    }
+
+    button {
+      background-color: #00ff00;
+      color: #333;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      display: block;
+      margin: 0 auto;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #00d604;
+    }
+
+    #result {
+      margin-top: 20px;
+      text-align: center;
+      color: #00ff00;
+    }
+
+    .result-line {
+      margin-bottom: 15px;
+    }
+
+    .value {
+      font-size: 18px;
+      color: #fff;
+    }
+
+    .price-text {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .disclaimer {
+      font-size: 12px;
+      color: #ccc;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* Donate Section Styles */
+    #donate-container {
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+      width: 500px;
+      margin: 0 auto;
+    }
+
+    #donate-container {
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+      width: 80%; /* Set a default width for larger screens */
+      margin: 0 auto; /* Center the container */
+
+      /* Media query for smaller screens (adjust max-width as needed) */
+      @media screen and (max-width: 600px) {
+        width: 90%; /* Adjust width for better readability on mobile */
+      }
+    }
+
+    #donate-explanation {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+
+    #donate-address {
+      color: #fff;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      width: 100%; /* Make the donate address full-width on all screens */
+      box-sizing: border-box; /* Ensure padding and border are included in the width */
+       @media screen and (max-width: 600px) {
+        font-size: 12px; /* Adjust width for better readability on mobile */
+      }
+    }
+
+    #copy-button {
+      background-color: #00ff00;
+      color: #333;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+      width: auto; /* Make the copy button full-width on all screens */
+      box-sizing: border-box; /* Ensure padding and border are included in the width */
+    }
+
+    #copy-button:hover {
+      background-color: #00d604;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .button-container a {
+      text-decoration: none;
+      display: inline-block; /* Ensures buttons are displayed horizontally */
+      margin: 0 5px; /* Adds space between buttons */
+    }
+
+    .button-container button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      background-color: #ff8c00;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .button-container button:hover {
+      background-color: #e07b00;
+    }
+
+    .button-container button.AYIN {
+      background-color: #ff6500; /* Changed LP Tool button color */
+    }
+
+    .button-container button.USDT {
+      background-color: #009393; /* Changed LP Tool button color */
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="button-container">
+    <a href="https://rondex.xyz/lp-tool" style="text-decoration: none;">
+      <button class="AYIN">ALPH/AYIN</button>
+    </a>
+    <a href="https://rondex.xyz/lp-tool-usdt" style="text-decoration: none;">
+      <button class="USDT">ALPH/USDT</button>
+    </a>
+  </div>
+
+  <h2>Ron's NGU/ALPH LP Calculator</h2>
+  
+  <label for="lpTokens">Enter LP tokens:</label>
+  <input type="number" id="lpTokens" placeholder="LP Tokens">
+
+  <button onclick="calculate()"><span>GO</span></button>
+
+  <div id="result"></div>
+
+  <div class="disclaimer">Disclaimer: These values are approximate.</div>
+
+  <!-- Donate Section -->
+  <div id="donate-container">
+    <p id="donate-explanation">
+      Support Ron for building this tool! Consider making a donation to this Alephium address:
+    </p>
+    <div id="donate-address">19KzzRrWpSPJw89ujfYBBaQzkWdL6qcVSUbEs8CFvceqe</div>
+    <button id="copy-button" onclick="copyDonateAddress()">COPY</button>
+  </div>
+
+  <script>
+    function calculate() {
+      const lpTokens = parseFloat(document.getElementById('lpTokens').value);
+
+      // Fetch API data
+      const apiUrl = 'https://api.mobula.io/api/1/market/pair?blockchain=alephium&address=21nj6sBTtQfTwCErYAHF3CNBaDRAc1E1Q3aUCcbsuG8mu&asset=alphngu';
+      
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const pooledAlphRaw = parseFloat(data.data.token0.approximateReserveTokenRaw);
+          const pooledAlph = parseFloat(data.data.token0.approximateReserveToken);
+          const pooledNGURaw = parseFloat(data.data.token1.approximateReserveTokenRaw);
+          const pooledNGU = parseFloat(data.data.token1.approximateReserveToken);
+          const priceAlph = data.data.token0.price;
+          const priceNGU = data.data.token1.price;
+
+          // Calculate LP token supply
+          const totalSupply = Math.sqrt(pooledAlphRaw * pooledNGURaw)
+
+          const liquidity18 = totalSupply / 10 ** 18;
+
+          const valueOfAlph = (lpTokens / liquidity18) * pooledAlph;
+          const valueOfNGU = (lpTokens / liquidity18) * pooledNGU;
+          const totalValue = valueOfAlph * 2; // Assuming ALPH is the first token
+          const USDvalueAlph = valueOfAlph * priceAlph;
+          const USDvalueNGU = valueOfNGU * priceNGU;
+          const USDtotalValue = totalValue * priceAlph;
+
+          const resultElement = document.getElementById('result');
+          resultElement.innerHTML = `
+            <div class="result-line">
+              <p class="value">Your ALPH in LP:</p>
+              <p class="value">${valueOfAlph.toFixed(4)} $ALPH <span class="price-text">($${USDvalueAlph.toFixed(2)} USD)</span></p>
+            </div>
+            <div class="result-line">
+              <p class="value">Your NGU in LP:</p>
+              <p class="value">${valueOfNGU.toFixed(4)} $NGU <span class="price-text">($${USDvalueNGU.toFixed(2)} USD)</span></p>
+            </div>
+            <div class="result-line">
+              <p class="value">Total Value:</p>
+              <p class="value">${totalValue.toFixed(4)} $ALPH <span class="price-text">($${USDtotalValue.toFixed(2)} USD)</span></p>
+            </div>`;
+        })
+        .catch(err => console.error(err));
+    }
+
+    function copyDonateAddress() {
+      const donateAddress = document.getElementById('donate-address').innerText;
+      navigator.clipboard.writeText(donateAddress)
+        .then(() => alert("Ron's Alephium Address copied to clipboard!"))
+        .catch(err => console.error(err));
+    }
+  </script>
+
+</body>
+</html>
