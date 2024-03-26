@@ -42,8 +42,8 @@
 
     button {
       background-color: #ff6500;
-      color: #fff;
-      padding: 12px 20px;
+      color: #333;
+      padding: 8px 12px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
@@ -54,7 +54,7 @@
     }
 
     button:hover {
-      background-color: #e07b00;
+      background-color: #e05a00;
     }
 
     #result {
@@ -128,7 +128,7 @@
 
     #copy-button {
       background-color: #ff6500;
-      color: #fff;
+      color: #333;
       padding: 8px 12px;
       border: none;
       border-radius: 4px;
@@ -140,18 +140,62 @@
     }
 
     #copy-button:hover {
+      background-color: #e05a00;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .button-container a {
+      text-decoration: none;
+      display: inline-block; /* Ensures buttons are displayed horizontally */
+      margin: 0 5px; /* Adds space between buttons */
+    }
+
+    .button-container button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      background-color: #ff8c00;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .button-container button:hover {
       background-color: #e07b00;
+    }
+
+    .button-container button.USDT {
+      background-color: #009393; /* Changed LP Tool button color */
+      color: #333;
+    }
+
+    .button-container button.NGU {
+      background-color: #00ff00; /* Changed LP Tool button color */
+      color: #333;
     }
   </style>
 </head>
 <body>
 
-  <h2>Ron's AYIN/ALPH LP Calculator</h2>
+  <div class="button-container">
+    <a href="https://rondex.xyz/lp-tool-usdt" style="text-decoration: none;">
+      <button class="USDT">ALPH/USDT</button>
+    </a>
+    <a href="https://rondex.xyz/lp-tool-ngu" style="text-decoration: none;">
+      <button class="NGU">ALPH/NGU</button>
+    </a>
+  </div>
+
+  <h2>Ron's ALPH/AYIN LP Calculator</h2>
   
   <label for="lpTokens">Enter LP tokens:</label>
   <input type="number" id="lpTokens" placeholder="LP Tokens">
 
-  <button onclick="calculate()">Calculate</button>
+  <button onclick="calculate()">GO</button>
 
   <div id="result"></div>
 
@@ -183,8 +227,8 @@
 
           const liquidity = Math.sqrt(pooledAlph * pooledAyin);
 
-          const valueOfAlph = (pooledAlph / liquidity) * lpTokens;
-          const valueOfAyin = (pooledAyin / liquidity) * lpTokens;
+          const valueOfAlph = (lpTokens / liquidity) * pooledAlph;
+          const valueOfAyin = (lpTokens / liquidity) * pooledAyin;
           const totalValue = valueOfAlph * 2; // Assuming ALPH is the first token
           const USDvalueAlph = valueOfAlph * priceAlph;
           const USDvalueAyin = valueOfAyin * priceAyin;
@@ -194,15 +238,15 @@
           resultElement.innerHTML = `
             <div class="result-line">
               <p class="value">Your ALPH in LP:</p>
-              <p class="value">${valueOfAlph.toFixed(4)} $ALPH <span class="price-text">($${USDvalueAlph.toFixed(2)} USD)</span></p>
+              <p class="value">${valueOfAlph.toFixed(2)} $ALPH <span class="price-text">($${USDvalueAlph.toFixed(2)} USD)</span></p>
             </div>
             <div class="result-line">
               <p class="value">Your AYIN in LP:</p>
-              <p class="value">${valueOfAyin.toFixed(4)} $AYIN <span class="price-text">($${USDvalueAyin.toFixed(2)} USD)</span></p>
+              <p class="value">${valueOfAyin.toFixed(2)} $AYIN <span class="price-text">($${USDvalueAyin.toFixed(2)} USD)</span></p>
             </div>
             <div class="result-line">
               <p class="value">Total Value:</p>
-              <p class="value">${totalValue.toFixed(4)} $ALPH <span class="price-text">($${USDtotalValue.toFixed(2)} USD)</span></p>
+              <p class="value">${totalValue.toFixed(2)} $ALPH <span class="price-text">($${USDtotalValue.toFixed(2)} USD)</span></p>
             </div>`;
         })
         .catch(err => console.error(err));
