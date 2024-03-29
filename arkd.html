@@ -1,250 +1,610 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>RonDEX</title>
-    <meta charset="utf-8">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Use advanced charting and trading for KDA tokens">
+    <meta name="description" content="View advanced charting, stats and recent transactions for $KDS">
     <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/wizard-ron17/rondex/main/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <title>RonDEX - $KDS</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #1a1a1a;
-        color: #fff;
-      }
-      h1, h2 {
-        text-align: center;
-        margin: 10px 0;
-        font-size: 35px;
-      }
-      .chart-container {
-        margin: 10px;
-        height: 500px;
-        width: auto;
-        border: 1px solid #eee;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      }
-      .swap-container {
-        margin: 10px;
-        height: 300px;
-        width: auto;
-        border: 1px solid #eee;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        padding: 10px 10px;
-      }
-      #chart {
-        width: auto;
-        height: 500px;
-        margin: 5px 5px;
-      }
-      .switch-container {
-        position: absolute;
-        top: 15px; /* Adjust top value as needed */
-        left: 20px; /* Adjust left value as needed */
-      }
-      .toggle-switch {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 120px;
-        position: relative;
-      }
-      .toggle-switch input[type="checkbox"] {
-        display: none;
-      }
-      .switch {
-        width: 60px;
-        height: 30px;
-        background-color: #ccc;
-        border-radius: 5px;
-        position: relative;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        border: 1px;
-      }
-      .switch::before {
-        content: "";
-        width: 30px;
-        height: 30px;
-        background-color: white;
-        border-radius: 5px;
-        position: absolute;
-        top: 0;
-        left: 0;
-        transition: transform 0.3s;
-        cursor: pointer;
-      }
-      #period1H {
-        color: #000000;
-        position: absolute;
-        left: 5px;
-        z-index: 10;
-        transition: color 0.3s;
-        cursor: pointer;
-      }
-      #period1D {
-        color: #000000;
-        position: absolute;
-        right: 65px;
-        z-index: 10;
-        transition: color 0.3s;
-        cursor: pointer;
-      }
-      .toggle-switch input[type="checkbox"]:checked + .switch {
-        background-color: #ccc;
-      }
-      .toggle-switch input[type="checkbox"]:checked + .switch::before {
-        transform: translateX(30px);
-      }
-      li a {
-        text-decoration: none;
-        color: #ffffff;
-        text-align: left;
-        align-items: left;
-      }
-      nav {
-        width : 100px;
-        height: 30px; 
-        background: #2d2f31;
-        margin : 0 0;
-        position: absolute;
-        top: 15px;
-        left: 100px;
-        border-radius: 5px; 
-        padding: 0px;
-      }
-      #drop {
-        padding: 0px;
-        height: 20px;
-        width: 100px;
-        background: #2d2f31; 
-        color: white;
-        font-size: 17px;
-        text-align: center;
-        cursor: pointer;
-        display: block;
-        border-radius: 5px;
-        z-index: 9999;
-        margin-top: 5px;
-        top: 15px;
-        left: 100px;
-      }
-      #drop label {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      #drop:hover {
-        color: lime;
-      }
-      #drop::after {
-        z-index: 9999;
-        background: #2d2f31;
-        border-radius: 5px;
-      }
-      .slide {
-        clear: both;
-        width: 87px;
-        height: 0px;
-        overflow: hidden;
-        text-align: left;
-        transition: height .4s ease;
-        background: hsl(210, 4%, 18%);
-        border-radius: 5px;
-      }
-      .slide li {
-        padding: 7px 0;
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0B1D2E;
+            color: #fff;
+            margin: 0;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin: 0px;
+            font-size: 35px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .animate-character {
+            background-image: linear-gradient(
+                -225deg,
+                #fff 0%, /* White */
+                #E41968 25%, /* Kadena Pink */
+                #fff 50%, /* Kadena Orange */
+                #4A9079 75%, /* Kadena Green */
+                #fff 100%
+            );
+            background-size: auto auto;
+            background-clip: border-box;
+            background-size: 200% auto;
+            color: #000000;
+            background-clip: text;
+            text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textclip 7s linear infinite;
+            font-size: 35px;
+            text-align: center;
+        }
+
+        @keyframes textclip {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .chart-container {
+            margin: 10px;
+            margin-top: 5px;
+            height: 400px;
+            width: auto;
+            border: 1px solid #1a1a1a;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .swap-container {
+            margin: 10px;
+            width: auto;
+            border: 1px solid grey;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.0);
+            padding: 10px 0px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 245px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        #chart {
+            width: auto;
+            height: 400px;
+            margin: 5px 5px;
+        }
+
+        .apexcharts-menu-item{
+            background-color: #27293d!important;
+            border: 0px;
+        }
+
+        .apexcharts-menu-item:hover{
+            background-color: #27293d!important;
+            color: #4A9079;
+        }
+
+        .switch-container {
+            position: absolute;
+            top: 55px;
+            left: 20px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 120px;
+            position: relative;
+        }
+
+        .toggle-switch input[type="checkbox"] {
+            display: none;
+        }
+
+        .switch {
+            width: 60px;
+            height: 30px;
+            background-color: #2d2f31;
+            border-radius: 5px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: 1px;
+        }
+
+        .switch::before {
+            content: "";
+            width: 30px;
+            height: 30px;
+            background-color: #555;
+            border-radius: 5px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        #period1H {
+            color: white;
+            position: absolute;
+            left: 5px;
+            z-index: 10;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        #period1D {
+            color: white;
+            position: absolute;
+            right: 65px;
+            z-index: 10;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        #period1H:hover {
+            color: #4A9079;
+        }
+
+        #period1D:hover {
+            color: #4A9079;
+        }
+
+        .toggle-switch input[type="checkbox"]:checked + .switch {
+            background-color: #2d2f31;
+        }
+
+        .toggle-switch input[type="checkbox"]:checked + .switch::before {
+            transform: translateX(30px);
+        }
+
+        li a {
+            text-decoration: none;
+            color: #ffffff;
+            text-align: left;
+            align-items: left;
+        }
+
+        nav {
+            width: 100px;
+            height: 30px;
+            background: #2d2f31;
+            margin: 0;
+            position: absolute;
+            top: 55px;
+            left: 100px;
+            border-radius: 5px;
+            padding: 0;
+            font-size: 12px;
+        }
+
+        #drop {
+            padding: 0;
+            height: 20px;
+            width: 100px;
+            background: #2d2f31;
+            color: white;
+            font-size: 17px;
+            text-align: center;
+            cursor: pointer;
+            display: block;
+            border-radius: 5px;
+            z-index: 9999;
+            margin-top: 5px;
+            top: 55px;
+            left: 100px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        #drop label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #drop:hover {
+            color: #4A9079;
+        }
+
+        #drop::after {
+            z-index: 9999;
+            background: #2d2f31;
+            border-radius: 5px;
+        }
+
+        .slide {
+            clear: both;
+            width: 87px;
+            height: 0px;
+            overflow: hidden;
+            text-align: left;
+            transition: height .4s ease;
+            background: hsl(210, 4%, 18%);
+            border-radius: 5px;
+        }
+
+        .slide li {
+            padding: 7px 0;
+            list-style: none;
+            text-align: left;
+            display: block;
+            align-items: left;
+            margin-right: 0px;
+        }
+
+        .slide a {
+            align-items: left;
+            text-align: left;
+        }
+
+        .slide a:hover {
+            color: #4A9079;
+        }
+
+        #touch {
+            position: absolute;
+            opacity: 0;
+            height: 0px;
+            width: 0px;
+        }
+
+        #touch:checked + .slide {
+            height: 140px;
+            width: 87px;
+            border-radius: 5px;
+        }
+
+        .token-logo {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+            margin-left: 0px;
+        }
+
+        .tradingview-widget-container {
+            margin-top: 0px;
+            padding: 0px 0px;
+        }
+
+        /* -------------MOBILE FORMATTING BEGIN------------ */
+        @media (max-width: 600px) {
+            #drop {
+                margin-top: 5px;
+            }
+
+            h1 {
+                margin-bottom: 50px;
+            }
+
+            .switch-container {
+                margin-top: 40px;
+            }
+
+            nav {
+                margin-top: 40px;
+            }
+
+            .content.txns {
+                font-size: 7px;
+            }
+
+            .record-list th, .record-list td {
+                padding: 0px; /* Adjust padding as needed */
+                text-align: center;
+                border: 1px solid #555; /* Add borders to cells */
+            }
+
+            .content.stats span, .content.stats p {
+                font-size: 16px !important;
+            }
+        }
+        /* ---------------MOBILE FORMATTING END------------ */
+
+        /* Additional styles for the slider and content */
+        .slider-container {
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 0px;
+        }
+
+        .slider {
+            display: flex;
+            max-width: 200px; /* Adjust the width as needed */
+            margin: auto; /* Center the slider */
+        }
+
+        .slider-option {
+            flex: 1;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .slider-option.active {
+            background-color: #555;
+        }
+
+        .slider-option:hover {
+            color: #4A9079;
+        }
+
+        .content {
+            display: none;
+            padding: 0px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .content.active {
+            display: inline;
+        }
+      
+        .content.txns {
+            width: 100%; /* Set the desired width */
+            margin: 0 0; /* Center the container */
+            overflow-x: auto; /* Add horizontal scrollbar if needed */
+        }
+
+        .content-container {
+          height: 250px;
+          width: 100%;
+        }
+      
+      .table-container {
+        max-height: 500px; /* Set the maximum height for the table container */
+        width: 100%;
+        overflow-y: auto; /* Enable vertical scrolling */
+        margin-top: 10px; /* Adjust top margin as needed */
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .record-list {
         list-style: none;
-        text-align: left;
-        display: block;
-        align-items: left;
-        margin-right: 0px;
-      }
-      .slide a {
-        align-items: left;
-        text-align: left;
-      }
-      .slide a:hover {
-        color: lime;
-      }
-      #touch {
-        position: absolute;
-        opacity: 0; 
-        height: 0px;
-        width: 0px;
-      }    
-      #touch:checked + .slide {
-        height: 140px;
-        width: 87px;
-        border-radius: 5px;
-      } 
-      .token-logo {
-        width: 20px;
-        height: 20px;
-        margin-right: 10px;
-        vertical-align: middle;
-        margin-left: 0px;
-      }
-      /* Style for mobile screens */
-      @media (max-width: 600px) {
-      #drop {
-        margin-top: 5px;
-      }
-      h1 {
-        margin-bottom: 50px;
-      }
-      .switch-container {
-        margin-top: 40px;
-      }
-      nav {
-        margin-top: 40px;
-      }  
+        padding: 0;
+        margin: 0;
+        max-height: 550px;
+        overflow-y: auto;
+        border-collapse: collapse;
+        width: 100%;
+    }
+      
+    .record-list a {
+        color: #4A9079; /* Set the desired color */
+    }  
+
+    .record-list th, .record-list td {
+        padding: 5px; /* Adjust padding as needed */
+        text-align: center;
+        border: 1px solid #555; /* Add borders to cells */
+    }
+
+    .record-list th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: #333; /* Header background color */
+        color: white;
+        border-top: #555;
+    }
+
+    .record-list tbody tr:nth-child(odd) {
+        background-color: #0f2438; /* Alternate row background color */
+    }
+
+    .record-item {
+        margin-bottom: 5px;
+    }
+
+    .record-item span {
+        margin-right: 5px;
+        font-weight: bold;
+    }
+
+    .buy {
+        color: #00ff00; /* Green color for BUY */
+    }
+
+    .sell {
+        color: #ff0000; /* Red color for SELL */
+    }
+
+    .content.stats {
+        padding: 10px;
+        text-align: center;
+        font-family: 'Orbitron', sans-serif;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .content.stats p {
+        margin: 10px 0;
+        font-size: 20px;
+        color: #4A9079;
+        text-align: center;
+    }
+
+    .content.stats span {
+        font-weight: bold;
+        margin-left: 10px;
+        color: #fff;
+    }
+      
+    .content.swap {
+        text-align: center;
+    }
+
+    .content.swap a {
+        color: #4A9079;
+        text-decoration: underline;
+    }
     </style>
-  </head>
-  <body>
-    <!-- Switch Container BEGIN -->
-    <div class="switch-container">
-      <div class="toggle-switch">
+    
+</head>
+<body>
+<!-- TradingView Ticker Tape Widget BEGIN -->
+<div class="tradingview-widget-container">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript"
+            src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {
+            "symbols": [
+                {
+                    "proName": "COINBASE:BTCUSD",
+                    "title": "Bitcoin"
+                },
+                {
+                    "proName": "COINBASE:ETHUSD",
+                    "title": "Ethereum"
+                },
+                {
+                    "proName": "COINBASE:SOLUSD",
+                    "title": "Solana"
+                },
+                {
+                    "proName": "CRYPTO:KDAUSD",
+                    "title": "Kadena"
+                },
+                {
+                    "proName": "BINANCE:FLUXUSD",
+                    "title": "Flux"
+                },
+                {
+                    "proName": "MEXC:NEOXUSDT",
+                    "title": "Neoxa"
+                },
+                {
+                    "proName": "GATEIO:ALPHUSDT",
+                    "title": "Alephium"
+                }
+            ],
+            "showSymbolLogo": true,
+            "colorTheme": "dark",
+            "isTransparent": false,
+            "largeChartUrl": "https://rondex.xyz/",
+            "displayMode": "",
+            "locale": "en"
+        }
+    </script>
+</div>
+<!-- TradingView Ticker Tape Widget END -->
+<!-- Switch Container BEGIN -->
+<div class="switch-container">
+    <div class="toggle-switch">
         <input type="checkbox" id="periodToggle">
         <label for="periodToggle" class="switch"></label>
-        <span id="period1H">1H</span>
-        <span id="period1D">1D</span>
-      </div>
-    </div>
-    <!-- Switch Container END -->
- 
-    <h1>RonDEX</h1>
+        <span id="period1H" onclick="toggleCheckbox()">1H</span>
+        <span id="period1D" onclick="toggleCheckbox()">1D</span>
+        <script>
+        function toggleCheckbox() {
+          const checkbox = document.getElementById('periodToggle');
+          checkbox.checked = !checkbox.checked;
 
-    <!-- Chart div BEGIN -->
-    <div class="chart-container">
-        <div id="chart"></div>
-        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="arkdchart.js"></script> 
+          // Trigger a change event on the checkbox
+          const event = new Event('change');
+          checkbox.dispatchEvent(event);
+          }
+        </script>
     </div>
-    <!-- Chart div END -->
-
-    <!-- Nav BEGIN -->
-    <nav>
-      <label for="touch"><span id="drop">Tokens</span></label>               
-      <input type="checkbox" id="touch"> 
-      <ul class="slide">
-        <li><a href="#"><img src="https://assets.kdlaunch.com/tokens//arkade.png" alt="ARKD Logo" class="token-logo">$ARKD</a></li>
-        <li><a href="https://rondex.xyz/wiza"><img src="https://assets.kdlaunch.com/tokens/wiza.jpg" alt="WIZA Logo" class="token-logo">$WIZA</a></li>
-        <li><a href="https://rondex.xyz/"><img src="https://s2.coinmarketcap.com/static/img/coins/64x64/5647.png" alt="KDA Logo" class="token-logo">$KDA</a></li>
-        <li><a href="https://rondex.xyz/kishk"><img src="https://assets.kdlaunch.com/tokens/kishu-logo.png" alt="KISHK Logo" class="token-logo">$KISHK</a></li>
-      </ul>
-    </nav>
-    <!-- Nav END -->
-
-    <!-- Swap Container BEGIN -->
-    <div class="swap-container">
-      <h2>Swap - Soon Soon</h2>
+</div>
+<!-- Switch Container END -->
+<h1 class="animate-character">RonDEX</h1>
+<!-- Chart div BEGIN -->
+<div class="chart-container">
+    <div id="chart"></div>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="arkd-chart.js"></script>
+</div>
+<!-- Chart div END -->
+<!-- Nav BEGIN -->
+<nav>
+    <label for="touch"><span id="drop">Tokens</span></label>
+    <input type="checkbox" id="touch">
+    <ul class="slide">
+        <li><a href="#"><img src="https://assets.kdlaunch.com/tokens//arkade.png"
+        alt="ARKD Logo" class="token-logo">$ARKD</a></li>
+        <li><a href="https://rondex.xyz/wiza"><img src="https://assets.kdlaunch.com/tokens/wiza.jpg"
+        alt="WIZA Logo" class="token-logo">$WIZA</a></li>
+        <li><a href="https://rondex.xyz/"><img src="https://s2.coinmarketcap.com/static/img/coins/64x64/5647.png"
+        alt="KDA Logo" class="token-logo">$KDA</a></li>
+    </ul>
+</nav>
+<!-- Nav END -->
+<!-- Swap Container BEGIN -->
+<div class="swap-container">
+    <div class="slider-container">
+        <div class="slider" id="slider">
+            <div class="slider-option stats active" onclick="changeContent('stats')">Stats</div>
+            <div class="slider-option swap" onclick="changeContent('swap')">Swap</div>
+            <div class="slider-option txns" onclick="changeContent('txns')">Txns</div>
+        </div>
     </div>
-    <!-- Swap Container END -->
+
+    <div class="content-container">
+        <div class="content stats active">
+            <script src="arkd-stats.js"></script>
+            <script src="arkd-txns.js"></script>
+            <p>Current Price: <span id="currentPrice">Loading...</span></p>
+            <p>Max Supply: <span>250,000,000</span></p>
+            <p>FD Mkt Cap: <span id="FDMC">Loading...</span></p>
+            <p>All Time High: <span id="allTimeHigh">Loading...</span></p>
+            <p>All Time Low: <span id="allTimeLow">Loading...</span></p>
+        </div>
+        <div class="content swap">
+            <p>Coming Soon - Powered by <a href="https://www.kdswap.exchange/" target="_blank">KDSwap</a></p>
+        </div>
+        <div class="content txns">
+           <div class="table-container">
+            <table class="record-list">
+                <thead>
+                    <tr>
+                        <th>Wen?</th>
+                        <th>Type:</th>
+                        <th>From:</th>
+                        <th>To:</th>
+                        <th>Account:</th>
+                    </tr>
+                </thead>
+                <tbody id="recordTableBody">
+                    <!-- Data will be dynamically populated here -->
+                </tbody>
+            </table>
+          </div>  
+        </div>
+    </div>
+</div>
+<!-- Swap Container END -->
 </body>
+<script>
+    function changeContent(option) {
+        const options = document.querySelectorAll('.slider-option');
+        const contents = document.querySelectorAll('.content');
+
+        options.forEach(opt => opt.classList.remove('active'));
+        const selectedOption = document.querySelector(`.slider-option.${option}`);
+        selectedOption.classList.add('active');
+
+        contents.forEach(content => content.classList.remove('active'));
+
+        const selectedContent = document.querySelector(`.content.${option}`);
+        selectedContent.classList.add('active');
+    }
+</script>
 </html>
