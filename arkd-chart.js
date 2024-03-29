@@ -40,31 +40,31 @@ async function fetchPriceData(period) {
 
         // Iterate over the prices and create groups of 4 & calculate OHLC
         for (let i = 0; i < prices.length; i += 4) {
-          if (i + 3 < prices.length) {
-            // Calculate Open, High, Low, and Close
-            const open = parseFloat(prices[i].priceInKda);
-            const high = Math.max(
-              parseFloat(prices[i].priceInKda),
-              parseFloat(prices[i + 1].priceInKda),
-              parseFloat(prices[i + 2].priceInKda),
-              parseFloat(prices[i + 3].priceInKda)
-            );
-            const low = Math.min(
-              parseFloat(prices[i].priceInKda),
-              parseFloat(prices[i + 1].priceInKda),
-              parseFloat(prices[i + 2].priceInKda),
-              parseFloat(prices[i + 3].priceInKda)
-            );
-            const close = parseFloat(prices[i + 3].priceInKda);
+            if (i + 3 < prices.length) {
+                // Calculate Open, High, Low, and Close
+                const open = parseFloat(prices[i].priceInKda);
+                const high = Math.max(
+                    parseFloat(prices[i].priceInKda),
+                    parseFloat(prices[i + 1].priceInKda),
+                    parseFloat(prices[i + 2].priceInKda),
+                    parseFloat(prices[i + 3].priceInKda)
+                );
+                const low = Math.min(
+                    parseFloat(prices[i].priceInKda),
+                    parseFloat(prices[i + 1].priceInKda),
+                    parseFloat(prices[i + 2].priceInKda),
+                    parseFloat(prices[i + 3].priceInKda)
+                );
+                const close = parseFloat(prices[i + 3].priceInKda);
 
-            // Extract timestamp
-            const intervalStamp = parseFloat(prices[i].intervalStamp);
+                // Extract timestamp
+                const intervalStamp = parseFloat(prices[i].intervalStamp);
 
-            // Create a data point with x (timestamp) and y (Open, High, Low, Close)
-            const dataPoint = {
-                x: intervalStamp,
-                y: [open, high, low, close]
-            };
+                // Create a data point with x (timestamp) and y (Open, High, Low, Close)
+                const dataPoint = {
+                    x: intervalStamp,
+                    y: [open, high, low, close]
+                };
 
                 // Add the data point to the array
                 dataPoints.push(dataPoint);
@@ -79,6 +79,9 @@ async function fetchPriceData(period) {
             name: 'ARKD Price',
             data: dataPoints
         }]);
+
+        // Update the y-axis scale based on the selected period
+        updateYAxisScale(period);
     } catch (error) {
         console.error('Error fetching price data:', error);
     }
@@ -100,7 +103,21 @@ var options = {
     chart: {
         foreColor: 'white',
         type: 'candlestick',
-        height: 500
+        height: '400px'
+    },
+    states: {
+        normal: {
+            filter: {
+                type: 'none',
+                value: 0,
+            }
+        },
+        hover: {
+            filter: {
+                type: 'lighten',
+                value: 0.15,
+            }
+        },
     },
     grid: {
         show: true,
@@ -140,7 +157,7 @@ var options = {
         }
     },
     noData: {
-        text: 'Loading...'
+        text: 'Loading...WTF Ron!!'
     },
     tooltip: {
         enabled: true,
@@ -151,21 +168,56 @@ var options = {
     },
     yaxis: {
         tickAmount: 10,
-        min: 0.0002,
-        max: 0.00135,
         tooltip: {
             enabled: true
         },
         labels: {
             formatter: function (value) {
                 // Use the toFixed method to control decimal places (e.g., 4 decimal places)
-                return value.toFixed(8);
+                return parseFloat(value.toFixed(7));
             }
         }
     }
 };
 
 var chart = new ApexCharts(document.querySelector("#chart"), options);
+
+function updateYAxisScale(period) {
+    // Adjust the y-axis scale based on the selected period
+    if (period === "1H") {
+        const max1H = Math.max(...dataPoints.map(point => point.y[1])); // Get the max of 1H dataPoints
+        const min1H = Math.min(...dataPoints.map(point => point.y[1])); // Get the min of 1H dataPoints
+
+        chart.updateOptions({
+            yaxis: {
+                min: 0.99*min1H,
+                max: 1.01*max1H,
+                labels: {
+                    formatter: function (value) {
+                        // Use the toFixed method to control decimal places (e.g., 4 decimal places)
+                        return parseFloat(value.toFixed(7));
+                    }
+                }
+            }
+        });
+    } else {
+        // Default scale for 1D or other periods
+        const max1D = Math.max(...dataPoints.map(point => point.y[1])); // Get the max of 1H dataPoints
+        const min1D = Math.min(...dataPoints.map(point => point.y[1]));
+        chart.updateOptions({
+            yaxis: {
+                min: 0.99*min1D,
+                max: 1.01*max1D,
+                labels: {
+                    formatter: function (value) {
+                        // Use the toFixed method to control decimal places (e.g., 4 decimal places)
+                        return parseFloat(value.toFixed(6));
+                    }
+                }
+            }
+        });
+    }
+}
 
 function initializeChart() {
     chart.render();
