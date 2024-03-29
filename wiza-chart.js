@@ -174,7 +174,7 @@ var options = {
         labels: {
             formatter: function (value) {
                 // Use the toFixed method to control decimal places (e.g., 4 decimal places)
-                return parseFloat(value.toFixed(5));
+                return parseFloat(value.toFixed(4));
             }
         }
     }
@@ -195,7 +195,7 @@ function updateYAxisScale(period) {
                 labels: {
                     formatter: function (value) {
                         // Use the toFixed method to control decimal places (e.g., 4 decimal places)
-                        return parseFloat(value.toFixed(5));
+                        return parseFloat(value.toFixed(4));
                     }
                 }
             }
