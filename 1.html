@@ -11,6 +11,7 @@
         body {
             font-family: 'Poppins', sans-serif; /* Stylish font */
             margin: 0px;
+            padding-bottom: 10px;
             background-color: #1a1a1a;
             color: #fff;
             overflow-y: auto;
@@ -56,303 +57,304 @@
             font-weight: bold;
         }
 
-    h2 {
-      color: #ff6500;
-      text-align: center;
-      margin: 5px;
-    }
+        h2 {
+          color: #ff6500;
+          text-align: center;
+          margin: 5px;
+        }
 
-    .animate-character {
-            background-image: linear-gradient(
-                -225deg,
-                #fff 0%, /* White */
-                #ff6500 50%, /* Kadena Orange */
-                #fff 100%
-            );
-            background-size: auto auto;
-            background-clip: border-box;
-            background-size: 200% auto;
-            color: #000000;
-            background-clip: text;
-            text-fill-color: transparent;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: textclip 7s linear infinite;
-            font-size: 30px;
-            text-align: center;
+        .animate-character {
+          background-image: linear-gradient(
+            -225deg,
+            #fff 0%, /* White */
+            #ff6500 50%, /* Kadena Orange */
+            #fff 100%
+          );
+          background-size: auto auto;
+          background-clip: border-box;
+          background-size: 200% auto;
+          color: #000000;
+          background-clip: text;
+          text-fill-color: transparent;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: textclip 7s linear infinite;
+          font-size: 30px;
+          text-align: center;
         }
 
         @keyframes textclip {
-            to {
-                background-position: 200% center;
-            }
+          to {
+            background-position: 200% center;
+          }
         }
 
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: #fff;
-      text-align: center;
-    }
+        label {
+          display: block;
+          margin-bottom: 5px;
+          color: #fff;
+          text-align: center;
+        }
 
-    .input-container {
-      position: relative;
-      width: fit-content;
-      margin: 0 auto;
-    }
+        .input-container {
+          position: relative;
+          width: fit-content;
+          margin: 0 auto;
+        }
 
-    input {
-      width: 200px; /* Adjust as needed */
-      padding: 10px;
-      box-sizing: border-box;
-      background-color: #000;
-      color: #fff;
-      border: 1.5px solid #ff6500;
-      border-radius: 4px;
-      appearance: none; /* Remove the increase and decrease arrows */
-    }
+        input {
+          width: 200px; /* Adjust as needed */
+          padding: 10px;
+          box-sizing: border-box;
+          background-color: #000;
+          color: #fff;
+          border: 1.5px solid #ff6500;
+          border-radius: 4px;
+          appearance: none; /* Remove the increase and decrease arrows */
+        }
 
-    .go-button {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background-color: #ff6500;
-      color: #000;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 0 4px 4px 0;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s ease;
-      height: 37px;
-    }
+        .go-button {
+          position: absolute;
+          top: 0;
+          right: 0;
+          background-color: #ff6500;
+          color: #000;
+          padding: 8px 12px;
+          border: none;
+          border-radius: 0 4px 4px 0;
+          cursor: pointer;
+          font-size: 16px;
+          transition: background-color 0.3s ease;
+          height: 37px;
+        }
 
-    button:hover {
-      background-color: #e05a00;
-    }
+        button:hover {
+          background-color: #e05a00;
+        }
 
-    #result {
-      margin-top: 10px;
-      text-align: center;
-      color: #ff6500;
-    }
+        #result {
+          margin-top: 10px;
+          text-align: center;
+          color: #ff6500;
+        }
 
-    .result-container {
-      border: 1.5px solid #ff6500;
-      border-radius: 8px;
-      padding: 10px;
-      background-color: #000;
-      width: 600px;
-      margin: auto;
-    }
+        .result-container {
+          border: 1.5px solid #ff6500;
+          border-radius: 8px;
+          padding: 10px;
+          background-color: #000;
+          width: 600px;
+          margin: auto;
+        }
 
-    .result-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 5px;
-    }
+        .result-line {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 5px;
+        }
 
-    .value {
-      font-size: 18px;
-      color: #fff;
-      margin-top: 0px;
-    }
+        .value {
+          font-size: 18px;
+          color: #fff;
+          margin-top: 0px;
+        }
 
-    .token-logo {
-      width: 24px;
-      height: 24px;
-      margin-right: 0px;
-    }
+        .token-logo {
+          width: 24px;
+          height: 24px;
+          margin-right: 0px;
+        }
 
-    .price-text {
-      font-size: 14px;
-      color: #ccc;
-    }
+        .price-text {
+          font-size: 14px;
+          color: #ccc;
+        }
 
-    .disclaimer {
-      font-size: 12px;
-      color: #ffffff;
-      text-align: center;
-      margin-bottom: 10px;
-      margin-top: 10px;
-    }
+        .disclaimer {
+          font-size: 12px;
+          color: #ffffff;
+          text-align: center;
+          margin-bottom: 10px;
+          margin-top: 10px;
+        }
 
-    /* Donate Section Styles */
-    #donate-container {
-      border-radius: 8px;
-      padding: 0px;
-      text-align: center;
-      margin-top: 10px;
-      width: 80%; /* Set a default width for larger screens */
-      margin: 0 auto; /* Center the container */
-    }
+        /* Donate Section Styles */
+        #donate-container {
+          border-radius: 8px;
+          padding: 0px;
+          text-align: center;
+          margin-top: 10px;
+          width: 80%; /* Set a default width for larger screens */
+          margin: 0 auto; /* Center the container */
+        }
 
-    #donate-explanation {
-      font-size: 14px;
-      color: #ffffff;
-      margin-bottom: 0px;
-    }
+        #donate-explanation {
+          font-size: 14px;
+          color: #ffffff;
+          margin-bottom: 0px;
+        }
 
-    #donate-address {
-      color: #ddd;
-      font-size: 14px;
-      padding: 0px;
-      border-radius: 4px;
-      margin: 5px;
-      width: 100%; /* Make the donate address full-width on all screens */
-      box-sizing: border-box; /* Ensure padding and border are included in the width */
-      overflow-wrap: break-word; /* Wrap long words */
-    }
+        #donate-address {
+          color: #ddd;
+          font-size: 14px;
+          padding: 0px;
+          border-radius: 4px;
+          margin: 5px;
+          width: 100%; /* Make the donate address full-width on all screens */
+          box-sizing: border-box; /* Ensure padding and border are included in the width */
+          overflow-wrap: break-word; /* Wrap long words */
+        }
 
-    #copy-button {
-      background-color: #ff6500;
-      color: #000;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-      width: auto; /* Make the copy button full-width on all screens */
-      box-sizing: border-box; /* Ensure padding and border are included in the width */
-    }
+        #copy-button {
+          background-color: #ff6500;
+          color: #000;
+          padding: 8px 12px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background-color 0.3s ease;
+          width: auto; /* Make the copy button full-width on all screens */
+          box-sizing: border-box; /* Ensure padding and border are included in the width */
+        }
 
-    #copy-button:hover {
-      background-color: #e05a00;
-    }
+        #copy-button:hover {
+          background-color: #e05a00;
+        }
 
-    /* QR Code button styles */
-    #qr-code-button {
-      background-color: #ff6500;
-      color: #000;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-      margin-left: 10px; /* Adjust the margin to create space between buttons */
-    }
+        /* QR Code button styles */
+        #qr-code-button {
+          background-color: #ff6500;
+          color: #000;
+          padding: 8px 12px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background-color 0.3s ease;
+          margin-left: 10px; /* Adjust the margin to create space between buttons */
+        }
 
-    #qr-code-button:hover {
-      background-color: #e05a00;
-    }
+        #qr-code-button:hover {
+          background-color: #e05a00;
+        }
 
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgb(0,0,0);
-      background-color: rgba(0,0,0,0.7);
-    }
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgb(0,0,0);
+          background-color: rgba(0,0,0,0.7);
+        }
 
-    .modal-content {
-      background-color: #333;
-      margin: 15% auto;
-      padding-left: 10px;
-      padding-right: 10px;
-      padding-bottom: 10px;
-      padding-top: 0px;
-      width: 220px;
-      height: 240px;
-      text-align: center;
-      border-radius: 10px;
-    }
+        .modal-content {
+          background-color: #333;
+          margin: 15% auto;
+          padding-left: 10px;
+          padding-right: 10px;
+          padding-bottom: 10px;
+          padding-top: 0px;
+          width: 220px;
+          height: 240px;
+          text-align: center;
+          border-radius: 10px;
+        }
 
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 20px;
-    }
+        .close {
+          color: #aaa;
+          float: right;
+          font-size: 20px;
+        }
 
-    .close:hover,
-    .close:focus {
-      color: red;
-      text-decoration: none;
-      cursor: pointer;
-    }
+        .close:hover,
+        .close:focus {
+          color: red;
+          text-decoration: none;
+          cursor: pointer;
+        }
 
-    /* Styling for the QR code */
-    #qrcode {
-      margin-top: 0px;
-      border: 10px solid #333;
-      border-radius: 10px;
-    }
+        /* Styling for the QR code */
+        #qrcode {
+          margin-top: 0px;
+          border: 10px solid #333;
+          border-radius: 10px;
+        }
 
-    .button-container {
-      text-align: center;
-      margin-bottom: 10px;
-      margin-top: 80px;
-    }
+        .button-container {
+          text-align: center;
+          margin-bottom: 10px;
+          margin-top: 80px;
+        }
 
-    .button-container a {
-      text-decoration: none;
-      display: inline-block; /* Ensures buttons are displayed horizontally */
-      margin: 0 5px; /* Adds space between buttons */
-    }
+        .button-container a {
+          text-decoration: none;
+          display: inline-block; /* Ensures buttons are displayed horizontally */
+          margin: 0 5px; /* Adds space between buttons */
+        }
 
-    .button-container button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      background-color: #ff8c00;
-      color: #fff;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      font-weight: bold;
-    }
+        .button-container button {
+          padding: 8px 12px;
+          border: none;
+          border-radius: 4px;
+          background-color: #ff8c00;
+          color: #fff;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+          font-weight: bold;
+        }
 
-    .button-container button:hover {
-      background-color: #e07b00;
-    }
+        .button-container button:hover {
+          background-color: #e07b00;
+        }
 
-    .button-container button.USDT {
-      background-color: #009393; /* Changed LP Tool button color */
-      color: #000;
-    }
+        .button-container button.USDT {
+          background-color: #009393; /* Changed LP Tool button color */
+          color: #000;
+        }
 
-    .button-container button.NGU {
-      background-color: #00ff00; /* Changed LP Tool button color */
-      color: #000;
-    }
+        .button-container button.NGU {
+          background-color: #00ff00; /* Changed LP Tool button color */
+          color: #000;
+        }
 
-    .button-container button.LFG {
-      background-color: #d6021e; /* Changed LP Tool button color */
-      color: #000;
-    }
+        .button-container button.LFG {
+          background-color: #d6021e; /* Changed LP Tool button color */
+          color: #000;
+        }
 
-    hr {
-      width: 400px;
-      border: 1px solid gray;
-      margin: 0px auto;
-    }
+        hr {
+          width: 400px;
+          border: 1px solid gray;
+          margin: 0px auto;
+        }
 
-    /* Media queries for mobile */
-    @media screen and (max-width: 600px) {
-      .result-line {
-        flex-direction: column; /* Display result lines in a column */
-        align-items: center; /* Align items to the start */
-      }
-      .price-text {
-        margin-top: 10px;
-        text-align: center; /* Center text for USD values */
-      }
-      .result-container {
-        position: relative;
-        max-width: 90%;
-      }
-      hr {
-        width: 90%;
-      }
-      .modal-content {
-      margin: 50% auto;
-    }
+        /* Media queries for mobile */
+        @media screen and (max-width: 600px) {
+          .result-line {
+            flex-direction: column; /* Display result lines in a column */
+            align-items: center; /* Align items to the start */
+          }
+          .price-text {
+            margin-top: 10px;
+            text-align: center; /* Center text for USD values */
+          }
+          .result-container {
+            position: relative;
+            max-width: 90%;
+          }
+          hr {
+            width: 90%;
+          }
+          .modal-content {
+            margin: 50% auto;
+          }
+        }
   </style>
 </head>
 <body onload="calculate()">
