@@ -1,39 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="Calculate the value of your ALPHAYIN LP Tokens!">
-  <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/wizard-ron17/rondex/main/favicon.ico">
-  <title>Ron's LP Tool - AYIN</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet"> <!-- Stylish font -->
-  <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Rons $HERON Tracker</title>
+    <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0px;
-            padding-bottom: 10px;
+            background-image: url('https://www.heronheroes.com/images/heron/heroncoins.png');
             background-color: #1a1a1a;
-            color: #fff;
-            overflow-y: auto;
-            cursor: url('https://raw.githubusercontent.com/alephium/token-list/master/logos/AYIN.png'), auto;
-        }
-
-        body, canvas {
-            position: fixed;
-            width: 100%;
-            height: 100%;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            z-index: -1000;
-            top: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
         }
-
+        
         .banner {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
+            background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
             box-sizing: border-box;
             display: flex;
@@ -48,561 +43,292 @@
         .banner-section h3 {
             margin: 0;
             font-size: 1.2em;
-            color: #ff6500;
         }
 
         .banner-section p {
             margin: 0;
             font-size: 1em;
-            color: #fff;
-            font-weight: bold;
+            color: #cccccc;
         }
 
-    h2 {
-      color: #ff6500;
-      text-align: center;
-      margin: 5px;
-    }
-
-    .animate-character {
-            background-image: linear-gradient(
-                -225deg,
-                #fff 0%, /* White */
-                #ff6500 50%, /* Kadena Orange */
-                #fff 100%
-            );
-            background-size: auto auto;
-            background-clip: border-box;
-            background-size: 200% auto;
-            color: #000000;
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: textclip 7s linear infinite;
-            font-size: 30px;
-            text-align: center;
+        .container {
+            width: 400px;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #2c2c2c;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            margin-top: 10px; /* Adjust margin to create space below the banner */
         }
 
-        @keyframes textclip {
-            to {
-                background-position: 200% center;
-            }
+        .container-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Optional: align items horizontally in the center */
         }
 
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: #fff;
-      text-align: center;
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
+
+        }
+
+        input {
+            padding: 10px;
+            width: calc(100% - 130px);
+            margin-right: 0px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            font-size: 1em;
+            cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
+
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #d12928;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
+
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        #result p {
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+
+        .small-text {
+            font-size: 0.8em;
+            color: grey;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+
+@media (max-width: 600px) {
+    .container-wrapper {
+        padding: 0 0px; /* Add padding to the container wrapper */
     }
 
-    .input-container {
-      position: relative;
-      width: fit-content;
-      margin: 0 auto;
+    .banner-section {
+        margin-bottom: 10px; /* Add space between banner sections */
     }
 
-    input {
-      width: 200px; /* Adjust as needed */
-      padding: 10px;
-      box-sizing: border-box;
-      background-color: #000;
-      color: #fff;
-      border: 1.5px solid #ff6500;
-      border-radius: 4px;
-      appearance: none; /* Remove the increase and decrease arrows */
+    .banner-section h3 {
+        margin: 0;
+        font-size: 10px;
+        align-items: center;
     }
 
-    .go-button {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background-color: #ff6500;
-      color: #000;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 0 4px 4px 0;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s ease;
-      height: 37px;
+    .container {
+        width: 400px; /* Adjust container width */
+        max-width: calc(100%-10px); /* Ensure container takes full width */
     }
 
-    button:hover {
-      background-color: #e05a00;
+    .banner-section h3,
+    .banner-section p {
+        font-size: 10px; /* Decrease font size for banner text */
     }
 
-    #result {
-      margin-top: 10px;
-      text-align: center;
-      color: #ff6500;
+    .banner {
+        padding: 5px; /* Adjust padding for the banner */
+        width: 100%;
     }
-
-    .result-container {
-      border: 1.5px solid #ff6500;
-      border-radius: 8px;
-      padding: 10px;
-      background-color: #000;
-      width: 600px;
-      margin: auto;
-    }
-
-    .result-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 5px;
-    }
-
-    .value {
-      font-size: 20px;
-      color: #fff;
-      margin-top: 0px;
-    }
-
-    .token-logo {
-      width: 24px;
-      height: 24px;
-      margin-right: 0px;
-    }
-
-    .price-text {
-      font-size: 14px;
-      color: #ccc;
-    }
-
-    .disclaimer {
-      font-size: 12px;
-      color: #ffffff;
-      text-align: center;
-      margin-bottom: 10px;
-      margin-top: 10px;
-    }
-
-    /* Donate Section Styles */
-    #donate-container {
-      border-radius: 8px;
-      padding: 0px;
-      text-align: center;
-      margin-top: 10px;
-      width: 80%; /* Set a default width for larger screens */
-      margin: 0 auto; /* Center the container */
-    }
-
-    #donate-explanation {
-      font-size: 14px;
-      color: #ffffff;
-      margin-bottom: 0px;
-    }
-
-    #donate-address {
-      color: #ddd;
-      font-size: 14px;
-      padding: 0px;
-      border-radius: 4px;
-      margin: 5px;
-      width: 100%; /* Make the donate address full-width on all screens */
-      box-sizing: border-box; /* Ensure padding and border are included in the width */
-      overflow-wrap: break-word; /* Wrap long words */
-    }
-
-    #copy-button {
-      background-color: #ff6500;
-      color: #000;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-      width: auto; /* Make the copy button full-width on all screens */
-      box-sizing: border-box; /* Ensure padding and border are included in the width */
-    }
-
-    #copy-button:hover {
-      background-color: #e05a00;
-    }
-
-    /* QR Code button styles */
-    #qr-code-button {
-      background-color: #ff6500;
-      color: #000;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-      margin-left: 10px; /* Adjust the margin to create space between buttons */
-    }
-
-    #qr-code-button:hover {
-      background-color: #e05a00;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgb(0,0,0);
-      background-color: rgba(0,0,0,0.7);
-    }
-
-    .modal-content {
-      background-color: #333;
-      margin: 15% auto;
-      padding-left: 10px;
-      padding-right: 10px;
-      padding-bottom: 10px;
-      padding-top: 0px;
-      width: 220px;
-      height: 240px;
-      text-align: center;
-      border-radius: 10px;
-    }
-
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 20px;
-    }
-
-    .close:hover,
-    .close:focus {
-      color: red;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    /* Styling for the QR code */
-    #qrcode {
-      margin-top: 0px;
-      border: 10px solid #333;
-      border-radius: 10px;
-    }
-
-    .button-container {
-      text-align: center;
-      margin-bottom: 10px;
-      margin-top: 80px;
-    }
-
-    .button-container a {
-      text-decoration: none;
-      display: inline-block; /* Ensures buttons are displayed horizontally */
-      margin: 0 5px; /* Adds space between buttons */
-    }
-
-    .button-container button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      background-color: #ff8c00;
-      color: #fff;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      font-weight: bold;
-    }
-
-    .button-container button:hover {
-      background-color: #e07b00;
-    }
-
-    .button-container button.USDT {
-      background-color: #009393; /* Changed LP Tool button color */
-      color: #000;
-    }
-
-    .button-container button.NGU {
-      background-color: #00ff00; /* Changed LP Tool button color */
-      color: #000;
-    }
-
-    .button-container button.LFG {
-      background-color: #d6021e; /* Changed LP Tool button color */
-      color: #000;
-    }
-
-    .button-container button.TOP {
-      background-color: #fff;
-      /* Changed LP Tool button color */
-      color: #e60001;
-    }
-
-    hr {
-      width: 400px;
-      border: 1px solid gray;
-      margin: 0px auto;
-    }
-
-    /* Media queries for mobile */
-    @media screen and (max-width: 600px) {
-      .result-line {
-        flex-direction: column; /* Display result lines in a column */
-        align-items: center; /* Align items to the start */
-      }
-      .price-text {
-        margin-top: 10px;
-        text-align: center; /* Center text for USD values */
-      }
-      .result-container {
-        position: relative;
-        max-width: 90%;
-      }
-      hr {
-        width: 90%;
-      }
-      .modal-content {
-      margin: 50% auto;
-    }}
-  </style>
+}
+    </style>
 </head>
-<body onload="calculate()">
-  <canvas></canvas>
-
-  <div class="banner">
+<body onload="getData()">
+    <div class="banner">
         <div class="banner-section">
-            <h3>AYIN Price</h3>
-            <p id="ayin-price">Loading</p>
+            <h3>$HERON Price</h3>
+            <p id="heronPrice">Loading...</p>
         </div>
         <div class="banner-section">
-            <h3>ALPH Price</h3>
-            <p id="alph-price">Loading</p>
+            <h3>$KDA Price</h3>
+            <p id="kdaPrice">Loading...</p>
+        </div>
+        <div class="banner-section">
+            <h3>Circ. Market Cap</h3>
+            <p id="marketCap">Loading...</p>
         </div>
         <div class="banner-section">
             <h3>Liquidity</h3>
-            <p id="liquidity">Loading</p>
+            <p id="liquidity">Loading...</p>
         </div>
     </div>
+<div class="container-wrapper">
+    <div class="container">
+        <label for="kAddress">Enter your k: address:</label>
+        <input type="text" id="kAddress" placeholder="k:address">
+        <button onclick="getData()">Go</button>
 
-  <div class="button-container">
-    <a href="https://rondex.xyz/lp-tool-usdt" style="text-decoration: none;">
-      <button class="USDT">USDT</button>
-    </a>
-    <a href="https://rondex.xyz/lp-tool-ngu" style="text-decoration: none;">
-      <button class="NGU">NGU</button>
-    </a>
-    <a href="https://rondex.xyz/lp-tool-lfg" style="text-decoration: none;">
-      <button class="LFG">LFG!</button>
-    </a>
-    <a href="https://rondex.xyz/lp-tool-top" style="text-decoration: none;">
-      <button class="TOP">TOP</button>
-    </a>
-  </div>
-
-  <h2 class="animate-character">Ron's ALPH/AYIN LP Calculator</h2>
-  
-  <label for="lpTokens">Enter LP tokens:</label>
-  <div class="input-container">
-    <input type="number" id="lpTokens" placeholder="LP Tokens" value="0">
-    <button class="go-button" onclick="calculate()">GO</button>
-  </div>
-
-  <div id="result">
-    <div class="result-container">
-      <div class="result-line">
-        <p class="value">
-          <img src="https://raw.githubusercontent.com/wizard-ron17/rondex/main/ALPH.png" height=20px width:=20px alt="ALPH Logo" class="token-logo-alph"> Your ALPH in LP:
-        </p>
-        <p class="value"><span class="alph-amount">0</span> $ALPH<span class="price-text"> ($<span class="usd-value-alph">0</span> USD)</span></p>
-      </div>
-      <div class="result-line">
-        <p class="value">
-          <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/AYIN.png" alt="AYIN Logo" class="token-logo"> Your AYIN in LP:
-        </p>
-        <p class="value"><span class="ayin-amount">0</span> $AYIN<span class="price-text"> ($<span class="usd-value-ayin">0</span> USD)</span></p>
-      </div>
-      <div class="result-line">
-        <p class="value">
-          <img src="https://emojiisland.com/cdn/shop/products/Money_Bag_Emoji_large.png?v=1571606064" alt="Money Bag" class="token-logo"> Total Value:
-        </p>
-        <p class="value"><span class="total-value">0</span> $ALPH<span class="price-text"> ($<span class="total-usd-value">0</span> USD)</span></p>
-      </div>
+        <div id="result">
+            <p>Your Balance: <span id="balance">0</span> $HERON</p>
+            <p>Value: <span id="value">0</span> $KDA <span class="small-text">(USD: $<span id="valueUSD">0.00</span>)</span></p>
+        </div>
     </div>
-  </div>
+    <div class="container" id="liquidityBondingContainer">
+    <label for="bondedAmount">How much $KDA did you bond?</label>
+    <input type="number" id="bondedAmount" placeholder="$KDA amount">
+    <button onclick="calculateBonding()">Go</button>
 
-  <div class="disclaimer">Disclaimer: These values are approximate.</div>
-
-  <hr>
-
-  <!-- Donate Section -->
-  <div id="donate-container">
-    <p id="donate-explanation">
-      Support Ron for building this tool! Consider making a donation to this Alephium address:
-    </p>
-    <div id="donate-address">19KzzRrWpSPJw89ujfYBBaQzkWdL6qcVSUbEs8CFvceqe</div>
-    <button id="copy-button" onclick="copyDonateAddress()">COPY</button>
-    <button id="qr-code-button" onclick="generateQRCode('19KzzRrWpSPJw89ujfYBBaQzkWdL6qcVSUbEs8CFvceqe')">QR CODE</button>
-  </div>
-
-  <div id="qrModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <img id="qrcode" src="" alt="QR Code">
+    <div id="bondingResult">
+        <p>Amount Bonded: <span id="amountBonded">0 LP Tokens</span></p>
+        <p>$HERON Amount: <span id="heronAmount">0 $HERON</span> <span class="small-text">(USD: $<span id="heronAmountUSD">0.00</span>)</span></p>
+        <p>$KDA Amount: <span id="kdaAmount">0 $KDA</span> <span class="small-text">(USD: $<span id="kdaAmountUSD">0.00</span>)</span></p>
+        <p>Total Value: <span id="totalValue">0 $KDA</span> <span class="small-text">(USD: $<span id="totalValueUSD">0.00</span>)</span></p>
+        <p>Your $HERON + LP: <span id="userBalancePlusLP">0 $KDA</span> <span class="small-text">(USD: $<span id="userBalancePlusLPUSD">0.00</span>)</span></p>
     </div>
-  </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-  <script>
-    function calculate() {
-      const lpTokens = parseFloat(document.getElementById('lpTokens').value);
+</div>
+</div>
 
-      // Fetch API data
-      const apiUrl = 'https://api.mobula.io/api/1/market/pair?blockchain=alephium&address=25ywM8iGxKpZWuGA5z6DXKGcZCXtPBmnbQyJEsjvjjWTy&asset=ayin';
-      
-      fetch(apiUrl)
+<script>
+    var heronBalanceInLP = 0; // Define globally
+    var coinBalance = 0; // Define globally
+    var usdValue = 0; // Define globally
+    var heronPrice = 0; // Define globally
+    var kdaPrice = 0; // Define globally
+    var value = 0; // Define globally
+
+
+    function getData() {
+        // Fetch banner data
+        var marketCap = 0;
+        var liquidity = 0;
+
+        // Fetch Heron price
+        var lpUrl = 'https://rons-server.netlify.app/.netlify/functions/server/api/account/PUS35mt6HequLHptLo9cid_X6x1sSPOTUgWLuuQM0hc';
+        fetch(lpUrl)
+            .then(response => response.json())
+            .then(lpData => {
+                coinBalance = lpData.assets.find(asset => asset.symbol === "KDA").totalBalance;
+                heronBalanceInLP = lpData.assets.find(asset => asset.symbol === "HERON").totalBalance;
+
+                heronPrice = coinBalance / heronBalanceInLP;
+                document.getElementById('heronPrice').textContent = heronPrice.toFixed(6) + ' KDA';
+
+                // Fetch KDA Price
+                var kdaPriceUrl = 'https://api.coinbase.com/v2/exchange-rates?currency=KDA';
+                fetch(kdaPriceUrl)
+                    .then(response => response.json())
+                    .then(kdaData => {
+                        kdaPrice = parseFloat(kdaData.data.rates.USD);
+                        document.getElementById('kdaPrice').textContent = '$' + kdaPrice.toFixed(2);
+
+                        // Calculate Market Cap
+                        marketCap = (heronPrice * 700000000) * kdaPrice; // Multiply by 700 million
+                        document.getElementById('marketCap').textContent = '$' + marketCap.toFixed(2);
+
+                        // Calculate Liquidity
+                        var usdUrl = 'https://api.coinbase.com/v2/exchange-rates?currency=KDA';
+                        fetch(usdUrl)
+                            .then(response => response.json())
+                            .then(usdData => {
+                                usdValue = usdData.data.rates.USD;
+
+                                var coinBalance = lpData.assets.find(asset => asset.symbol === "KDA").totalBalance;
+                                heronBalanceInLP = lpData.assets.find(asset => asset.symbol === "HERON").totalBalance;
+
+                                var kdaValue = coinBalance * usdValue;
+                                var heronValue = heronBalanceInLP * heronPrice * usdValue;
+
+                                liquidity = kdaValue + heronValue;
+                                document.getElementById('liquidity').textContent = '$' + liquidity.toFixed(2);
+                            })
+                            .catch(error => console.error('Error fetching USD value:', error));
+                    })
+                    .catch(error => console.error('Error fetching KDA Price:', error));
+            })
+            .catch(error => console.error('Error fetching LP data:', error));
+
+        // Fetch user data
+        var kAddress = document.getElementById('kAddress').value;
+        var apiUrl = `https://rons-server.netlify.app/.netlify/functions/server/api/account/${kAddress}`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                var userHeronBalance = parseFloat(data.assets.find(asset => asset.assetId === "n_e309f0fa7cf3a13f93a8da5325cdad32790d2070.heron").totalBalance);
+
+                // Display user's Heron balance directly
+                document.getElementById('balance').textContent = userHeronBalance.toFixed(2);
+
+                // Calculate value and display
+                value = parseFloat(userHeronBalance * heronPrice);
+                document.getElementById('value').textContent = value.toFixed(2);
+
+                // Fetch USD value and display
+                var usdUrl = 'https://api.coinbase.com/v2/exchange-rates?currency=KDA';
+                fetch(usdUrl)
+                    .then(response => response.json())
+                    .then(usdData => {
+                        var usdValue = usdData.data.rates.USD;
+                        document.getElementById('valueUSD').textContent = (value * usdValue).toFixed(2);
+                    })
+                    .catch(error => console.error('Error fetching USD value:', error));
+            })
+            .catch(error => console.error('Error fetching API data:', error));
+    }
+
+    function calculateBonding() {
+    var bondedAmount = parseFloat(document.getElementById('bondedAmount').value);
+
+    // Calculate LP Tokens
+    document.getElementById('amountBonded').textContent = bondedAmount.toFixed(2) + ' LP Tokens';
+
+    // Calculate $HERON Amount
+    var shareOfLP = bondedAmount / 100000;
+    var heronAmount = shareOfLP * heronBalanceInLP;
+    document.getElementById('heronAmount').textContent = heronAmount.toFixed(2) + ' $HERON';
+
+    // Calculate $KDA Amount
+    var kdaAmount = shareOfLP * coinBalance;
+    document.getElementById('kdaAmount').textContent = kdaAmount.toFixed(2) + ' $KDA';
+
+    // Fetch USD conversion rates for display
+    var usdUrl = 'https://api.coinbase.com/v2/exchange-rates?currency=KDA';
+    fetch(usdUrl)
         .then(response => response.json())
-        .then(data => {
-          const pooledAlph = parseFloat(data.data.token0.approximateReserveToken);
-          const pooledAyin = parseFloat(data.data.token1.approximateReserveToken);
-          const priceAlph = data.data.token0.price;
-          const priceAyin = data.data.token1.price;
-          const priceAyinInAlph = data.data.token1.priceToken;
+        .then(usdData => {
+            var usdValue = usdData.data.rates.USD;
 
-          const liquidity = Math.sqrt(pooledAlph * pooledAyin);
-          const userPoolShare = lpTokens / liquidity;
-          const valueOfAlph = userPoolShare * pooledAlph; // User balance alph
-          const valueOfAyin = userPoolShare * pooledAyin; // User balance ayin
-          const totalValue = valueOfAlph + (valueOfAyin * priceAyinInAlph); // User total balance in alph
-          const USDvalueAlph = valueOfAlph * priceAlph;
-          const USDvalueAyin = (valueOfAyin * priceAyinInAlph) * priceAlph;
-          const USDtotalValue = totalValue * priceAlph;
-          
-          document.getElementById('liquidity').textContent = formatNumberWithApostrophes('$'+parseFloat((pooledAlph*2)*priceAlph).toFixed(2));
-          document.getElementById('alph-price').textContent = '$'+priceAlph.toFixed(2);
-          document.getElementById('ayin-price').textContent = priceAyinInAlph.toFixed(2) + ' ALPH';
-          document.querySelector('.alph-amount').textContent = formatNumberWithApostrophes(valueOfAlph.toFixed(2));
-          document.querySelector('.ayin-amount').textContent = formatNumberWithApostrophes(valueOfAyin.toFixed(2));
-          document.querySelector('.total-value').textContent = formatNumberWithApostrophes(totalValue.toFixed(2));
-          document.querySelector('.usd-value-alph').textContent = formatNumberWithApostrophes(USDvalueAlph.toFixed(2));
-          document.querySelector('.usd-value-ayin').textContent = formatNumberWithApostrophes(USDvalueAyin.toFixed(2));
-          document.querySelector('.total-usd-value').textContent = formatNumberWithApostrophes(USDtotalValue.toFixed(2));
+            // Calculate Total Value
+            var totalValue = parseFloat((heronAmount * heronPrice) + kdaAmount);
+            document.getElementById('totalValue').textContent = totalValue.toFixed(2) + ' $KDA';
+
+            var totalValueUSD = totalValue * usdValue;
+            document.getElementById('totalValueUSD').textContent = totalValueUSD.toFixed(2);
+            
+            // Calculate userBalancePlusLP
+            var userBalancePlusLP = parseFloat(totalValue + value); // Assuming value is defined elsewhere
+            document.getElementById('userBalancePlusLP').textContent = userBalancePlusLP.toFixed(2) + ' $KDA';
+
+            // Display conversion rates
+            document.getElementById('userBalancePlusLPUSD').textContent = (userBalancePlusLP * usdValue).toFixed(2);
+            document.getElementById('heronAmountUSD').textContent = (heronAmount * heronPrice * usdValue).toFixed(2);
+            document.getElementById('kdaAmountUSD').textContent = (kdaAmount * usdValue).toFixed(2);
         })
-        .catch(err => console.error(err));
-    }
-
-    function copyDonateAddress() {
-      const donateAddress = document.getElementById('donate-address').innerText;
-      navigator.clipboard.writeText(donateAddress)
-        .then(() => alert("Ron's Alph Address copied to clipboard!"))
-        .catch(err => console.error(err));
-    }
-
-    // Get the modal
-    var modal = document.getElementById("qrModal");
-
-    // Get the button that opens the modal
-    var btn = document.getElementById("qr-code-button");
-
-    // Get the <span> element that closes the modal
-    var span = document.getElementsByClassName("close")[0];
-
-    // When the user clicks the button, open the modal
-    btn.onclick = function() {
-      modal.style.display = "block";
-      generateQRCode("19KzzRrWpSPJw89ujfYBBaQzkWdL6qcVSUbEs8CFvceqe");
-    }
-
-    // When the user clicks on <span> (x), close the modal
-    span.onclick = function() {
-      modal.style.display = "none";
-    }
-
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = "none";
-      }
-    }
-
-    // Function to generate QR code
-    function generateQRCode(text) {
-      var qr = new QRious({
-        element: document.getElementById('qrcode'),
-        value: text,
-        size: 200
-      });
-    }
-
-    function formatNumberWithApostrophes(number) {
-      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-    }
-
-    // init
-var maxx = document.body.clientWidth;
-var maxy = document.body.clientHeight;
-var halfx = maxx / 2;
-var halfy = maxy / 2;
-var canvas = document.createElement("canvas");
-document.body.appendChild(canvas);
-canvas.width = maxx;
-canvas.height = maxy;
-var context = canvas.getContext("2d");
-var dotCount = 200;
-var dots = [];
-// create dots
-for (var i = 0; i < dotCount; i++) {
-  dots.push(new dot());
+        .catch(error => console.error('Error fetching USD value:', error));
 }
 
-// dots animation
-function render() {
-  context.fillStyle = "#000000";
-  context.fillRect(0, 0, maxx, maxy);
-  for (var i = 0; i < dotCount; i++) {
-    dots[i].draw();
-    dots[i].move();
-  }
-  requestAnimationFrame(render);
-}
 
-// dots class
-// @constructor
-function dot() {
-  
-  this.rad_x = 2 * Math.random() * halfx + 1;
-  this.rad_y = 1.2 * Math.random() * halfy + 1;
-  this.alpha = Math.random() * 360 + 1;
-  this.speed = Math.random() * 100 < 50 ? 1 : -1;
-  this.speed *= 0.1;
-  this.size = Math.random() * 5 + 1;
-  this.color = Math.floor(Math.random() * 256);
-  
-}
+    // Load banner data when the page is loaded
+    window.onload = function() {
+        getData();
+    };
+</script>
 
-// drawing dot
-dot.prototype.draw = function() {
-  
-  // calc polar coord to decart
-  var dx = halfx + this.rad_x * Math.cos(this.alpha / 180 * Math.PI);
-  var dy = halfy + this.rad_y * Math.sin(this.alpha / 180 * Math.PI);
-  // set color
-  context.fillStyle = "rgb(" + 255 + "," + 101 + "," + 0 + ")";
-  // draw dot
-  context.fillRect(dx, dy, this.size, this.size);
-  
-};
-
-// calc new position in polar coord
-dot.prototype.move = function() {
-  
-  this.alpha += this.speed;
-  // change color
-  if (Math.random() * 100 < 50) {
-    this.color += 1;
-  } else {
-    this.color -= 1;
-  }
-  
-};
-
-// start animation
-render();
-  </script>
 
 </body>
 </html>
