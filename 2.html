@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Rons $HERON Tracker</title>
+    <style>
+        body {
+            background-image: url('https://www.heronheroes.com/images/heron/heroncoins.png');
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
+        }
+        
+        .banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .banner-section {
+            text-align: center;
+        }
+
+        .banner-section h3 {
+            margin: 0;
+            font-size: 1.2em;
+            color: #fff;
+        }
+
+        .banner-section p {
+            margin: 0;
+            font-size: 1em;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 400px;
+            max-width: calc(100%-10px);
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #2c2c2c;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            margin-top: 10px; /* Adjust margin to create space below the banner */
+        }
+
+        .container-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Optional: align items horizontally in the center */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
+
+        }
+
+        input {
+            padding: 10px;
+            width: calc(100% - 130px);
+            margin-right: 0px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            font-size: 1em;
+            cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
+
+        }
+
+        button {
+            padding: 10px 13.3px;
+            background-color: #d12928;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
+
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        #result p {
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+
+        .small-text {
+            font-size: 0.8em;
+            color: grey;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+
+@media (max-width: 600px) {
+    .container-wrapper {
+        padding: 0 0px; /* Add padding to the container wrapper */
+        max-width: calc(100% - 10px);
+    }
+
+    .banner-section {
+        margin-bottom: 10px; /* Add space between banner sections */
+    }
+
+    .banner-section h3 {
+        margin: 0;
+        font-size: 1em;
+        align-items: center;
+    }
+
+    .container {
+        max-width: 92.5%; /* Ensure container takes full width */
+    }
+
+    .banner-section p {
+        font-size: 0.8em; /* Decrease font size for banner text */
+    }
+
+    .banner {
+        padding: 5px; /* Adjust padding for the banner */
+        width: 100%;
+    }
+}
+    </style>
+</head>
+<body onload="getData()">
+    <div class="banner">
+        <div class="banner-section">
+            <h3>HERON</h3>
+            <p id="heronPrice">Loading...</p>
+        </div>
+        <div class="banner-section">
+            <h3>KDA</h3>
+            <p id="usdValue">Loading...</p>
+        </div>
+        <div class="banner-section">
+            <h3>Circ. MC</h3>
+            <p id="marketCap">Loading...</p>
+        </div>
+        <div class="banner-section">
+            <h3>Liquidity</h3>
+            <p id="liquidity">Loading...</p>
+        </div>
+    </div>
+<div class="container-wrapper">
+    <div class="container">
+        <label for="kAddress">Enter your k: address:</label>
+        <input type="text" id="kAddress" placeholder="k:address">
+        <button onclick="getData()">GO</button>
+
+        <div id="result">
+            <p>Your Balance: <span id="balance">0</span> $HERON</p>
+            <p>Value: <span id="value">0</span> $KDA <span class="small-text">$<span id="valueUSD">0.00</span></span></p>
+        </div>
+    </div>
+    <div class="container" id="liquidityBondingContainer">
+    <label for="bondedAmount">How much $KDA did you bond?</label>
+    <input type="number" id="bondedAmount" placeholder="$KDA amount">
+    <button onclick="calculateBonding()">GO</button>
+
+    <div id="bondingResult">
+        <p>Amount Bonded: <span id="amountBonded">0 LP Tokens</span></p>
+        <p>$HERON Amount: <span id="heronAmount">0 $HERON</span> <span class="small-text">$<span id="heronAmountUSD">0.00</span></span></p>
+        <p>$KDA Amount: <span id="kdaAmount">0 $KDA</span> <span class="small-text">$<span id="kdaAmountUSD">0.00</span></span></p>
+        <p>Total Value: <span id="totalValue">0 $KDA</span> <span class="small-text">$<span id="totalValueUSD">0.00</span></span></p>
+        <p>Your $HERON + LP: <span id="userBalancePlusLP">0 $KDA</span> <span class="small-text">$<span id="userBalancePlusLPUSD">0.00</span></span></p>
+    </div>
+</div>
+</div>
+
+<script>
+    let heronBalanceInLP = 0;
+    let coinBalance = 0;
+    let heronPrice = 0;
+    let usdValue = 0;
+
+    async function fetchData(url) {
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (response.ok) {
+                return data;
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return null;
+        }
+    }
+
+    async function getBannerData() {
+        const lpData = await fetchData('https://rons-server.netlify.app/.netlify/functions/server/api/account/PUS35mt6HequLHptLo9cid_X6x1sSPOTUgWLuuQM0hc');
+        if (lpData && lpData.assets) {
+            coinBalance = lpData.assets.find(asset => asset.symbol === "KDA")?.totalBalance || 0;
+            heronBalanceInLP = lpData.assets.find(asset => asset.symbol === "HERON")?.totalBalance || 0;
+            heronPrice = coinBalance / heronBalanceInLP;
+            document.getElementById('heronPrice').textContent = heronPrice.toFixed(6) + ' KDA';
+
+            const kdaData = await fetchData('https://api.coinbase.com/v2/exchange-rates?currency=KDA');
+            if (kdaData && kdaData.data && kdaData.data.rates) {
+                usdValue = parseFloat(kdaData.data.rates.USD);
+                document.getElementById('usdValue').textContent = '$' + usdValue.toFixed(2);
+
+                const marketCap = (heronPrice * 700000000) * usdValue;
+                document.getElementById('marketCap').textContent = '$' + marketCap.toFixed(2);
+
+                const kdaValue = coinBalance * usdValue;
+                const heronValue = heronBalanceInLP * heronPrice * usdValue;
+                const liquidity = kdaValue + heronValue;
+                document.getElementById('liquidity').textContent = '$' + liquidity.toFixed(2);
+            }
+        }
+    }
+
+    async function getData() {
+        const kAddress = document.getElementById('kAddress').value;
+        const userData = await fetchData(`https://rons-server.netlify.app/.netlify/functions/server/api/account/${kAddress}`);
+        if (userData && userData.assets) {
+            const userHeronBalance = parseFloat(userData.assets.find(asset => asset.assetId === "n_e309f0fa7cf3a13f93a8da5325cdad32790d2070.heron")?.totalBalance || 0);
+
+            document.getElementById('balance').textContent = userHeronBalance.toFixed(2);
+            const value = parseFloat(userHeronBalance * heronPrice);
+            document.getElementById('value').textContent = value.toFixed(2);
+            document.getElementById('valueUSD').textContent = (value * usdValue).toFixed(2);
+        }
+    }
+
+    async function calculateBonding() {
+        const bondedAmount = parseFloat(document.getElementById('bondedAmount').value);
+        const shareOfLP = bondedAmount / 100000;
+        const heronAmount = shareOfLP * heronBalanceInLP;
+        const kdaAmount = shareOfLP * coinBalance;
+
+        document.getElementById('amountBonded').textContent = bondedAmount.toFixed(2) + ' LP Tokens';
+        document.getElementById('heronAmount').textContent = heronAmount.toFixed(2) + ' $HERON';
+        document.getElementById('kdaAmount').textContent = kdaAmount.toFixed(2) + ' $KDA';
+
+        const totalValue = parseFloat((heronAmount * heronPrice) + kdaAmount);
+        document.getElementById('totalValue').textContent = totalValue.toFixed(2) + ' $KDA';
+
+        const totalValueUSD = totalValue * usdValue;
+        document.getElementById('totalValueUSD').textContent = totalValueUSD.toFixed(2);
+
+        const userBalancePlusLP = parseFloat(totalValue + value);
+        document.getElementById('userBalancePlusLP').textContent = userBalancePlusLP.toFixed(2) + ' $KDA';
+        document.getElementById('userBalancePlusLPUSD').textContent = (userBalancePlusLP * usdValue).toFixed(2);
+        document.getElementById('heronAmountUSD').textContent = (heronAmount * heronPrice * usdValue).toFixed(2);
+        document.getElementById('kdaAmountUSD').textContent = (kdaAmount * usdValue).toFixed(2);
+    }
+
+    window.onload = getBannerData;
+</script>
+
+</body>
+</html>
