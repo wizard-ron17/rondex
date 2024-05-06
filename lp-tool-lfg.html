@@ -503,7 +503,7 @@
 
           document.getElementById('liquidity').textContent = formatNumberWithApostrophes('$' + parseFloat((pooledAlph * 2) * priceAlph).toFixed(2));
           document.getElementById('alph-price').textContent = '$' + priceAlph.toFixed(2);
-          document.getElementById('LFG-price').textContent = priceLFGInAlph.toFixed(5) + ' ALPH';
+          document.getElementById('LFG-price').textContent = priceLFGInAlph.toFixed(4) + ' ALPH';
           document.querySelector('.alph-amount').textContent = formatNumberWithApostrophes(valueOfAlph.toFixed(2));
           document.querySelector('.LFG-amount').textContent = formatNumberWithApostrophes(valueOfLFG.toFixed(2));
           document.querySelector('.total-value').textContent = formatNumberWithApostrophes(totalValue.toFixed(2));
