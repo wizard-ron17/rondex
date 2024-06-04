@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet"> <!-- Stylish font -->
   <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Poppins', sans-serif; /* Stylish font */
             margin: 0px;
             padding-bottom: 10px;
             background-color: #000;
@@ -66,7 +66,7 @@
     .animate-character {
             background-image: linear-gradient(
                 -225deg,
-                #fff 0%, 
+                #fff 0%,
                 #3c3e3d 50%,
                 #fff 100%
             );
@@ -102,14 +102,14 @@
     }
 
     input {
-      width: 200px; 
+      width: 200px; /* Adjust as needed */
       padding: 10px;
       box-sizing: border-box;
       background-color: #000;
       color: #fff;
       border: 1.5px solid #3c3e3d;
       border-radius: 4px;
-      appearance: none; 
+      appearance: none; /* Remove the increase and decrease arrows */
     }
 
     .go-button {
@@ -184,8 +184,8 @@
       padding: 0px;
       text-align: center;
       margin-top: 10px;
-      width: 80%; 
-      margin: 0 auto; 
+      width: 80%; /* Set a default width for larger screens */
+      margin: 0 auto; /* Center the container */
     }
 
     #donate-explanation {
@@ -200,9 +200,9 @@
       padding: 0px;
       border-radius: 4px;
       margin: 5px;
-      width: 100%; 
-      box-sizing: border-box; 
-      overflow-wrap: break-word; 
+      width: 100%; /* Make the donate address full-width on all screens */
+      box-sizing: border-box; /* Ensure padding and border are included in the width */
+      overflow-wrap: break-word; /* Wrap long words */
     }
 
     #copy-button {
@@ -214,8 +214,8 @@
       cursor: pointer;
       font-size: 14px;
       transition: background-color 0.3s ease;
-      width: auto;
-      box-sizing: border-box;
+      width: auto; /* Make the copy button full-width on all screens */
+      box-sizing: border-box; /* Ensure padding and border are included in the width */
     }
 
     #copy-button:hover {
@@ -232,7 +232,7 @@
       cursor: pointer;
       font-size: 14px;
       transition: background-color 0.3s ease;
-      margin-left: 10px;
+      margin-left: 10px; /* Adjust the margin to create space between buttons */
     }
 
     #qr-code-button:hover {
@@ -293,7 +293,7 @@
 
     .button-container a {
       text-decoration: none;
-      display: inline-block;
+      display: inline-block; 
       margin: 0 2px;
     }
 
@@ -313,12 +313,12 @@
     }
 
     .button-container button.AYIN {
-      background-color: #ff6500;
+      background-color: #ff6500; 
       color: #000;
     }
 
     .button-container button.USDT {
-      background-color: #009393; 
+      background-color: #009393;
       color: #000;
     }
 
@@ -328,7 +328,7 @@
     }
 
     .button-container button.LFG {
-      background-color: #d6021e;
+      background-color: #d6021e; 
       color: #000;
     }
 
@@ -340,6 +340,15 @@
     .button-container button.BREAD {
       background-color: #0285c7;
       color: #000;
+    }
+
+    .button-container button.APAD {
+      background-color: #000;
+      color: #ff3639;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #ff3639;
+      margin-top: 5px;
     }
 
     hr {
@@ -405,8 +414,8 @@
     <a href="https://rondex.xyz/lp-tool-usdt" style="text-decoration: none;">
       <button class="USDT">USDT</button>
     </a>
-    <a href="https://rondex.xyz/lp-tool-ngu" style="text-decoration: none;">
-      <button class="NGU">NGU</button>
+    <a href="https://rondex.xyz/lp-tool/ngu" style="text-decoration: none;">
+        <button class="NGU">NGU</button>
     </a>
     <a href="https://rondex.xyz/lp-tool-lfg" style="text-decoration: none;">
       <button class="LFG">LFG!</button>
@@ -416,6 +425,9 @@
     </a>
     <a href="https://rondex.xyz/lp-tool-bread" style="text-decoration: none;">
       <button class="BREAD">BREAD</button>
+    </a>
+    <a href="https://rondex.xyz/lp-tool/apad" style="text-decoration: none;">
+        <button class="APAD">APAD</button>
     </a>
   </div>
 
@@ -476,19 +488,23 @@
       const lpTokens = parseFloat(document.getElementById('lpTokens').value);
 
       // Fetch API data
-      const apiUrl = 'https://api.mobula.io/api/1/market/pair?blockchain=alephium&address=25b5aNfdrNRjJ7ugPTkxThT51L1NSvf8igQyDHKZhweiK&asset=CHENG';
+      const apiUrl = 'https://api.mobula.io/api/1/market/pair?blockchain=alephium&address=25b5aNfdrNRjJ7ugPTkxThT51L1NSvf8igQyDHKZhweiK&asset=alphCHENG';
       
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
           const pooledAlph = parseFloat(data.data.token0.approximateReserveToken);
+          const pooledAlphRaw = parseFloat(data.data.token0.approximateReserveTokenRaw);
           const pooledCHENG = parseFloat(data.data.token1.approximateReserveToken);
+          const pooledCHENGRaw = parseFloat(data.data.token1.approximateReserveTokenRaw);
           const priceAlph = data.data.token0.price;
           const priceCHENG = data.data.token1.price;
           const priceCHENGInAlph = data.data.token1.priceToken;
 
-          const liquidity = Math.sqrt(pooledAlph * pooledCHENG);
-          const userPoolShare = lpTokens / liquidity;
+          const totalSupply = Math.sqrt(pooledAlphRaw * pooledCHENGRaw)
+          const liquidity18 = totalSupply / 10 ** 18;
+
+          const userPoolShare = lpTokens / liquidity18;
           const valueOfAlph = userPoolShare * pooledAlph; // User balance alph
           const valueOfCHENG = userPoolShare * pooledCHENG; // User balance CHENG
           const totalValue = valueOfAlph + (valueOfCHENG * priceCHENGInAlph); // User total balance in alph
@@ -498,7 +514,7 @@
           
           document.getElementById('liquidity').textContent = formatNumberWithApostrophes('$'+parseFloat((pooledAlph*2)*priceAlph).toFixed(2));
           document.getElementById('alph-price').textContent = '$'+priceAlph.toFixed(2);
-          document.getElementById('CHENG-price').textContent = priceCHENGInAlph.toFixed(7) + ' ALPH';
+          document.getElementById('CHENG-price').textContent = priceCHENGInAlph.toFixed(8) + ' ALPH';
           document.querySelector('.alph-amount').textContent = formatNumberWithApostrophes(valueOfAlph.toFixed(2));
           document.querySelector('.CHENG-amount').textContent = formatNumberWithApostrophes(valueOfCHENG.toFixed(2));
           document.querySelector('.total-value').textContent = formatNumberWithApostrophes(totalValue.toFixed(2));
@@ -605,7 +621,7 @@ dot.prototype.draw = function() {
   var dx = halfx + this.rad_x * Math.cos(this.alpha / 180 * Math.PI);
   var dy = halfy + this.rad_y * Math.sin(this.alpha / 180 * Math.PI);
   // set color
-  context.fillStyle = "rgb(" + 60 + "," + 62 + "," + 61 + ")";
+  context.fillStyle = "rgb(" + 60 + "," + 60 + "," + 60 + ")";
   // draw dot
   context.fillRect(dx, dy, this.size, this.size);
   
