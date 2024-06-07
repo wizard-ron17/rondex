@@ -12,7 +12,5 @@ First, I pull in external data from [Mobula API](https://docs.mobula.io/api-refe
 - **USD Price of Token** - The USD price of token1 (the USD price of the other token in the pair)
 - **ALPH Price of Token** - The price of token1 (the ALPH price/ratio of the pair - can be calulated by dividing PooledALPH by PooledToken)
 
-Using these numbers, now we can calculate the total supply of LP Tokens that exist for this pair. AYIN is a fork of Uniswap v2, which uses the following equation for liquidity token supply:
-$$
-liquidity supply = \sqrt(Pooled ALPH * Pooled Token)
-$$
+Using these numbers, now we can calculate the total supply of LP Tokens that exist for this pair. AYIN is a fork of Uniswap v2, which uses the following equation for liquidity token supply:  
+$$liquidity supply = \sqrt(Pooled ALPH * Pooled Token)$$
