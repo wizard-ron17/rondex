@@ -17,8 +17,8 @@ $$LPsupply = \sqrt(Pooled ALPH * Pooled Token)$$
 Now that we know the total amount of LP tokens (**LPSupply**) for this pool, we can divide the inputted amount of LP Tokens on the site by **LPSupply** to find **poolShare**, a percentage of the total pool, or a number between 0 and 1. The rest is easy.
 
 The 3 Values shown on the LP Tool Site is as follows:
-- Value of ALPH
-- Value of Token
-- Total Value
+- **Your ALPH in LP**
+- **Your <token> in LP**
+- **Total Value**
 
-These are simply calculated by multiplying the user's **poolShare** by the respective asset's pooled value. 
+These are simply calculated by multiplying the user's **poolShare** by the respective asset's pooled value(**Pooled ALPH**, **Pooled Token**). The **Total Value* is just the sum of the other 2 values, but displaying the token amount in its alph value using the **ALPH Price of Token** from before.
