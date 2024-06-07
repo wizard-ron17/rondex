@@ -256,8 +256,8 @@
     async function calculateBonding() {
         const bondedAmount = parseFloat(document.getElementById('bondedAmount').value);
         const shareOfLP = bondedAmount / 100000;
-        const heronAmount = shareOfLP * heronBalanceInLP;
-        const kdaAmount = shareOfLP * coinBalance;
+        const heronAmount = (shareOfLP * heronBalanceInLP) /2;
+        const kdaAmount = (shareOfLP * coinBalance) /2;
 
         document.getElementById('amountBonded').textContent = bondedAmount.toFixed(2) + ' LP Tokens';
         document.getElementById('heronAmount').textContent = heronAmount.toFixed(2) + ' $HERON';
