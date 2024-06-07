@@ -14,4 +14,11 @@ First, I pull in external data from [Mobula API](https://docs.mobula.io/api-refe
 
 Using these numbers, now we can calculate the total supply of LP Tokens that exist for this pair. AYIN is a fork of Uniswap v2, which uses the following equation for liquidity token supply:  
 $$LPsupply = \sqrt(Pooled ALPH * Pooled Token)$$  
-Now that we have know the total amount of LP tokens (**LPSupply**) for this pool, we can divide the inputted amount of LP Tokens on the site by **LPSupply** to find **poolShare**, a percentage of the total pool.
+Now that we know the total amount of LP tokens (**LPSupply**) for this pool, we can divide the inputted amount of LP Tokens on the site by **LPSupply** to find **poolShare**, a percentage of the total pool, or a number between 0 and 1. The rest is easy.
+
+The 3 Values shown on the LP Tool Site is as follows:
+- Value of ALPH
+- Value of Token
+- Total Value
+
+These are simply calculated by multiplying the user's **poolShare** by the respective asset's pooled value. 
