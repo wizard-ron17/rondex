@@ -18,7 +18,7 @@ Now that we know the total amount of LP tokens (***LPSupply***) for this pool, w
 
 The 3 Values shown on the LP Tool Site is as follows:
 - **Your ALPH in LP**
-- **Your '<token>' in LP**
+- **Your `<token>` in LP**
 - **Total Value**
 
 These are simply calculated by multiplying the user's ***poolShare*** by the respective asset's pooled value(***Pooled ALPH***, ***Pooled Token***). The ***Total Value*** is just the sum of the other 2 values, but displaying the token amount in its alph value using the **ALPH Price of Token** from before. All 3 of these values are multiplied by their USD price and displayed as well.
