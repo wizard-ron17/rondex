@@ -7,4 +7,5 @@ It all starts from the user's input into the site, which is an amount of LP Toke
 ### Calculation:
 First, lets define variables to make this easier. 
 **I = Input** - The amount of LP Tokens the user types into the tool
-**T<sup>0</sup>
+**T<sup>0</sup> = Token0** (This is $ALPH in every pair supported by the tool)
+**T<sup>1</sup> = Token1** (The token in the pair that is *not* $ALPH) eg. AYIN, APAD, CHENG
