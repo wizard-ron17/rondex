@@ -270,7 +270,7 @@
         const totalValueUSD = totalValue * usdValue;
         document.getElementById('totalValueUSD').textContent = totalValueUSD.toFixed(2);
 
-        const userBalancePlusLP = totalValue + value;
+        const userBalancePlusLP = parseFloat(totalValue + value);
         document.getElementById('userBalancePlusLP').textContent = userBalancePlusLP.toFixed(2) + ' $KDA';
         document.getElementById('userBalancePlusLPUSD').textContent = (userBalancePlusLP * usdValue).toFixed(2);
         document.getElementById('heronAmountUSD').textContent = (heronAmount * heronPrice * usdValue).toFixed(2);
