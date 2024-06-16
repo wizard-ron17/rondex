@@ -248,7 +248,7 @@
             const userHeronBalance = parseFloat(userData.assets.find(asset => asset.assetId === "n_e309f0fa7cf3a13f93a8da5325cdad32790d2070.heron")?.totalBalance || 0);
 
             document.getElementById('balance').textContent = userHeronBalance.toFixed(2);
-            const value = parseFloat(userHeronBalance * heronPrice);
+            value = parseFloat(userHeronBalance * heronPrice);
             document.getElementById('value').textContent = value.toFixed(2);
             document.getElementById('valueUSD').textContent = (value * usdValue).toFixed(2);
         }
@@ -263,6 +263,8 @@
         document.getElementById('amountBonded').textContent = bondedAmount.toFixed(2) + ' LP Tokens';
         document.getElementById('heronAmount').textContent = heronAmount.toFixed(2) + ' $HERON';
         document.getElementById('kdaAmount').textContent = kdaAmount.toFixed(2) + ' $KDA';
+
+        value = parseFloat(userHeronBalance * heronPrice);
 
         const totalValue = parseFloat((heronAmount * heronPrice) + kdaAmount);
         document.getElementById('totalValue').textContent = totalValue.toFixed(2) + ' $KDA';
