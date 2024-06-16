@@ -264,8 +264,6 @@
         document.getElementById('heronAmount').textContent = heronAmount.toFixed(2) + ' $HERON';
         document.getElementById('kdaAmount').textContent = kdaAmount.toFixed(2) + ' $KDA';
 
-        const value = parseFloat(userHeronBalance * heronPrice);
-
         const totalValue = parseFloat((heronAmount * heronPrice) + kdaAmount);
         document.getElementById('totalValue').textContent = totalValue.toFixed(2) + ' $KDA';
 
