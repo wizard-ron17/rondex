@@ -308,48 +308,71 @@
       font-weight: bold;
     }
 
-    .button-container button:hover {
-      background-color: #e07b00;
-    }
-
-    .button-container button.AYIN {
-      background-color: #ff6500;
-      color: #000;
-    }
-
-    .button-container button.USDT {
-      background-color: #009393;
-      color: #000;
-    }
-    
-    .button-container button.NGU {
-      background-color: #00ff00;
-      color: #000;
-    }
-
-    .button-container button.LFG {
-      background-color: #d6021e;
-      color: #000;
-    }
-
-    .button-container button.BREAD {
-      background-color: #0285c7;
-      color: #000;
-    }
-
-    .button-container button.APAD {
+    #pairs-button {
       background-color: #000;
-      color: #ff3639;
-      border-style: solid;
-      border-width: 1px;
-      border-color: #ff3639;
+      color: #fff;
+      padding: 8px 12px;
+      border: 1px solid white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+      margin-top: 0px;
     }
 
-    .button-container button.CHENG {
-      background-color: #3c3e3d;
-      color: #000;
-      margin-top: 5px;
-    }
+#pairs-button:hover {
+  background-color: #333;
+}
+
+#pairs-modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0%;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.7);
+}
+
+.pairs-modal-content {
+  background-color:rgba(0, 0, 0);
+  border: 1px solid white;
+  margin: 15% auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 10px;
+}
+
+.pairs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+.pair-item {
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  transition: transform 0.3s ease;
+}
+
+.pair-item:hover {
+  transform: scale(1.1);
+}
+
+.pair-item img {
+  width: 50px;
+  height: 50px;
+}
+
+.pair-item p {
+  margin-top: 1px;
+  color: #fff;
+}
 
     hr {
       width: 400px;
@@ -409,27 +432,7 @@
   </div>
 
   <div class="button-container">
-    <a href="https://rondex.xyz/lp-tool" style="text-decoration: none;">
-      <button class="AYIN">AYIN</button>
-    </a>
-    <a href="https://rondex.xyz/lp-tool/usdt" style="text-decoration: none;">
-      <button class="USDT">USDT</button>
-    </a>
-    <a href="https://rondex.xyz/lp-tool/ngu" style="text-decoration: none;">
-      <button class="NGU">NGU</button>
-    </a>
-    <a href="https://rondex.xyz/lp-tool/lfg" style="text-decoration: none;">
-        <button class="LFG">LFG!</button>
-    </a>
-    <a href="https://rondex.xyz/lp-tool/bread" style="text-decoration: none;">
-      <button class="BREAD">BREAD</button>
-    </a>
-    <a href="https://rondex.xyz/lp-tool/apad" style="text-decoration: none;">
-      <button class="APAD">APAD</button>
-    </a>
-    <a href="https://rondex.xyz/lp-tool/cheng" style="text-decoration: none;">
-      <button class="CHENG">CHENG</button>
-    </a>
+    <button id="pairs-button" onclick="openPairsModal()">Pairs</button>
   </div>
 
   <h2 class="animate-character">Ron's ALPH/TOP LP Calculator</h2>
@@ -483,8 +486,90 @@
       <img id="qrcode" src="" alt="QR Code">
     </div>
   </div>
+
+  <div id="pairs-modal" class="modal">
+    <div class="pairs-modal-content">
+      <span class="close" onclick="closePairsModal()">&times;</span>
+      <div class="pairs-grid">
+        <a href="https://rondex.xyz/lp-tool/" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHAYIN.png" alt="AYIN">
+          <p>ALPH/AYIN</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/usdt" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHUSDT.png" alt="USDT">
+          <p>ALPH/USDT</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/usdc" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHUSDC.png" alt="USDC">
+          <p>ALPH/USDC</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/ngu" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHNGU.png" alt="NGU">
+          <p>ALPH/NGU</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/lfg" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHLFG.png" alt="LFG">
+          <p>ALPH/LFG!</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/top" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHTOP.png" alt="TOP">
+          <p>ALPH/TOP</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/bread" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHBREAD.png" alt="BREAD">
+          <p>ALPH/BREAD</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/apad" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHAPAD.png" alt="APAD">
+          <p>ALPH/APAD</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/cheng" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHCHENG.png" alt="CHENG">
+          <p>ALPH/CHENG</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/wbtc" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHWBTC.png" alt="BTC">
+          <p>ALPH/WBTC</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/weth" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/ALPHWETH.png" alt="WETH">
+          <p>ALPH/WETH</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/ayinapad" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/AYINAPAD.png" alt="AYINAPAD">
+          <p>AYIN/APAD</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/ayinusdc" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/AYINUSDC.png" alt="AYINUSDC">
+          <p>AYIN/USDC</p>
+        </a>
+        <a href="https://rondex.xyz/lp-tool/ayinusdt" class="pair-item">
+          <img src="https://rondex.xyz/alph-lp-images/AYINUSDT.png" alt="AYINUSDT">
+          <p>AYIN/USDT</p>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script>
+
+function openPairsModal() {
+  document.getElementById("pairs-modal").style.display = "block";
+}
+
+function closePairsModal() {
+  document.getElementById("pairs-modal").style.display = "none";
+}
+
+// Close the modal when clicking outside of it
+window.onclick = function(event) {
+  var modal = document.getElementById("pairs-modal");
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
     function calculate() {
       const lpTokens = parseFloat(document.getElementById('lpTokens').value);
       // Fetch API data
@@ -527,7 +612,7 @@
     function copyDonateAddress() {
       const donateAddress = document.getElementById('donate-address').innerText;
       navigator.clipboard.writeText(donateAddress)
-        .then(() => alert("Ron's Alph Address copied to clipboard!"))
+        .then(() => alert("Ron's ALPH Address copied to clipboard!"))
         .catch(err => console.error(err));
     }
     // Get the modal
