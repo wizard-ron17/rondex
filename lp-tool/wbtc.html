@@ -598,7 +598,7 @@ window.onclick = function(event) {
           
           document.getElementById('liquidity').textContent = formatNumberWithApostrophes('$'+parseFloat((pooledAlph*2)*priceAlph).toFixed(2));
           document.getElementById('alph-price').textContent = '$'+priceAlph.toFixed(2);
-          document.getElementById('WBTC-price').textContent = priceWBTCInAlph.toFixed(4) + ' ALPH';
+          document.getElementById('WBTC-price').textContent = formatNumberWithApostrophes(priceWBTCInAlph.toFixed(0) + ' ALPH');
           document.querySelector('.alph-amount').textContent = formatNumberWithApostrophes(valueOfAlph.toFixed(2));
           document.querySelector('.WBTC-amount').textContent = formatNumberWithApostrophes(valueOfWBTC.toFixed(2));
           document.querySelector('.total-value').textContent = formatNumberWithApostrophes(totalValue.toFixed(2));
