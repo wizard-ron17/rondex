@@ -5,7 +5,7 @@ A simple calculator to show the value of your Alephium LP Tokens
 It all starts from the user's input into the site, which is an amount of LP Tokens. You might find this number in your Alephium Wallet, on a portfolio viewer like [alph.pro](https://alph.pro), or directly on [Ayin Decentralized Exhange](https://ayin.app) in the [Pounder](https://ayin.app/vault) or in [LP Staking](https://ayin.app/stake). You punch this number into the LP Tool site, click go, and can view the value of the given amount of LP tokens - showing values for both $ALPH and the other token in the pair, as well as the sum of these values. Values are also displayed in USD conversions.
 
 ### Calculation:
-First, I pull in external data from [Mobula API](https://docs.mobula.io/api-reference/endpoint/market-pair). This data source is *free* and very useful. From this API, we pull in 4 values:
+First, I pull in external data from [Mobula API](https://docs.mobula.io/api-reference/endpoint/market-pair). This data source is *free* and very useful. From this API, we pull in 5 values:
 - **Pooled ALPH** - The total balance of token0 in the pool (this is $ALPH in all supported pairs on the tool)
 - **Pooled Token** - The total balance of token1 in the pool (not $ALPH, a project token like $AYIN or $APAD)
 - **Price ALPH** - The USD price of token0 (the USD price of $ALPH)
