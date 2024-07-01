@@ -594,7 +594,7 @@ window.onclick = function(event) {
           
           document.getElementById('liquidity').textContent = formatNumberWithApostrophes('$'+parseFloat((pooledAlph*2)*priceAlph).toFixed(2));
           document.getElementById('alph-price').textContent = '$'+priceAlph.toFixed(2);
-          document.getElementById('WETH-price').textContent = priceWETHInAlph.toFixed(5) + ' ALPH';
+          document.getElementById('WETH-price').textContent = formatNumberWithApostrophes(priceWETHInAlph.toFixed(0) + ' ALPH');
           document.querySelector('.alph-amount').textContent = formatNumberWithApostrophes(valueOfAlph.toFixed(2));
           document.querySelector('.WETH-amount').textContent = formatNumberWithApostrophes(valueOfWETH.toFixed(2));
           document.querySelector('.total-value').textContent = formatNumberWithApostrophes(totalValue.toFixed(2));
