@@ -61,13 +61,13 @@
             background-color: #2c2c2c;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            margin-top: 10px;
+            margin-top: 10px; /* Adjust margin to create space below the banner */
         }
 
         .container-wrapper {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* Optional: align items horizontally in the center */
         }
 
         label {
@@ -75,6 +75,7 @@
             margin-bottom: 10px;
             font-size: 1.2em;
             cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
+
         }
 
         input {
@@ -85,6 +86,7 @@
             border: 1px solid #333;
             font-size: 1em;
             cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
+
         }
 
         button {
@@ -95,6 +97,7 @@
             border-radius: 5px;
             font-size: 1em;
             cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAAAAAAAAq6urAABEWQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAADMwAAAAAAAAAAAAAAAAAAExMQAAAAAAAAAAAAAAAAAzMzAAAAAAAAAAAAAAAAABMTEAAAAAAAAAAAAAAAAAMzMwAAAAAAAAAAAAAAIAATExAAAAAAAAAAAAAAAAIDMzMAAAAAAAAAAAAAAAAAIBMQAAAAAAAAAAAAAAAAAQIDAAAAAAAAAAAAAAAAABEQIAAAAAAAAAAAAAAAAAEQEQIAAAAAAAAAAAAAAAARARAAIAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARARAAAAAAAAAAAAAAAAABEBEAAAAAAAAAAAAAAAAAEQEQAAAAAAAAAAAAAAAAARERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////f////j////wf///4D///8B///+A///nAf//4gP///AH///4D///8B///+A////AH///gI///wHP//4D///8B///+A////Af///gP///wH///4D///8B///+A////Af///gP///wH///4D///8B////A////w=='), auto;
+
         }
 
         #result {
@@ -115,63 +118,36 @@
             margin-top: 0;
         }
 
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-        }
 
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: auto;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px 10px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
+@media (max-width: 600px) {
+    .container-wrapper {
+        padding: 0 0px; /* Add padding to the container wrapper */
+        max-width: calc(100% - 10px);
+    }
 
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
+    .banner-section {
+        margin-bottom: 10px; /* Add space between banner sections */
+    }
 
-        @media (max-width: 600px) {
-            .container-wrapper {
-                padding: 0 0px;
-                max-width: calc(100% - 10px);
-            }
+    .banner-section h3 {
+        margin: 0;
+        font-size: 1em;
+        align-items: center;
+    }
 
-            .banner-section {
-                margin-bottom: 10px;
-            }
+    .container {
+        max-width: 92.5%; /* Ensure container takes full width */
+    }
 
-            .banner-section h3 {
-                margin: 0;
-                font-size: 1em;
-                align-items: center;
-            }
+    .banner-section p {
+        font-size: 0.8em; /* Decrease font size for banner text */
+    }
 
-            .container {
-                max-width: 92.5%;
-            }
-
-            .banner-section p {
-                font-size: 0.8em;
-            }
-
-            .banner {
-                padding: 5px;
-                width: 100%;
-            }
-        }
+    .banner {
+        padding: 5px; /* Adjust padding for the banner */
+        width: 100%;
+    }
+}
     </style>
 </head>
 <body onload="getData()">
@@ -241,47 +217,26 @@
         }
     }
 
-    function formatNumber(number) {
-        if (number >= 1000000) {
-            return (number / 1000000).toFixed(2) + 'M';
-        } else if (number >= 1000) {
-            return (number / 1000).toFixed(2) + 'K';
-        } else {
-            return number.toFixed(2);
-        }
-    }
-
-    function formatNumberWithCommas(number) {
-        return number.toLocaleString('en-US');
-    }
-
-    function updateElementWithTooltip(elementId, value) {
-        const element = document.getElementById(elementId);
-        const formattedValue = formatNumber(value);
-        const fullValue = formatNumberWithCommas(value);
-        element.innerHTML = `<span class="tooltip">${formattedValue}<span class="tooltiptext">${fullValue}</span></span>`;
-    }
-
     async function getBannerData() {
         const lpData = await fetchData('https://rons-server.netlify.app/.netlify/functions/server/api/account/PUS35mt6HequLHptLo9cid_X6x1sSPOTUgWLuuQM0hc');
         if (lpData && lpData.assets) {
             coinBalance = lpData.assets.find(asset => asset.symbol === "KDA")?.totalBalance || 0;
             heronBalanceInLP = lpData.assets.find(asset => asset.symbol === "HERON")?.totalBalance || 0;
             heronPrice = coinBalance / heronBalanceInLP;
-            updateElementWithTooltip('heronPrice', heronPrice);
+            document.getElementById('heronPrice').textContent = heronPrice.toFixed(6) + ' KDA';
 
             const kdaData = await fetchData('https://api.coinbase.com/v2/exchange-rates?currency=KDA');
             if (kdaData && kdaData.data && kdaData.data.rates) {
                 usdValue = parseFloat(kdaData.data.rates.USD);
-                updateElementWithTooltip('usdValue', usdValue);
+                document.getElementById('usdValue').textContent = '$' + usdValue.toFixed(2);
 
                 const marketCap = (heronPrice * 700000000) * usdValue;
-                updateElementWithTooltip('marketCap', marketCap);
+                document.getElementById('marketCap').textContent = '$' + marketCap.toFixed(2);
 
                 const kdaValue = coinBalance * usdValue;
                 const heronValue = heronBalanceInLP * heronPrice * usdValue;
                 const liquidity = kdaValue + heronValue;
-                updateElementWithTooltip('liquidity', liquidity);
+                document.getElementById('liquidity').textContent = '$' + liquidity.toFixed(2);
             }
         }
     }
@@ -292,34 +247,34 @@
         if (userData && userData.assets) {
             const userHeronBalance = parseFloat(userData.assets.find(asset => asset.assetId === "n_e309f0fa7cf3a13f93a8da5325cdad32790d2070.heron")?.totalBalance || 0);
 
-            updateElementWithTooltip('balance', userHeronBalance);
+            document.getElementById('balance').textContent = userHeronBalance.toFixed(2);
             value = parseFloat(userHeronBalance * heronPrice);
-            updateElementWithTooltip('value', value);
-            updateElementWithTooltip('valueUSD', value * usdValue);
+            document.getElementById('value').textContent = value.toFixed(2);
+            document.getElementById('valueUSD').textContent = (value * usdValue).toFixed(2);
         }
     }
 
     async function calculateBonding() {
         const bondedAmount = parseFloat(document.getElementById('bondedAmount').value);
         const shareOfLP = bondedAmount / 100000;
-        const heronAmount = (shareOfLP * heronBalanceInLP) / 2;
-        const kdaAmount = (shareOfLP * coinBalance) / 2;
+        const heronAmount = (shareOfLP * heronBalanceInLP) /2;
+        const kdaAmount = (shareOfLP * coinBalance) /2;
 
-        updateElementWithTooltip('amountBonded', bondedAmount);
-        updateElementWithTooltip('heronAmount', heronAmount);
-        updateElementWithTooltip('kdaAmount', kdaAmount);
+        document.getElementById('amountBonded').textContent = bondedAmount.toFixed(2) + ' LP Tokens';
+        document.getElementById('heronAmount').textContent = heronAmount.toFixed(2) + ' $HERON';
+        document.getElementById('kdaAmount').textContent = kdaAmount.toFixed(2) + ' $KDA';
 
         const totalValue = parseFloat((heronAmount * heronPrice) + kdaAmount);
-        updateElementWithTooltip('totalValue', totalValue);
+        document.getElementById('totalValue').textContent = totalValue.toFixed(2) + ' $KDA';
 
         const totalValueUSD = totalValue * usdValue;
-        updateElementWithTooltip('totalValueUSD', totalValueUSD);
+        document.getElementById('totalValueUSD').textContent = totalValueUSD.toFixed(2);
 
         const userBalancePlusLP = parseFloat(totalValue + value);
-        updateElementWithTooltip('userBalancePlusLP', userBalancePlusLP);
-        updateElementWithTooltip('userBalancePlusLPUSD', userBalancePlusLP * usdValue);
-        updateElementWithTooltip('heronAmountUSD', heronAmount * heronPrice * usdValue);
-        updateElementWithTooltip('kdaAmountUSD', kdaAmount * usdValue);
+        document.getElementById('userBalancePlusLP').textContent = userBalancePlusLP.toFixed(2) + ' $KDA';
+        document.getElementById('userBalancePlusLPUSD').textContent = (userBalancePlusLP * usdValue).toFixed(2);
+        document.getElementById('heronAmountUSD').textContent = (heronAmount * heronPrice * usdValue).toFixed(2);
+        document.getElementById('kdaAmountUSD').textContent = (kdaAmount * usdValue).toFixed(2);
     }
 
     window.onload = getBannerData;
