@@ -295,13 +295,15 @@ async function calculateBonding() {
     updateElementWithTooltip('totalValue', totalValue, false, ' $KDA');
 
     const totalValueUSD = totalValue * usdValue;
-    updateElementWithTooltip('totalValueUSD', totalValueUSD, true);
+    document.getElementById('totalValueUSD').textContent = totalValueUSD.toFixed(2);
 
     const userBalancePlusLP = parseFloat(totalValue + value);
     updateElementWithTooltip('userBalancePlusLP', userBalancePlusLP, false, ' $KDA');
-    updateElementWithTooltip('userBalancePlusLPUSD', userBalancePlusLP * usdValue, true);
-    updateElementWithTooltip('heronAmountUSD', heronAmount * heronPrice * usdValue, true);
-    updateElementWithTooltip('kdaAmountUSD', kdaAmount * usdValue, true);
+    document.getElementById('userBalancePlusLPUSD').textContent = (userBalancePlusLP * usdValue).toFixed(2);
+    
+    // Update the small text USD values without adding an extra dollar sign
+    document.getElementById('heronAmountUSD').textContent = (heronAmount * heronPrice * usdValue).toFixed(2);
+    document.getElementById('kdaAmountUSD').textContent = (kdaAmount * usdValue).toFixed(2);
 }
 
     function formatNumber(number) {
