@@ -118,6 +118,33 @@
             margin-top: 0;
         }
 
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: auto;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
 
 @media (max-width: 600px) {
     .container-wrapper {
@@ -218,64 +245,90 @@
     }
 
     async function getBannerData() {
-        const lpData = await fetchData('https://rons-server.netlify.app/.netlify/functions/server/api/account/PUS35mt6HequLHptLo9cid_X6x1sSPOTUgWLuuQM0hc');
-        if (lpData && lpData.assets) {
-            coinBalance = lpData.assets.find(asset => asset.symbol === "KDA")?.totalBalance || 0;
-            heronBalanceInLP = lpData.assets.find(asset => asset.symbol === "HERON")?.totalBalance || 0;
-            heronPrice = coinBalance / heronBalanceInLP;
-            document.getElementById('heronPrice').textContent = heronPrice.toFixed(6) + ' KDA';
+    const lpData = await fetchData('https://rons-server.netlify.app/.netlify/functions/server/api/account/PUS35mt6HequLHptLo9cid_X6x1sSPOTUgWLuuQM0hc');
+    if (lpData && lpData.assets) {
+        coinBalance = lpData.assets.find(asset => asset.symbol === "KDA")?.totalBalance || 0;
+        heronBalanceInLP = lpData.assets.find(asset => asset.symbol === "HERON")?.totalBalance || 0;
+        heronPrice = coinBalance / heronBalanceInLP;
+        document.getElementById('heronPrice').textContent = heronPrice.toFixed(6) + ' KDA';
 
-            const kdaData = await fetchData('https://api.coinbase.com/v2/exchange-rates?currency=KDA');
-            if (kdaData && kdaData.data && kdaData.data.rates) {
-                usdValue = parseFloat(kdaData.data.rates.USD);
-                document.getElementById('usdValue').textContent = '$' + usdValue.toFixed(2);
+        const kdaData = await fetchData('https://api.coinbase.com/v2/exchange-rates?currency=KDA');
+        if (kdaData && kdaData.data && kdaData.data.rates) {
+            usdValue = parseFloat(kdaData.data.rates.USD);
+            document.getElementById('usdValue').textContent = '$' + usdValue.toFixed(2);
 
-                const marketCap = (heronPrice * 700000000) * usdValue;
-                document.getElementById('marketCap').textContent = '$' + marketCap.toFixed(2);
+            const marketCap = (heronPrice * 700000000) * usdValue;
+            updateElementWithTooltip('marketCap', marketCap, true);
 
-                const kdaValue = coinBalance * usdValue;
-                const heronValue = heronBalanceInLP * heronPrice * usdValue;
-                const liquidity = kdaValue + heronValue;
-                document.getElementById('liquidity').textContent = '$' + liquidity.toFixed(2);
-            }
+            const kdaValue = coinBalance * usdValue;
+            const heronValue = heronBalanceInLP * heronPrice * usdValue;
+            const liquidity = kdaValue + heronValue;
+            updateElementWithTooltip('liquidity', liquidity, true);
         }
     }
+}
 
-    async function getData() {
-        const kAddress = document.getElementById('kAddress').value;
-        const userData = await fetchData(`https://rons-server.netlify.app/.netlify/functions/server/api/account/${kAddress}`);
-        if (userData && userData.assets) {
-            const userHeronBalance = parseFloat(userData.assets.find(asset => asset.assetId === "n_e309f0fa7cf3a13f93a8da5325cdad32790d2070.heron")?.totalBalance || 0);
+async function getData() {
+    const kAddress = document.getElementById('kAddress').value;
+    const userData = await fetchData(`https://rons-server.netlify.app/.netlify/functions/server/api/account/${kAddress}`);
+    if (userData && userData.assets) {
+        const userHeronBalance = parseFloat(userData.assets.find(asset => asset.assetId === "n_e309f0fa7cf3a13f93a8da5325cdad32790d2070.heron")?.totalBalance || 0);
 
-            document.getElementById('balance').textContent = userHeronBalance.toFixed(2);
-            value = parseFloat(userHeronBalance * heronPrice);
-            document.getElementById('value').textContent = value.toFixed(2);
-            document.getElementById('valueUSD').textContent = (value * usdValue).toFixed(2);
-        }
+        updateElementWithTooltip('balance', userHeronBalance);
+        value = parseFloat(userHeronBalance * heronPrice);
+        updateElementWithTooltip('value', value);
+        updateElementWithTooltip('valueUSD', value * usdValue);
     }
+}
 
-    async function calculateBonding() {
-        const bondedAmount = parseFloat(document.getElementById('bondedAmount').value);
-        const shareOfLP = bondedAmount / 100000;
-        const heronAmount = (shareOfLP * heronBalanceInLP) /2;
-        const kdaAmount = (shareOfLP * coinBalance) /2;
+async function calculateBonding() {
+    const bondedAmount = parseFloat(document.getElementById('bondedAmount').value);
+    const shareOfLP = bondedAmount / 100000;
+    const heronAmount = (shareOfLP * heronBalanceInLP) / 2;
+    const kdaAmount = (shareOfLP * coinBalance) / 2;
 
-        document.getElementById('amountBonded').textContent = bondedAmount.toFixed(2) + ' LP Tokens';
-        document.getElementById('heronAmount').textContent = heronAmount.toFixed(2) + ' $HERON';
-        document.getElementById('kdaAmount').textContent = kdaAmount.toFixed(2) + ' $KDA';
+    updateElementWithTooltip('amountBonded', bondedAmount, false, ' LP Tokens');
+    updateElementWithTooltip('heronAmount', heronAmount, false, ' $HERON');
+    updateElementWithTooltip('kdaAmount', kdaAmount, false, ' $KDA');
 
-        const totalValue = parseFloat((heronAmount * heronPrice) + kdaAmount);
-        document.getElementById('totalValue').textContent = totalValue.toFixed(2) + ' $KDA';
+    const totalValue = parseFloat((heronAmount * heronPrice) + kdaAmount);
+    updateElementWithTooltip('totalValue', totalValue, false, ' $KDA');
 
-        const totalValueUSD = totalValue * usdValue;
-        document.getElementById('totalValueUSD').textContent = totalValueUSD.toFixed(2);
+    const totalValueUSD = totalValue * usdValue;
+    updateElementWithTooltip('totalValueUSD', totalValueUSD, true);
 
-        const userBalancePlusLP = parseFloat(totalValue + value);
-        document.getElementById('userBalancePlusLP').textContent = userBalancePlusLP.toFixed(2) + ' $KDA';
-        document.getElementById('userBalancePlusLPUSD').textContent = (userBalancePlusLP * usdValue).toFixed(2);
-        document.getElementById('heronAmountUSD').textContent = (heronAmount * heronPrice * usdValue).toFixed(2);
-        document.getElementById('kdaAmountUSD').textContent = (kdaAmount * usdValue).toFixed(2);
+    const userBalancePlusLP = parseFloat(totalValue + value);
+    updateElementWithTooltip('userBalancePlusLP', userBalancePlusLP, false, ' $KDA');
+    updateElementWithTooltip('userBalancePlusLPUSD', userBalancePlusLP * usdValue, true);
+    updateElementWithTooltip('heronAmountUSD', heronAmount * heronPrice * usdValue, true);
+    updateElementWithTooltip('kdaAmountUSD', kdaAmount * usdValue, true);
+}
+
+    function formatNumber(number) {
+    if (number >= 1000000) {
+        return (number / 1000000).toFixed(2) + 'M';
+    } else if (number >= 1000) {
+        return (number / 1000).toFixed(2) + 'K';
+    } else {
+        return number.toFixed(2);
     }
+}
+
+function formatNumberWithCommas(number) {
+    return number.toLocaleString('en-US');
+}
+
+function updateElementWithTooltip(elementId, value, addDollarSign = false, suffix = '') {
+    const element = document.getElementById(elementId);
+    const dollarSign = addDollarSign ? '$' : '';
+    if (value >= 1000) {
+        const formattedValue = formatNumber(value);
+        const fullValue = formatNumberWithCommas(value);
+        element.innerHTML = `<span class="tooltip">${dollarSign}${formattedValue}${suffix}<span class="tooltiptext">${dollarSign}${fullValue}${suffix}</span></span>`;
+    } else {
+        element.innerHTML = `${dollarSign}${value.toFixed(2)}${suffix}`;
+    }
+}
 
     window.onload = getBannerData;
 </script>
