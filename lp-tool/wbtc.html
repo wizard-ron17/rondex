@@ -253,7 +253,7 @@
     }
 
     .modal-content {
-      background-color: #333;
+      background-color: #000;
       margin: 15% auto;
       padding-left: 10px;
       padding-right: 10px;
@@ -263,6 +263,7 @@
       height: 240px;
       text-align: center;
       border-radius: 10px;
+      border: 1px solid white;
     }
 
     .close {
@@ -281,7 +282,7 @@
     /* Styling for the QR code */
     #qrcode {
       margin-top: 0px;
-      border: 10px solid #333;
+      border: 10px solid #000;
       border-radius: 10px;
     }
 
@@ -486,87 +487,34 @@
     </div>
   </div>
 
-  <div id="pairs-modal" class="modal">
-    <div class="pairs-modal-content">
-      <span class="close" onclick="closePairsModal()">&times;</span>
-      <div class="pairs-grid">
-        <a href="https://rondex.xyz/lp-tool/" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHAYIN.png" alt="AYIN">
-          <p>ALPH/AYIN</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/usdt" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHUSDT.png" alt="USDT">
-          <p>ALPH/USDT</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/usdc" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHUSDC.png" alt="USDC">
-          <p>ALPH/USDC</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/ngu" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHNGU.png" alt="NGU">
-          <p>ALPH/NGU</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/lfg" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHLFG.png" alt="LFG">
-          <p>ALPH/LFG!</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/top" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHTOP.png" alt="TOP">
-          <p>ALPH/TOP</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/bread" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHBREAD.png" alt="BREAD">
-          <p>ALPH/BREAD</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/apad" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHAPAD.png" alt="APAD">
-          <p>ALPH/APAD</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/cheng" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHCHENG.png" alt="CHENG">
-          <p>ALPH/CHENG</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/wbtc" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHWBTC.png" alt="BTC">
-          <p>ALPH/WBTC</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/weth" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/ALPHWETH.png" alt="WETH">
-          <p>ALPH/WETH</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/ayinapad" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/AYINAPAD.png" alt="AYINAPAD">
-          <p>AYIN/APAD</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/ayinusdc" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/AYINUSDC.png" alt="AYINUSDC">
-          <p>AYIN/USDC</p>
-        </a>
-        <a href="https://rondex.xyz/lp-tool/ayinusdt" class="pair-item">
-          <img src="https://rondex.xyz/alph-lp-images/AYINUSDT.png" alt="AYINUSDT">
-          <p>AYIN/USDT</p>
-        </a>
-      </div>
-    </div>
-  </div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script>
-function openPairsModal() {
-  document.getElementById("pairs-modal").style.display = "block";
-}
+    function loadPairsModal() {
+      fetch('pairs-modal.html')
+        .then(response => response.text())
+        .then(data => {
+          document.body.insertAdjacentHTML('beforeend', data);
+        })
+        .catch(error => console.error('Error loading modal:', error));
+    }
 
-function closePairsModal() {
-  document.getElementById("pairs-modal").style.display = "none";
-}
+    function openPairsModal() {
+      document.getElementById("pairs-modal").style.display = "block";
+    }
 
-// Close the modal when clicking outside of it
-window.onclick = function(event) {
-  var modal = document.getElementById("pairs-modal");
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
+    function closePairsModal() {
+      document.getElementById("pairs-modal").style.display = "none";
+    }
+
+    // Close the modal when clicking outside of it
+    window.onclick = function(event) {
+      var modal = document.getElementById("pairs-modal");
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPairsModal);
 
     function calculate() {
       const lpTokens = parseFloat(document.getElementById('lpTokens').value);
