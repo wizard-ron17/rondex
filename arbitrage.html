@@ -20,9 +20,26 @@
             text-align: center;
             color: #ffffff;
         }
-        p {
+        .refresh-section {
             text-align: center;
-            color: #888;
+            margin-bottom: 20px;
+        }
+        .refresh-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .refresh-button:hover {
+            background-color: #2980b9;
+        }
+        .refresh-button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
         }
         .pair-grid {
             display: grid;
@@ -99,7 +116,11 @@
 <body>
     <div class="dashboard">
         <h1>Kadena Arbitrage Dashboard</h1>
-        <p>Refreshes every 60 seconds</p>
+        <div class="refresh-section">
+            <button id="refreshButton" class="refresh-button" onclick="handleRefresh()">
+                Refresh Data
+            </button>
+        </div>
         <div id="pairGrid" class="pair-grid"></div>
     </div>
 
@@ -109,8 +130,8 @@
             name: "WIZA/KDA", 
             mercatusApi: "https://rons-server.netlify.app/.netlify/functions/server/api/account/jWqHjsx7lZDQIA9uRHy3abj0PXRk5fAuEDYflvv8wdE",
             mercatusLink: "https://www.mercatus.works/?token0=KDA&token1=WIZA",
-            assetId: "free.wiza", // Asset ID for WIZA
-            coinId: "coin", // Asset ID for KDA (Coin)
+            assetId: "free.wiza",
+            coinId: "coin",
             kdswapApi: "https://kdswap-fd-prod-cpeabrdfgdg9hzen.z01.azurefd.net/graphql?query={price(token:\"free.wiza\",period:1){priceInKda}}",
             kdswapLink: "https://www.kdswap.exchange/swap/kda/wiza",
             logo1: "https://ronrank.xyz/wiz-hat.jpg",
@@ -121,8 +142,8 @@
             name: "MAGA/KDA", 
             mercatusApi: "https://rons-server.netlify.app/.netlify/functions/server/api/account/-ltwdC5Q2R17tKzObZ4GbJw5hAQrjJmG3JN7uMl5OJw",
             mercatusLink: "https://www.mercatus.works/?token0=KDA&token1=MAGA",
-            assetId: "free.maga", // Asset ID for MAGA
-            coinId: "coin", // Asset ID for KDA (Coin)
+            assetId: "free.maga",
+            coinId: "coin",
             kdswapApi: "https://kdswap-fd-prod-cpeabrdfgdg9hzen.z01.azurefd.net/graphql?query={price(token:\"free.maga\",period:1){priceInKda}}",
             kdswapLink: "https://www.kdswap.exchange/swap/kda/maga",
             logo1: "https://raw.githubusercontent.com/CryptoPascal31/kadena_tokens/main/img/maga.png",
@@ -153,7 +174,7 @@
             logo2: "https://pbs.twimg.com/profile_images/1820556208455172096/PQHyA3TU_400x400.jpg",
             precision: 12
         }
-        ];
+    ];
 
     async function fetchBalance(url, assetId) {
         try {
@@ -183,7 +204,6 @@
         const coinBalance = await fetchBalance(pair.mercatusApi, pair.coinId);
         const kdswapPrice = await fetchKdswapPrice(pair.kdswapApi);
 
-        // Handle cases where asset or coin balance is invalid
         if (assetBalance === null || coinBalance === null) {
             return {
                 name: pair.name,
@@ -194,9 +214,7 @@
             };
         }
 
-        // Calculate Mercatus price by dividing asset balance by coin balance
         const mercatusPrice = coinBalance / assetBalance;
-
         const difference = Math.abs(mercatusPrice - kdswapPrice);
         const percentDifference = (difference / Math.min(mercatusPrice, kdswapPrice)) * 100;
 
@@ -244,18 +262,28 @@
     }
 
     async function renderDashboard() {
+        const button = document.getElementById('refreshButton');
+        button.disabled = true;
+        button.textContent = 'Refreshing...';
+        
         const pairGrid = document.getElementById('pairGrid');
         pairGrid.innerHTML = '';
+        
         for (const pair of pairs) {
             const card = await createPairCard(pair);
             pairGrid.appendChild(card);
         }
+        
+        button.disabled = false;
+        button.textContent = 'Refresh Data';
     }
 
+    async function handleRefresh() {
+        await renderDashboard();
+    }
+
+    // Initial render
     renderDashboard();
-    setInterval(renderDashboard, 60000); // Update every 60 seconds
-</script>
-
-
+    </script>
 </body>
 </html>
