@@ -62,8 +62,12 @@ function updateTransactionTable(transactions) {
     // Clear existing rows
     tableBody.innerHTML = '';
 
-    // Specify the hash for which you want to replace the account text
-    const targetHash = 'k:f8c01f1b062ebccc7164dd61479a655b9a6373bb2642904b2b1617230cdc51cc';
+    // Specify the hashes for which you want to replace the account text
+    const targetHashes = {
+        'k:f8c01f1b062ebccc7164dd61479a655b9a6373bb2642904b2b1617230cdc51cc': 'MW',
+        'k:faca5ae889fcbd144c908ba4757df4ee496aa849c52d6f30b5bf9e8a51ee3d81': '🥪Bot',
+        'k:9eb1f99fdc35413c05d58f182d761c38d2b8620b04a5438053ab737099a7f305': '🥪Bot'
+    };
 
     // Populate the table with new data
     transactions.forEach(transaction => {
@@ -72,18 +76,19 @@ function updateTransactionTable(transactions) {
         // Determine the type based on token0 symbol
         const transactionType = transaction.token0.tokenSymbol === 'KDA' ? 'BUY' : 'SELL';
 
-        // Display only the first 3 and last 4 characters of the account with dots in the middle
+        // Display only the first 5 characters of the account with dots at the end
         const truncatedAccount = `${transaction.account.slice(0, 5)}...`;
 
-        // Check if the account matches the target hash
-        if (transaction.account === targetHash) {
-            // If it matches, set text to 'MW' and apply red color
+        // Check if the account matches any of the target hashes
+        if (transaction.account in targetHashes) {
+            // If it matches, set text to the corresponding name and apply red color
+            const name = targetHashes[transaction.account];
             row.innerHTML = `
                 <td>${formatRelativeTime(transaction.timestamp)}</td>
                 <td class="${transactionType.toLowerCase()}">${transactionType}</td>
                 <td>${formatTokenInfo(transaction.token0, transaction.token0Amount)}</td>
                 <td>${formatTokenInfo(transaction.token1, transaction.token1Amount)}</td>
-                <td><a href="https://kdaexplorer.com/account/${transaction.account}" target="_blank" style="color: red; font-weight: bold;">MW</a></td>
+                <td><a href="https://kdaexplorer.com/account/${transaction.account}" target="_blank" style="color: red; font-weight: bold;">${name}</a></td>
             `;
         } else {
             // If it doesn't match, proceed with the regular display
