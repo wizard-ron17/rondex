@@ -65,8 +65,8 @@ function updateTransactionTable(transactions) {
     // Specify the hashes for which you want to replace the account text
     const targetHashes = {
         'k:f8c01f1b062ebccc7164dd61479a655b9a6373bb2642904b2b1617230cdc51cc': 'MW',
-        'k:faca5ae889fcbd144c908ba4757df4ee496aa849c52d6f30b5bf9e8a51ee3d81': '🥪Bot',
-        'k:9eb1f99fdc35413c05d58f182d761c38d2b8620b04a5438053ab737099a7f305': '🥪Bot'
+        'k:faca5ae889fcbd144c908ba4757df4ee496aa849c52d6f30b5bf9e8a51ee3d81': 'Bot',
+        'k:9eb1f99fdc35413c05d58f182d761c38d2b8620b04a5438053ab737099a7f305': 'Bot'
     };
 
     // Populate the table with new data
