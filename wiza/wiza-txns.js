@@ -130,7 +130,7 @@ function formatTokenInfo(token, amount) {
 
     // Use custom icons for KDA and WIZA
     const customIcons = {
-        'KDA': 'https://swap.ecko.finance/images/crypto/kda-crypto.svg',
+        'KDA': 'https://ronrank.xyz/newkadena.png',
         'WIZA': 'https://assets.kdlaunch.com/tokens/wiza.jpg'
     };
 
