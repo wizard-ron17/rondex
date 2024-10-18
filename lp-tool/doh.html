@@ -440,7 +440,7 @@
   <label for="lpTokens">Enter LP tokens:</label>
   <div class="input-container">
     <input type="number" id="lpTokens" placeholder="LP Tokens" value="0">
-    <button class="go-button" onclick="calculate()">GO</button>
+    <button class="go-button" onclick="playSoundAndCalculate()">GO</button>
   </div>
 
   <div id="result">
@@ -551,6 +551,14 @@
           document.querySelector('.total-usd-value').textContent = formatNumberWithApostrophes(USDtotalValue.toFixed(2));
         })
         .catch(err => console.error(err));
+    }
+    
+    function playSoundAndCalculate() {
+
+      var audio = document.getElementById('doh-sound');
+      audio.play();
+      
+      calculate();
     }
 
     function copyDonateAddress() {
@@ -671,6 +679,8 @@ dot.prototype.move = function() {
 // start animation
 render();
   </script>
+  
+  <audio id="doh-sound" src="https://rondex.xyz/doh.mp3"></audio>
 
 </body>
 </html>
