@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LP Balance Calculator</title>
+    <style>
+        /* Basic reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Background and layout */
+        body {
+            background-image: url('https://www.elexium.finance/assets/world-CBphyTAV.png');
+            background-size: cover;
+            background-color: #000;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Container styling */
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .balance {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .balance img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>$EX Liquidity & Price</h1>
+        <div class="balance">
+            <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/ALPH.png" alt="ALPH logo">
+            <span>$ALPH</span>
+            <span id="alphBalance">Loading...</span>
+        </div>
+        <div class="balance">
+            <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/EX.png" alt="EX logo">
+            <span>$EX</span>
+            <span id="exBalance">Loading...</span>
+        </div>
+        <div id="result">Calculating price...</div>
+    </div>
+
+    <script>
+        async function fetchBalances() {
+            try {
+                // Fetch ALPH balance
+                const alphResponse = await fetch('https://backend.mainnet.alephium.org/addresses/27Ub32AhfC9ULKGKGUTdDGU2ehvUN55aLS4oU8nmW3x9M/balance');
+                const alphData = await alphResponse.json();
+                const alphBalance = parseFloat(alphData.balance) / 1e18;
+                document.getElementById('alphBalance').innerText = alphBalance.toFixed(2);
+
+                // Fetch EX token balance
+                const tokenResponse = await fetch('https://backend.mainnet.alephium.org/addresses/27Ub32AhfC9ULKGKGUTdDGU2ehvUN55aLS4oU8nmW3x9M/tokens-balance?limit=100&page=1');
+                const tokenData = await tokenResponse.json();
+                const exBalanceData = tokenData.find(token => token.tokenId === "cad22f7c98f13fe249c25199c61190a9fb4341f8af9b1c17fcff4cd4b2c3d200");
+                const exBalance = parseFloat(exBalanceData.balance) / 1e18;
+                document.getElementById('exBalance').innerText = exBalance.toFixed(2);
+
+                // Calculate the price in $ALPH (ALPH/EX)
+                const result = alphBalance / exBalance;
+                document.getElementById('result').innerText = `Price: ${result.toFixed(4)} $ALPH`;
+            } catch (error) {
+                console.error("Error fetching balance data:", error);
+                document.getElementById('result').innerText = "Error loading data";
+            }
+        }
+
+        fetchBalances();
+    </script>
+</body>
+</html>
