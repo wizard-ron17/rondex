@@ -57,9 +57,9 @@
             margin-right: 10px;
         }
 
-        #result {
-            margin-top: 20px;
-            font-size: 20px;
+        #result, #presalePrice {
+            margin-top: 10px;
+            font-size: 18px;
             font-weight: bold;
         }
     </style>
@@ -78,11 +78,14 @@
             <span id="exBalance">Loading...</span>
         </div>
         <div id="result">Calculating price...</div>
+        <div id="presalePrice">Presale Price: 0.075 ALPH</div>
     </div>
 
     <script>
         async function fetchBalances() {
             try {
+                const presalePrice = 0.075;  // Presale price in ALPH
+
                 // Fetch ALPH balance
                 const alphResponse = await fetch('https://backend.mainnet.alephium.org/addresses/27Ub32AhfC9ULKGKGUTdDGU2ehvUN55aLS4oU8nmW3x9M/balance');
                 const alphData = await alphResponse.json();
@@ -97,8 +100,12 @@
                 document.getElementById('exBalance').innerText = exBalance.toFixed(2);
 
                 // Calculate the price in $ALPH (ALPH/EX)
-                const result = alphBalance / exBalance;
-                document.getElementById('result').innerText = `Price: ${result.toFixed(4)} $ALPH`;
+                const currentPrice = alphBalance / exBalance;
+                document.getElementById('result').innerText = `Price: ${currentPrice.toFixed(4)} $ALPH`;
+
+                // Calculate the multiplier and display it with the presale price
+                const multiplier = currentPrice / presalePrice;
+                document.getElementById('presalePrice').innerText = `Presale Price: 0.075 $ALPH (${multiplier.toFixed(2)}x)`;
             } catch (error) {
                 console.error("Error fetching balance data:", error);
                 document.getElementById('result').innerText = "Error loading data";
