@@ -7,133 +7,271 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
 
-        body {
-            background: linear-gradient(45deg, #98FB98, #E0FFF0);
-            color: #2E8B57;
-            min-height: 100vh;
-        }
+body {
+    background: linear-gradient(45deg, #98FB98, #E0FFF0);
+    color: #2E8B57;
+    min-height: 100vh;
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
 
-        .banner {
-            width: 100%;
-            height: 300px;
-            background-size: cover;
-            background-position: center;
-            border-radius: 20px;
-            margin-bottom: 2rem;
-        }
+.hero {
+    text-align: center;
+    padding: 0 0;
+    animation: float 3s ease-in-out infinite;
+}
 
-        .hero {
-            text-align: center;
-            padding: 4rem 0;
-            animation: float 3s ease-in-out infinite;
-        }
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-        }
+.logo {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(46,139,87,0.3);
+}
 
-        .logo {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto;
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(46,139,87,0.3);
-        }
+h1 {
+    font-size: 4rem;
+    margin: 2rem 0;
+    text-shadow: 3px 3px 0px #98FB98;
+}
 
-        h1 {
-            font-size: 4rem;
-            margin: 2rem 0;
-            text-shadow: 3px 3px 0px #98FB98;
-        }
+.tokenomics {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
 
-        .tokenomics {
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            margin: 2rem 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            flex-wrap: wrap;
-        }
+.chart-container {
+    width: 400px;
+    height: 400px;
+    position: relative;
+}
 
-        .chart-container {
-            width: 400px;
-            height: 400px;
-            position: relative;
-        }
+.tokenomics-legend {
+    padding: 2rem;
+}
 
-        .tokenomics-legend {
-            padding: 2rem;
-        }
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+    font-size: 1.2rem;
+}
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 1rem 0;
-            font-size: 1.2rem;
-        }
+.legend-color {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border-radius: 5px;
+}
 
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            border-radius: 5px;
-        }
+.contracts {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
 
-        .contracts {
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            margin: 2rem 0;
-        }
+.contract-item {
+    background: rgba(152,251,152,0.3);
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    word-break: break-all;
+}
 
-        .contract-item {
-            background: rgba(152,251,152,0.3);
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 1rem 0;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+.contract-item:hover {
+    background: rgba(152,251,152,0.5);
+}
 
-        .contract-item:hover {
-            background: rgba(152,251,152,0.5);
-        }
+.buy-button {
+    display: inline-block;
+    padding: 1rem 3rem;
+    font-size: 1.5rem;
+    background: #2E8B57;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    margin: 2rem 1rem;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(46,139,87,0.4);
+}
 
-        .buy-button {
-            display: inline-block;
-            padding: 1rem 3rem;
-            font-size: 1.5rem;
-            background: #2E8B57;
-            color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            margin: 2rem 0;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(46,139,87,0.4);
-        }
+.buy-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(46,139,87,0.6);
+}
 
-        .buy-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(46,139,87,0.6);
-        }
+.powered-by {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.partners {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    margin-top: 1rem;
+}
+
+.partner {
+    text-decoration: none;
+    color: #2E8B57;
+    transition: transform 0.3s;
+}
+
+.partner:hover {
+    transform: scale(1.1);
+}
+
+.partner img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+}
+
+.partner-name {
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        margin: 1rem 0;
+    }
+
+    .logo {
+        width: 150px;
+        height: 150px;
+    }
+
+    .chart-container {
+        width: 100%;
+        max-width: 300px;
+        height: 300px;
+    }
+
+    .tokenomics {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .tokenomics-legend {
+        padding: 1rem 0;
+        width: 100%;
+        text-align: left;
+    }
+
+    .tokenomics-legend h1 {
+        font-size: 1.8rem;
+    }
+
+    .legend-item {
+        font-size: 1rem;
+    }
+
+    .buy-button {
+        padding: 0.8rem 2rem;
+        font-size: 1.2rem;
+        margin: 1rem 0.5rem;
+        display: inline-block;
+        width: calc(50% - 1rem);
+        text-align: center;
+    }
+
+    .partners {
+        gap: 1.5rem;
+    }
+
+    .partner img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .partner-name {
+        font-size: 0.9rem;
+    }
+
+    .contracts {
+        padding: 1rem;
+    }
+
+    .contract-item {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+        word-break: break-all;
+        white-space: normal;
+        overflow-wrap: break-word;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    .logo {
+        width: 120px;
+        height: 120px;
+    }
+
+    .buy-button {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+
+    .partner img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .chart-container {
+        height: 250px;
+        max-width: 280px;
+    }
+
+    .tokenomics-legend h1 {
+        font-size: 1.5rem;
+    }
+}
     </style>
 </head>
 <body>
@@ -141,8 +279,13 @@
         
         <div class="hero">
             <img src="https://github.com/alephium/token-list/blob/master/logos/EXY.png?raw=true" alt="Sexy Pepe Logo" class="logo">
-            <h1>$EXY</h1>
-            <p class="subtitle">The Sexiest Meme Token on Elexium 🐸✨</p>
+            <h1>Sexy Pepe ($EXY)</h1>
+            <p class="subtitle">The First & Sexiest Meme Token on Elexium 🐸✨</p>
+        </div>
+      
+        <div style="text-align: center;">
+            <a href="https://elexium.io/swap" class="buy-button">Buy $EXY🚀</a>
+            <a href="https://elexium.io/liquidity" class="buy-button">Add Liquidity💧</a>
         </div>
 
         <div class="tokenomics">
@@ -150,7 +293,7 @@
                 <canvas id="tokenomicsChart"></canvas>
             </div>
             <div class="tokenomics-legend">
-                <h2>Tokenomics 📊</h2>
+              <h1>Supply = 69 Million</h1>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #98FB98"></div>
                     <span>69% Liquidity</span>
@@ -164,28 +307,43 @@
                     <span>10% Team</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background: #90EE90"></div>
+                    <div class="legend-color" style="background: #69c269"></div>
                     <span>10% Treasury</span>
                 </div>
             </div>
         </div>
 
         <div class="contracts">
-            <h2>Contract Information 📝</h2>
-            <div class="contract-item" onclick="copyToClipboard('0x123...789')">
-                Token Contract: 0x123...789
+            <h2>Alephium Contract Information 📝</h2>
+            <div class="contract-item" onclick="copyToClipboard('26ZZNScke9xJyVcZAktVGvwRwRd8ArVtpXK2hqpEK6UsR')">
+                Token Contract: 26ZZNScke9xJyVcZAktVGvwRwRd8ArVtpXK2hqpEK6UsR
             </div>
-            <div class="contract-item" onclick="copyToClipboard('0xabc...def')">
-                Pair Contract: 0xabc...def
+            <div class="contract-item" onclick="copyToClipboard('Coming Soon')">
+                Pair Contract: Coming Soon
             </div>
-            <div class="contract-item" onclick="copyToClipboard('EXY-123-456')">
-                Token ID: EXY-123-456
+            <div class="contract-item" onclick="copyToClipboard('b067767804137fa913fe30a26a7c5f397faba36aaa7b9650327ae4e6e9305d00')">
+                Token ID: b067767804137fa913fe30a26a7c5f397faba36aaa7b9650327ae4e6e9305d00
             </div>
         </div>
 
-        <div style="text-align: center;">
-            <a href="https://elexium.io/swap" class="buy-button">Buy $EXY Now! 🚀</a>
+        <div class="powered-by">
+            <h2>Powered by:</h2>
+            <div class="partners">
+                <a href="https://elexium.io" class="partner">
+                    <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/EX.png" alt="Elexium Finance Logo">
+                    <div class="partner-name">Elexium Finance</div>
+                </a>
+                <a href="https://alephium.org" class="partner">
+                    <img src="https://avatars.githubusercontent.com/u/38327433?s=280&v=4" alt="Alephium Logo">
+                    <div class="partner-name">Alephium</div>
+                </a>
+                <a href="https://candy.surf" class="partner">
+                    <img src="https://candyswap.gg/_next/image?url=%2Ffavicon.png&w=128&q=75" alt="Candy Swap Logo">
+                    <div class="partner-name">Candy Swap</div>
+                </a>
+            </div>
         </div>
+
     </div>
 
     <script>
@@ -206,7 +364,7 @@
                         '#98FB98',
                         '#3CB371',
                         '#2E8B57',
-                        '#90EE90'
+                        '#69c269'
                     ],
                     borderWidth: 0
                 }]
