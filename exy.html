@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$EXY - Sexy Pepe Token</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(45deg, #98FB98, #E0FFF0);
+            color: #2E8B57;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .banner {
+            width: 100%;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .logo {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(46,139,87,0.3);
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 2rem 0;
+            text-shadow: 3px 3px 0px #98FB98;
+        }
+
+        .tokenomics {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .chart-container {
+            width: 400px;
+            height: 400px;
+            position: relative;
+        }
+
+        .tokenomics-legend {
+            padding: 2rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            font-size: 1.2rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+
+        .contracts {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .contract-item {
+            background: rgba(152,251,152,0.3);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .contract-item:hover {
+            background: rgba(152,251,152,0.5);
+        }
+
+        .buy-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            font-size: 1.5rem;
+            background: #2E8B57;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            margin: 2rem 0;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(46,139,87,0.4);
+        }
+
+        .buy-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(46,139,87,0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="hero">
+            <img src="https://github.com/alephium/token-list/blob/master/logos/EXY.png?raw=true" alt="Sexy Pepe Logo" class="logo">
+            <h1>$EXY</h1>
+            <p class="subtitle">The Sexiest Meme Token on Elexium 🐸✨</p>
+        </div>
+
+        <div class="tokenomics">
+            <div class="chart-container">
+                <canvas id="tokenomicsChart"></canvas>
+            </div>
+            <div class="tokenomics-legend">
+                <h2>Tokenomics 📊</h2>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #98FB98"></div>
+                    <span>69% Liquidity</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #3CB371"></div>
+                    <span>11% Bribes</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #2E8B57"></div>
+                    <span>10% Team</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #90EE90"></div>
+                    <span>10% Treasury</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="contracts">
+            <h2>Contract Information 📝</h2>
+            <div class="contract-item" onclick="copyToClipboard('0x123...789')">
+                Token Contract: 0x123...789
+            </div>
+            <div class="contract-item" onclick="copyToClipboard('0xabc...def')">
+                Pair Contract: 0xabc...def
+            </div>
+            <div class="contract-item" onclick="copyToClipboard('EXY-123-456')">
+                Token ID: EXY-123-456
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="https://elexium.io/swap" class="buy-button">Buy $EXY Now! 🚀</a>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard! 📋');
+        }
+
+        // Pie Chart
+        const ctx = document.getElementById('tokenomicsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Liquidity', 'Bribes', 'Team', 'Treasury'],
+                datasets: [{
+                    data: [69, 11, 10, 10],
+                    backgroundColor: [
+                        '#98FB98',
+                        '#3CB371',
+                        '#2E8B57',
+                        '#90EE90'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
