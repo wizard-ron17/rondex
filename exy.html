@@ -61,7 +61,18 @@ h1 {
     align-items: center;
     justify-content: space-around;
     flex-wrap: wrap;
+    position: relative;
 }
+      
+      .pepe-image {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 150px;
+        height: auto;
+        pointer-events: none;  /* Prevents image from interfering with interactions */
+        z-index: 1;  /* Ensures image stays above other content */
+    }
 
 .chart-container {
     width: 400px;
@@ -193,6 +204,12 @@ h1 {
         flex-direction: column;
         align-items: center;
     }
+  
+    .pepe-image {
+            width: 100px;
+            bottom: 10px;
+            right: 10px;
+    }
 
     .tokenomics-legend {
         padding: 1rem 0;
@@ -289,29 +306,31 @@ h1 {
         </div>
 
         <div class="tokenomics">
-            <div class="chart-container">
-                <canvas id="tokenomicsChart"></canvas>
-            </div>
-            <div class="tokenomics-legend">
-              <h1>Supply = 69 Million</h1>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #98FB98"></div>
-                    <span>69% Liquidity</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #3CB371"></div>
-                    <span>11% Bribes</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #2E8B57"></div>
-                    <span>10% Team</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #69c269"></div>
-                    <span>10% Treasury</span>
-                </div>
-            </div>
+    <div class="chart-container">
+        <canvas id="tokenomicsChart"></canvas>
+    </div>
+    <div class="tokenomics-legend">
+        <h1>Supply = 69 Million</h1>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #98FB98"></div>
+            <span>69% Liquidity</span>
         </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #3CB371"></div>
+            <span>11% Bribes</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #2E8B57"></div>
+            <span>10% Team</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #69c269"></div>
+            <span>10% Treasury</span>
+        </div>
+    </div>
+    <!-- Add the image here -->
+    <img src="https://github.com/wizard-ron17/rondex/blob/main/naked-pepe.png?raw=true" alt="Pepe" class="pepe-image">
+</div>
 
         <div class="contracts">
             <h2>Alephium Contract Information 📝</h2>
