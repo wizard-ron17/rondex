@@ -83,6 +83,65 @@ h1 {
 .tokenomics-legend {
     padding: 2rem;
 }
+      
+.mission {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
+}
+
+.mission-content {
+    position: relative;
+    z-index: 2;
+    max-width: 70%;
+}
+
+.mission h2 {
+    color: #2E8B57;
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 0px #98FB98;
+}
+
+.mission-list {
+    list-style: none;
+}
+
+.mission-list li {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+    font-size: 1.2rem;
+    color: #2E8B57;
+    padding: 0.5rem 1rem;
+    background: rgba(152,251,152,0.3);
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.mission-list li:hover {
+    transform: translateX(10px);
+}
+
+.mission-list li::before {
+    content: "🎯";
+    margin-right: 10px;
+}
+
+.red-pepe {
+    position: absolute;
+    top: 76%;
+    right: 30px;
+    transform: translateY(-50%);
+    width: 250px;
+    height: auto;
+    z-index: 1;
+}
 
 .legend-item {
     display: flex;
@@ -224,6 +283,23 @@ h1 {
     .legend-item {
         font-size: 1rem;
     }
+  
+    .mission-content {
+        max-width: 100%;
+    }
+
+    .mission h2 {
+        font-size: 1.8rem;
+    }
+
+    .mission-list li {
+        font-size: 1rem;
+    }
+
+    .red-pepe {
+        width: 120px;
+        top: 15%;
+    }
 
     .buy-button {
         padding: 0.8rem 2rem;
@@ -330,6 +406,18 @@ h1 {
     </div>
     <!-- Add the image here -->
     <img src="https://github.com/wizard-ron17/rondex/blob/main/naked-pepe.png?raw=true" alt="Pepe" class="pepe-image">
+</div>
+      
+      <div class="mission">
+    <div class="mission-content">
+        <h2>Our Mission</h2>
+        <ul class="mission-list">
+            <li>Bring attention to Elexium</li>
+            <li>Increase TVL and Volume on Alephium</li>
+            <li>Reward holders and LP Providers via veDEX Bribes, Burns, Giveaways</li>
+        </ul>
+    </div>
+    <img src="https://github.com/wizard-ron17/rondex/blob/main/red-pretty-pepe.png?raw=true" alt="Red Pepe" class="red-pepe">
 </div>
 
         <div class="contracts">
