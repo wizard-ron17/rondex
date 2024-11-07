@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Calculate the value of your ALPHDOGE LP Tokens!">
+  <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/wizard-ron17/rondex/main/favicon.ico">
+  <title>Ron's LP Tool - DOGE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet"> <!-- Stylish font -->
+  <style>
+        body {
+            font-family: 'Poppins', sans-serif; /* Stylish font */
+            margin: 0px;
+            padding-bottom: 10px;
+            background-color: #000;
+            color: #fff;
+            overflow-y: auto;
+        }
+
+        body, canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            z-index: -1000;
+            top: 0;
+        }
+
+        .banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .banner-section {
+            text-align: center;
+        }
+
+        .banner-section h3 {
+            margin: 0;
+            font-size: 1.2em;
+            color: #f4bd00;
+        }
+
+        .banner-section p {
+            margin: 0;
+            font-size: 1em;
+            color: #fff;
+            font-weight: bold;
+        }
+
+    h2 {
+      color: #f4bd00;
+      text-align: center;
+      margin: 5px;
+    }
+
+    .animate-character {
+            background-image: linear-gradient(
+                -225deg,
+                #fff 0%,
+                #f4bd00 50%,
+                #fff 100%
+            );
+            background-size: auto auto;
+            background-clip: border-box;
+            background-size: 200% auto;
+            color: #000000;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textclip 7s linear infinite;
+            font-size: 30px;
+            text-align: center;
+        }
+
+        @keyframes textclip {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #fff;
+      text-align: center;
+    }
+
+    .input-container {
+      position: relative;
+      width: fit-content;
+      margin: 0 auto;
+    }
+
+    input {
+      width: 200px; /* Adjust as needed */
+      padding: 10px;
+      box-sizing: border-box;
+      background-color: #000;
+      color: #fff;
+      border: 1.5px solid #f4bd00;
+      border-radius: 4px;
+      appearance: none; /* Remove the increase and decrease arrows */
+    }
+
+    .go-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: #f4bd00;
+      color: #000;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+      height: 37px;
+    }
+
+    button:hover {
+      background-color: #c99f0c;
+    }
+
+    #result {
+      margin-top: 10px;
+      text-align: center;
+      color: #f4bd00;
+    }
+
+    .result-container {
+      border: 1.5px solid #f4bd00;
+      border-radius: 8px;
+      padding: 10px;
+      background-color: #000;
+      width: 600px;
+      margin: auto;
+    }
+
+    .result-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .value {
+      font-size: 20px;
+      color: #fff;
+      margin-top: 0px;
+    }
+
+    .token-logo {
+      width: 24px;
+      height: 24px;
+      margin-right: 0px;
+    }
+
+    .price-text {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .disclaimer {
+      font-size: 12px;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 10px;
+      margin-top: 10px;
+    }
+
+    /* Donate Section Styles */
+    #donate-container {
+      border-radius: 8px;
+      padding: 0px;
+      text-align: center;
+      margin-top: 10px;
+      width: 80%; /* Set a default width for larger screens */
+      margin: 0 auto; /* Center the container */
+    }
+
+    #donate-explanation {
+      font-size: 14px;
+      color: #ffffff;
+      margin-bottom: 0px;
+    }
+
+    #donate-address {
+      color: #ddd;
+      font-size: 14px;
+      padding: 0px;
+      border-radius: 4px;
+      margin: 5px;
+      width: 100%; /* Make the donate address full-width on all screens */
+      box-sizing: border-box; /* Ensure padding and border are included in the width */
+      overflow-wrap: break-word; /* Wrap long words */
+    }
+
+    #copy-button {
+      background-color: #f4bd00;
+      color: #000;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+      width: auto; /* Make the copy button full-width on all screens */
+      box-sizing: border-box; /* Ensure padding and border are included in the width */
+    }
+
+    #copy-button:hover {
+      background-color: #c99f0c;
+    }
+
+    /* QR Code button styles */
+    #qr-code-button {
+      background-color: #f4bd00;
+      color: #000;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+      margin-left: 10px; /* Adjust the margin to create space between buttons */
+    }
+
+    #qr-code-button:hover {
+      background-color: #c99f0c;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0,0,0);
+      background-color: rgba(0,0,0,0.7);
+    }
+
+    .modal-content {
+      background-color: #000;
+      margin: 15% auto;
+      padding-left: 10px;
+      padding-right: 10px;
+      padding-bottom: 10px;
+      padding-top: 0px;
+      width: 220px;
+      height: 240px;
+      text-align: center;
+      border-radius: 10px;
+      border: 1px solid white;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 20px;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: red;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Styling for the QR code */
+    #qrcode {
+      margin-top: 0px;
+      border: 10px solid #000;
+      border-radius: 10px;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-bottom: 0px;
+      margin-top: 80px;
+    }
+
+    .button-container a {
+      text-decoration: none;
+      display: inline-block; 
+      margin: 0 2px;
+    }
+
+    .button-container button {
+      padding: 6px 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: #ff8c00;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-weight: bold;
+    }
+
+    #pairs-button {
+      background-color: #000;
+      color: #fff;
+      padding: 8px 12px;
+      border: 1px solid white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+      margin-top: 0px;
+    }
+
+#pairs-button:hover {
+  background-color: #333;
+}
+
+#pairs-modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0%;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.7);
+}
+
+.pairs-modal-content {
+  background-color:rgba(0, 0, 0);
+  border: 1px solid white;
+  margin: 15% auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 10px;
+}
+
+.pairs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+.pair-item {
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  transition: transform 0.3s ease;
+}
+
+.pair-item:hover {
+  transform: scale(1.1);
+}
+
+.pair-item img {
+  width: 50px;
+  height: 50px;
+}
+
+.pair-item p {
+  margin-top: 1px;
+  color: #fff;
+}
+
+    hr {
+      width: 400px;
+      border: 1px solid gray;
+      margin: 0px auto;
+    }
+
+    /* Media queries for mobile */
+    @media screen and (max-width: 600px) {
+      .result-line {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .price-text {
+        margin-top: 10px;
+        text-align: center;
+      }
+
+      .result-container {
+        position: relative;
+        max-width: 90%;
+      }
+
+      hr {
+        width: 90%;
+      }
+
+      .modal-content {
+      margin: 50% auto;
+      }
+
+      body {
+      height: auto;
+      padding-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body onload="calculate()">
+  <canvas></canvas>
+
+  <div class="banner">
+        <div class="banner-section">
+            <h3>DOGE Price</h3>
+            <p id="DOGE-price">Loading</p>
+        </div>
+        <div class="banner-section">
+            <h3>ALPH Price</h3>
+            <p id="alph-price">Loading</p>
+        </div>
+        <div class="banner-section">
+            <h3>Liquidity</h3>
+            <p id="liquidity">Loading</p>
+        </div>
+    </div>
+
+    <div class="button-container">
+      <button id="pairs-button" onclick="openPairsModal()">Pairs</button>
+    </div>
+
+  <h2 class="animate-character">Ron's ALPH/DOGE LP Calculator</h2>
+  
+  <label for="lpTokens">Enter LP tokens:</label>
+  <div class="input-container">
+    <input type="number" id="lpTokens" placeholder="LP Tokens" value="0">
+    <button class="go-button" onclick="calculate()">GO</button>
+  </div>
+
+  <div id="result">
+    <div class="result-container">
+      <div class="result-line">
+        <p class="value">
+          <img src="https://rondex.xyz/ALPH.png" height=20px width:=20px alt="ALPH Logo" class="token-logo-alph"> Your ALPH in LP:
+        </p>
+        <p class="value"><span class="alph-amount">0</span> $ALPH<span class="price-text"> ($<span class="usd-value-alph">0</span> USD)</span></p>
+      </div>
+      <div class="result-line">
+        <p class="value">
+          <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/DOGE.png" alt="DOGE Logo" class="token-logo"> Your DOGE in LP:
+        </p>
+        <p class="value"><span class="DOGE-amount">0</span> $DOGE<span class="price-text"> ($<span class="usd-value-DOGE">0</span> USD)</span></p>
+      </div>
+      <div class="result-line">
+        <p class="value">
+          <img src="https://emojiisland.com/cdn/shop/products/Money_Bag_Emoji_large.png?v=1571606064" alt="Money Bag" class="token-logo"> Total Value:
+        </p>
+        <p class="value"><span class="total-value">0</span> $ALPH<span class="price-text"> ($<span class="total-usd-value">0</span> USD)</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">Disclaimer: These values are approximate.</div>
+
+  <hr>
+
+  <!-- Donate Section -->
+  <div id="donate-container">
+    <p id="donate-explanation">
+      Support Ron for building this tool! Consider making a donation to this Alephium address:
+    </p>
+    <div id="donate-address">19KzzRrWpSPJw89ujfYBBaQzkWdL6qcVSUbEs8CFvceqe</div>
+    <button id="copy-button" onclick="copyDonateAddress()">COPY</button>
+    <button id="qr-code-button" onclick="generateQRCode('19KzzRrWpSPJw89ujfYBBaQzkWdL6qcVSUbEs8CFvceqe')">QR CODE</button>
+  </div>
+
+  <div id="qrModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <img id="qrcode" src="" alt="QR Code">
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script>
+    function loadPairsModal() {
+      fetch('pairs-modal.html')
+        .then(response => response.text())
+        .then(data => {
+          document.body.insertAdjacentHTML('beforeend', data);
+        })
+        .catch(error => console.error('Error loading modal:', error));
+    }
+
+    function openPairsModal() {
+      document.getElementById("pairs-modal").style.display = "block";
+    }
+
+    function closePairsModal() {
+      document.getElementById("pairs-modal").style.display = "none";
+    }
+
+    // Close the modal when clicking outside of it
+    window.onclick = function(event) {
+      var modal = document.getElementById("pairs-modal");
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPairsModal);
+
+    function calculate() {
+      const lpTokens = parseFloat(document.getElementById('lpTokens').value);
+
+      // Fetch API data
+      const apiUrl = 'https://api.mobula.io/api/1/market/pair?blockchain=alephium&address=29SH9mpQVXHrZ9xRpMpnKkq8CTqaY8FyFh4e4wuA4R1eF&asset=alphDOGE';
+      
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const pooledAlph = parseFloat(data.data.token0.approximateReserveToken);
+          const pooledAlphRaw = parseFloat(data.data.token0.approximateReserveTokenRaw);
+          const pooledDOGE = parseFloat(data.data.token1.approximateReserveToken);
+          const pooledDOGERaw = parseFloat(data.data.token1.approximateReserveTokenRaw);
+          const priceAlph = data.data.token0.price;
+          const priceDOGE = data.data.token1.price;
+          const priceDOGEInAlph = data.data.token1.priceToken;
+
+          const totalSupply = Math.sqrt(pooledAlphRaw * pooledDOGERaw)
+          const liquidity18 = totalSupply / 10 ** 18;
+
+          const userPoolShare = lpTokens / liquidity18;
+          const valueOfAlph = userPoolShare * pooledAlph; // User balance alph
+          const valueOfDOGE = userPoolShare * pooledDOGE; // User balance DOGE
+          const totalValue = valueOfAlph + (valueOfDOGE * priceDOGEInAlph); // User total balance in alph
+          const USDvalueAlph = valueOfAlph * priceAlph;
+          const USDvalueDOGE = (valueOfDOGE * priceDOGEInAlph) * priceAlph;
+          const USDtotalValue = totalValue * priceAlph;
+          
+          document.getElementById('liquidity').textContent = formatNumberWithApostrophes('$'+parseFloat((pooledAlph*2)*priceAlph).toFixed(2));
+          document.getElementById('alph-price').textContent = '$'+priceAlph.toFixed(2);
+          document.getElementById('DOGE-price').textContent = priceDOGEInAlph.toFixed(4) + ' ALPH';
+          document.querySelector('.alph-amount').textContent = formatNumberWithApostrophes(valueOfAlph.toFixed(2));
+          document.querySelector('.DOGE-amount').textContent = formatNumberWithApostrophes(valueOfDOGE.toFixed(2));
+          document.querySelector('.total-value').textContent = formatNumberWithApostrophes(totalValue.toFixed(2));
+          document.querySelector('.usd-value-alph').textContent = formatNumberWithApostrophes(USDvalueAlph.toFixed(2));
+          document.querySelector('.usd-value-DOGE').textContent = formatNumberWithApostrophes(USDvalueDOGE.toFixed(2));
+          document.querySelector('.total-usd-value').textContent = formatNumberWithApostrophes(USDtotalValue.toFixed(2));
+        })
+        .catch(err => console.error(err));
+    }
+
+    function copyDonateAddress() {
+      const donateAddress = document.getElementById('donate-address').innerText;
+      navigator.clipboard.writeText(donateAddress)
+        .then(() => alert("Ron's ALPH Address copied to clipboard!"))
+        .catch(err => console.error(err));
+    }
+
+    // Get the modal
+    var modal = document.getElementById("qrModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("qr-code-button");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function() {
+      modal.style.display = "block";
+      generateQRCode("19KzzRrWpSPJw89ujfYBBaQzkWdL6qcVSUbEs8CFvceqe");
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    // Function to generate QR code
+    function generateQRCode(text) {
+      var qr = new QRious({
+        element: document.getElementById('qrcode'),
+        value: text,
+        size: 200
+      });
+    }
+
+    function formatNumberWithApostrophes(number) {
+      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+    }
+
+    // init
+var maxx = document.body.clientWidth;
+var maxy = document.body.clientHeight;
+var halfx = maxx / 2;
+var halfy = maxy / 2;
+var canvas = document.createElement("canvas");
+document.body.appendChild(canvas);
+canvas.width = maxx;
+canvas.height = maxy;
+var context = canvas.getContext("2d");
+var dotCount = 200;
+var dots = [];
+// create dots
+for (var i = 0; i < dotCount; i++) {
+  dots.push(new dot());
+}
+
+// dots animation
+function render() {
+  context.fillStyle = "#000000";
+  context.fillRect(0, 0, maxx, maxy);
+  for (var i = 0; i < dotCount; i++) {
+    dots[i].draw();
+    dots[i].move();
+  }
+  requestAnimationFrame(render);
+}
+
+// dots class
+// @constructor
+function dot() {
+  
+  this.rad_x = 2 * Math.random() * halfx + 1;
+  this.rad_y = 1.2 * Math.random() * halfy + 1;
+  this.alpha = Math.random() * 360 + 1;
+  this.speed = Math.random() * 100 < 50 ? 1 : -1;
+  this.speed *= 0.1;
+  this.size = Math.random() * 5 + 1;
+  this.color = Math.floor(Math.random() * 256);
+  
+}
+
+// drawing dot
+dot.prototype.draw = function() {
+  
+  // calc polar coord to decart
+  var dx = halfx + this.rad_x * Math.cos(this.alpha / 180 * Math.PI);
+  var dy = halfy + this.rad_y * Math.sin(this.alpha / 180 * Math.PI);
+  // set color
+  context.fillStyle = "rgb(" + 244 + "," + 189 + "," + 0 + ")";
+  // draw dot
+  context.fillRect(dx, dy, this.size, this.size);
+  
+};
+
+// calc new position in polar coord
+dot.prototype.move = function() {
+  
+  this.alpha += this.speed;
+  // change color
+  if (Math.random() * 100 < 50) {
+    this.color += 1;
+  } else {
+    this.color -= 1;
+  }
+  
+};
+
+// start animation
+render();
+  </script>
+
+</body>
+</html>
