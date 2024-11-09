@@ -543,19 +543,8 @@
           const priceUSDC = data.data.token1.price;
           const priceUSDCInAlph = data.data.token1.priceToken;
 
-      // Fetch totalSupply from your server
-      const proxyUrl = 'https://rons-server.netlify.app/.netlify/functions/server/api/alph-pools';
-      fetch(proxyUrl)
-        .then(response => response.json())
-        .then(serverData => {
-          // Find the specific pool object by its pair address
-          const targetPairAddress = '283R192Z8n6PhXSpSciyvCsLEiiEVFkSE6MbRBA4KSaAj';
-          const selectedPool = serverData.pools.find(pool => pool.pair.address === targetPairAddress);
-          
-          if (selectedPool) {
-
-          const totalSupply = parseFloat(selectedPool.totalSupply);
-          const liquidity18 = totalSupply / 10**18;
+          const totalSupply = Math.sqrt(pooledAlph * pooledUSDC);
+          const liquidity18 = 0.0044;
 
           const userPoolShare = lpTokens / liquidity18;
           const valueOfAlph = userPoolShare * pooledAlph; // User balance alph
@@ -574,14 +563,9 @@
           document.querySelector('.usd-value-alph').textContent = formatNumberWithApostrophes(USDvalueAlph.toFixed(2));
           document.querySelector('.usd-value-USDC').textContent = formatNumberWithApostrophes(USDvalueUSDC.toFixed(2));
           document.querySelector('.total-usd-value').textContent = formatNumberWithApostrophes(USDtotalValue.toFixed(2));
-        } else {
-            console.error('Pool not found.');
-          }
-        })
-        .catch(err => console.error('Error fetching totalSupply from server:', err));
-    })
-    .catch(err => console.error('Error fetching data from Mobula:', err));
-}
+      })
+          .catch(err => console.error(err));
+    }
 
     function copyDonateAddress() {
       const donateAddress = document.getElementById('donate-address').innerText;
