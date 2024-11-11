@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eWagon.life | Electric Adventure Vehicles</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #86efac 0%, #0ea5e9 100%);
+        }
+        .hero-pattern {
+            background-image: linear-gradient(
+                rgba(0, 0, 0, 0.4),
+                rgba(0, 0, 0, 0.4)
+            ),
+            url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi17ixE6CXeMSoL22FeqET0CAdnFinoGpeklTuBbhX5w96eNF1FO0VpS0WG4argMOpBf218riCMfFqDYwG_K3mXN_6KWKChxRDSXsVvEQvrpL4RIH6fwkd_9_5PsFApnoZB7YXCorxkPB8P/s1600/allee-en-automne.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+        
+        /* Enhanced nav styles */
+        .nav-blur {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+                        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+        }
+
+        /* Transition for nav background on scroll */
+        .nav-scroll {
+            transition: all 0.3s ease;
+        }
+        
+        .hero-pattern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .hero-pattern:hover::before {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation with enhanced background -->
+    <nav class="fixed w-full z-50 nav-blur nav-scroll">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="text-3xl font-bold text-gray-800">
+                    eWagon<span class="text-green-500">.life</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#" class="text-gray-600 hover:text-green-500 transition-colors duration-200">Models</a>
+                    <a href="#" class="text-gray-600 hover:text-green-500 transition-colors duration-200">Technology</a>
+                    <a href="#" class="text-gray-600 hover:text-green-500 transition-colors duration-200">About</a>
+                    <a href="#" class="text-gray-600 hover:text-green-500 transition-colors duration-200">Contact</a>
+                </div>
+                <button class="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600 transition-colors duration-200">
+                    Reserve Now
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Rest of the content remains exactly the same -->
+    <!-- Hero Section -->
+    <section class="hero-pattern min-h-screen flex items-center">
+        <div class="container mx-auto px-6 pt-32">
+            <div class="max-w-3xl">
+                <h1 class="text-5xl md:text-6xl font-bold text-white mb-6">
+                    The Future of Electric Adventure
+                </h1>
+                <p class="text-xl text-white mb-8">
+                    Experience the world's first smart electric camper. Zero emissions, infinite possibilities.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <button class="bg-white text-gray-800 px-8 py-3 rounded-full hover:bg-gray-100 transition">
+                        Explore Models
+                    </button>
+                    <button class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-full hover:bg-white/10 transition">
+                        Watch Video
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-white">
+        <!-- Rest of the features section content remains the same -->
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16">Why eWagon?</h2>
+            <div class="grid md:grid-cols-3 gap-12">
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Sustainable Power</h3>
+                    <p class="text-gray-600">500-mile range with solar charging capability for extended adventures.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Smart Living</h3>
+                    <p class="text-gray-600">AI-powered systems for climate control, security, and energy management.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Luxury Comfort</h3>
+                    <p class="text-gray-600">Premium materials and modern amenities for a home-like experience.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="gradient-bg py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold text-white mb-8">Ready to Start Your Electric Adventure?</h2>
+            <p class="text-xl text-white/90 mb-8">Join the sustainable travel revolution today.</p>
+            <button class="bg-white text-gray-800 px-8 py-3 rounded-full hover:bg-gray-100 transition">
+                Configure Your eWagon
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">eWagon<span class="text-green-500">.life</span></h3>
+                    <p class="text-gray-400">Revolutionizing sustainable travel with electric adventure vehicles.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Models</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Technology</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Follow Us</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Twitter</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Instagram</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Facebook</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">LinkedIn</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Newsletter</h4>
+                    <p class="text-gray-400 mb-4">Stay updated with our latest innovations.</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Enter your email" class="bg-gray-800 px-4 py-2 rounded-l-full focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <button class="bg-green-500 px-6 py-2 rounded-r-full hover:bg-green-600 transition">
+                            Subscribe
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 eWagon.life. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Optional: Add scroll behavior for nav -->
+    <script>
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.backgroundColor = 'rgba(255, 255, 255, 0.98)';
+                nav.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+            } else {
+                nav.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+                nav.style.boxShadow = '0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+            }
+        });
+    </script>
+</body>
+</html>
