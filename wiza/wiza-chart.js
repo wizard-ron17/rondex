@@ -22,7 +22,7 @@ async function fetchPriceData(period) {
         }`;
 
     try {
-        const response = await fetch('https://kdswap-fd-prod-cpeabrdfgdg9hzen.z01.azurefd.net/graphql', {
+        const response = await fetch('https://api.kdswap.exchange/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
