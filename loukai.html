@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loukaï ($LOUKAÏ)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Fredoka One', sans-serif;
+      background-color: #70aab8;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background-color: #ffffff20;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-button {
+      background: white;
+      color: #70aab8;
+      margin: 0 10px;
+      padding: 15px 25px;
+      font-size: 18px;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-button:hover {
+      background: #ffffff;
+      color: #005f6b;
+      transform: translateY(-3px);
+    }
+
+    .header-button:active {
+      transform: translateY(2px);
+      box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .section {
+      padding: 80px 20px;
+      text-align: center;
+      width: 100%;
+    }
+
+    #hero {
+      background: linear-gradient(to bottom, #70aab8, #58a0b1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 100px 20px;
+    }
+
+    #hero img {
+      width: 180px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      border: 4px solid white;
+    }
+
+    #hero h1 {
+      font-size: 60px;
+      margin: 0;
+    }
+
+    #hero p {
+      font-size: 22px;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+
+    #about {
+      background: #ffffff30;
+      color: #003d4c;
+    }
+
+    #tokenomics {
+      background: #ffdd99;
+      color: #4a3c2a;
+    }
+
+    #charity {
+      background: #f4bfbf;
+      color: #5a1a1a;
+    }
+
+    #about img,
+    #tokenomics img,
+    #charity img {
+      width: 50px;
+      margin: 10px auto;
+    }
+
+    #about h2,
+    #tokenomics h2,
+    #charity h2 {
+      margin-top: 0;
+      font-size: 36px;
+    }
+
+    a {
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <button class="header-button" onclick="scrollToSection('about')">About</button>
+  <button class="header-button" onclick="scrollToSection('tokenomics')">Tokenomics</button>
+  <button class="header-button" onclick="scrollToSection('charity')">Charity</button>
+</header>
+
+<section id="hero">
+  <img src="https://ronrank.xyz/loukai-logo.jpg" alt="Loukaï Logo">
+  <h1>Loukaï ($LOUKAÏ)</h1>
+  <p>The first meme token on <a href="https://myonion.fun/" target="_blank">myonion.fun</a>! Celebrating dogs, fun, and charity. Inspired by Maud Bannwart's beloved Loukaï.</p>
+</section>
+
+<section id="about" class="section">
+  <h2>About Loukaï</h2>
+  <img src="https://img.icons8.com/ios-filled/50/dog-bone.png" alt="Dog Bone">
+  <p>Loukaï ($LOUKAÏ) is a dog meme token created to bring smiles and support to dog charities worldwide. Named after Maud Bannwart's dog, it embodies love, loyalty, and fun.</p>
+  <p>Join the pack today and be a part of the change!</p>
+</section>
+
+<section id="tokenomics" class="section">
+  <h2>Tokenomics</h2>
+  <img src="https://img.icons8.com/ios-filled/50/dog-house.png" alt="Dog House">
+  <p>💰 Total Supply: 1,000,000,000 $LOUKAÏ</p>
+  <p>🌍 Charity Allocation: 5% of every transaction</p>
+  <p>🚀 Liquidity: 50%</p>
+</section>
+
+<section id="charity" class="section">
+  <h2>Charity Utility</h2>
+  <img src="https://img.icons8.com/ios-filled/50/dog-paw.png" alt="Dog Paw">
+  <p>With Loukaï, every transaction makes a difference. A portion of every trade supports dog shelters and organizations worldwide.</p>
+  <p>Together, we can make tails wag!</p>
+</section>
+
+<script>
+  function scrollToSection(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
