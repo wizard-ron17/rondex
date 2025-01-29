@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Transaction Explorer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/9.1.1/bignumber.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .container {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-size: 16px;
+            min-height: 100px;
+            background: #333;
+            color: #e0e0e0;
+        }
+        .transaction-card {
+            margin: 20px 0;
+            padding: 20px;
+            background: #333;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            border-left: 4px solid #007bff;
+        }
+        .token-movement {
+            margin: 10px 0;
+            padding: 15px;
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+        .error {
+            color: #ff8a8a;
+            padding: 10px;
+            background: #3d2626;
+            border-radius: 4px;
+            display: none;
+            margin: 10px 0;
+        }
+        .amount {
+            font-family: monospace;
+            font-size: 1.1em;
+            color: #00ff9d;
+        }
+        .negative {
+            color: #ff8a8a;
+        }
+        .timestamp {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .hash {
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #888;
+            word-break: break-all;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .loading {
+            display: inline-block;
+            margin-left: 10px;
+            color: #888;
+        }
+        .tx-type {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .tx-type.stake { background: #6c5ce7; color: white; }
+        .tx-type.claim { background: #00b894; color: white; }
+        .tx-type.add-lp { background: #fdcb6e; color: black; }
+        .tx-type.swap { background: #e17055; color: white; }
+        .tx-type.gas { background: #636e72; color: white; }
+        .summary-card {
+            margin: 20px 0;
+            padding: 20px;
+            background: #333;
+            border-radius: 8px;
+            border-left: 4px solid #00b894;
+        }
+        .summary-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #2a2a2a;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Batch Transaction Explorer</h1>
+        <textarea id="txHashes" class="search-box" 
+            placeholder="Enter transaction hashes (one per line)"></textarea>
+        <button onclick="analyzeAllTx()">Analyze Transactions</button>
+        <span id="loading" class="loading"></span>
+        <div id="error" class="error"></div>
+        <div id="summary"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const MY_WALLET = "19KzzRrWpSPJw89ujfYBBaQzkWdL6qcVSUbEs8CFvceqe";
+        const TOKEN_NAMES = {
+            "cad22f7c98f13fe249c25199c61190a9fb4341f8af9b1c17fcff4cd4b2c3d200": "$EX",
+            "0000000000000000000000000000000000000000000000000000000000000000": "$ALPH",
+            "b067767804137fa913fe30a26a7c5f397faba36aaa7b9650327ae4e6e9305d00": "$EXY",
+            "b815bd29c789fb523f528f8d4108c4761c7c775ceb172369d4ad38106cecc100": "vAMM-EXY/EX"
+        };
+
+        const GAS_THRESHOLD = new BigNumber(10).pow(17); // 0.1 ALPH
+
+        function formatAmount(amount) {
+            return new BigNumber(amount)
+                .dividedBy(new BigNumber(10).pow(18))
+                .toFixed(6);
+        }
+
+        function formatDate(timestamp) {
+            return new Date(timestamp).toLocaleString();
+        }
+
+        function determineTransactionType(movements) {
+            // Filter out gas fees from consideration
+            const significantMovements = movements.filter(m => 
+                !(m.token === "$ALPH" && m.amount.abs().isLessThan(GAS_THRESHOLD))
+            );
+            
+            if (significantMovements.length === 0) return "gas";
+            
+            const hasVAMM = significantMovements.some(m => m.token.includes("vAMM"));
+            const hasEX = significantMovements.some(m => m.token === "$EX");
+            
+            // Stake: Sending vAMM tokens
+            if (hasVAMM && significantMovements.some(m => 
+                m.token.includes("vAMM") && m.direction === "Sent")) {
+                return "stake";
+            }
+            
+            // Claim: Receiving EX tokens
+            if (hasEX && significantMovements.some(m => 
+                m.token === "$EX" && m.direction === "Received")) {
+                return "claim";
+            }
+            
+            // Add LP: Receiving vAMM tokens
+            if (hasVAMM && significantMovements.some(m => 
+                m.token.includes("vAMM") && m.direction === "Received")) {
+                return "add-lp";
+            }
+            
+            // Swap: Any other significant token movement
+            return "swap";
+        }
+
+        async function analyzeTx(txHash) {
+            const response = await fetch(`https://backend.mainnet.alephium.org/transactions/${txHash}`);
+            const tx = await response.json();
+            
+            // Calculate total inputs per token from my wallet
+            const inputTotals = {};
+            tx.inputs.forEach(input => {
+                if (input.address === MY_WALLET) {
+                    if (!inputTotals["$ALPH"]) inputTotals["$ALPH"] = new BigNumber(0);
+                    inputTotals["$ALPH"] = inputTotals["$ALPH"].plus(input.attoAlphAmount);
+                    
+                    if (input.tokens) {
+                        input.tokens.forEach(token => {
+                            const tokenName = TOKEN_NAMES[token.id] || token.id.substring(0, 8) + "...";
+                            if (!inputTotals[tokenName]) inputTotals[tokenName] = new BigNumber(0);
+                            inputTotals[tokenName] = inputTotals[tokenName].plus(token.amount);
+                        });
+                    }
+                }
+            });
+
+            // Calculate total outputs per token to my wallet
+            const outputTotals = {};
+            tx.outputs.forEach(output => {
+                if (output.address === MY_WALLET) {
+                    if (!outputTotals["$ALPH"]) outputTotals["$ALPH"] = new BigNumber(0);
+                    outputTotals["$ALPH"] = outputTotals["$ALPH"].plus(output.attoAlphAmount);
+                    
+                    if (output.tokens) {
+                        output.tokens.forEach(token => {
+                            const tokenName = TOKEN_NAMES[token.id] || token.id.substring(0, 8) + "...";
+                            if (!outputTotals[tokenName]) outputTotals[tokenName] = new BigNumber(0);
+                            outputTotals[tokenName] = outputTotals[tokenName].plus(token.amount);
+                        });
+                    }
+                }
+            });
+
+            // Calculate net movement
+            let movements = [];
+            const allTokens = new Set([...Object.keys(inputTotals), ...Object.keys(outputTotals)]);
+            
+            allTokens.forEach(token => {
+                const inputAmount = inputTotals[token] || new BigNumber(0);
+                const outputAmount = outputTotals[token] || new BigNumber(0);
+                const netAmount = outputAmount.minus(inputAmount);
+                
+                if (!netAmount.isZero()) {
+                    movements.push({
+                        token,
+                        amount: netAmount,
+                        direction: netAmount.isPositive() ? "Received" : "Sent"
+                    });
+                }
+            });
+
+            return {
+                hash: txHash,
+                timestamp: tx.timestamp,
+                movements,
+                type: determineTransactionType(movements)
+            };
+        }
+
+        function displaySummary(results) {
+            const summaryDiv = document.getElementById('summary');
+            const tokenTotals = {};
+            
+            // Aggregate movements across all transactions
+            results.forEach(result => {
+                result.movements.forEach(movement => {
+                    if (!tokenTotals[movement.token]) {
+                        tokenTotals[movement.token] = {
+                            received: new BigNumber(0),
+                            sent: new BigNumber(0)
+                        };
+                    }
+                    
+                    if (movement.direction === "Received") {
+                        tokenTotals[movement.token].received = tokenTotals[movement.token].received.plus(movement.amount);
+                    } else {
+                        tokenTotals[movement.token].sent = tokenTotals[movement.token].sent.minus(movement.amount);
+                    }
+                });
+            });
+
+            // Create summary HTML
+            let summaryHtml = '<div class="summary-card">';
+            summaryHtml += '<div class="summary-title">Token Movement Summary</div>';
+            
+            Object.entries(tokenTotals).forEach(([token, amounts]) => {
+                // Skip small ALPH amounts (gas fees)
+                if (token === "$ALPH" && 
+                    amounts.received.abs().isLessThan(GAS_THRESHOLD) && 
+                    amounts.sent.abs().isLessThan(GAS_THRESHOLD)) {
+                    return;
+                }
+
+                const net = amounts.received.plus(amounts.sent);
+                summaryHtml += `
+                    <div class="summary-row">
+                        <strong>${token}</strong>
+                        <div>
+                            <span>Received: <span class="amount">${formatAmount(amounts.received)}</span></span>
+                            <span> | </span>
+                            <span>Sent: <span class="amount negative">${formatAmount(amounts.sent)}</span></span>
+                            <span> | </span>
+                            <span>Net: <span class="amount ${net.isPositive() ? '' : 'negative'}">${formatAmount(net)}</span></span>
+                        </div>
+                    </div>`;
+            });
+            
+            summaryHtml += '</div>';
+            summaryDiv.innerHTML = summaryHtml;
+        }
+
+        async function analyzeAllTx() {
+            const textarea = document.getElementById('txHashes');
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            const summaryDiv = document.getElementById('summary');
+            const loadingSpan = document.getElementById('loading');
+            
+            try {
+                const hashes = textarea.value.trim().split('\n').filter(hash => hash.trim());
+                
+                if (hashes.length === 0) {
+                    throw new Error('Please enter at least one transaction hash');
+                }
+
+                errorDiv.style.display = 'none';
+                resultDiv.innerHTML = '';
+                summaryDiv.innerHTML = '';
+                loadingSpan.textContent = `Processing ${hashes.length} transactions...`;
+
+                const results = [];
+                for (const hash of hashes) {
+                    try {
+                        const result = await analyzeTx(hash.trim());
+                        results.push(result);
+                        
+                        let html = `
+                            <div class="transaction-card">
+                                <div class="timestamp">${formatDate(result.timestamp)}`;
+                        
+                        if (result.type) {
+                            html += `<span class="tx-type ${result.type}">${result.type.toUpperCase()}</span>`;
+                        }
+                        
+                        html += `</div>
+                                <div class="hash">${result.hash}</div>`;
+                        
+                        result.movements.forEach(movement => {
+                            // Skip gas fees in transaction display
+                            if (movement.token === "$ALPH" && movement.amount.abs().isLessThan(GAS_THRESHOLD)) {
+                                return;
+                            }
+
+                            const amount = formatAmount(movement.amount.abs());
+                            html += `
+                                <div class="token-movement">
+                                    <strong>${movement.direction}:</strong> 
+                                    <span class="amount ${movement.direction === 'Sent' ? 'negative' : ''}">${amount}</span> 
+                                    <strong>${movement.token}</strong>
+                                </div>`;
+                        });
+
+                        html += '</div>';
+                        resultDiv.innerHTML += html;
+                    } catch (error) {
+                        resultDiv.innerHTML += `
+                            <div class="error">
+                                Error processing transaction ${hash}: ${error.message}
+                            </div>`;
+                    }
+                }
+
+                // Display summary after all transactions are processed
+                displaySummary(results);
+                loadingSpan.textContent = '';
+
+            } catch (error) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Error: ' + error.message;
+                loadingSpan.textContent = '';
+            }
+        }
+    </script>
+</body>
+</html>
