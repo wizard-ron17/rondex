@@ -1,320 +1,110 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>RonDEX</title>
-    <meta charset="utf-8">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Use advanced charting and trading for KDA tokens">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/wizard-ron17/rondex/main/favicon.ico">
-    <style>
-      body {
-        font-family: Orbitron, sans-serif;
-        background-color: #0B1D2E;
-        color: #fff;
-        margin: 0 0;
-      }
-      
-      h1 {
-        text-align: center;
-        margin: 0px;
-        font-size: 35px;
-      }
-      
-      h2 {
-        text-align: center;
-        margin: 0px 0px;
-        font-size: 35px;
-      }
-      
-      .animate-character {
-            background-image: linear-gradient(
-                -225deg,
-                #fff 0%, /* White */
-                #E41968 25%, /* Kadena Pink */
-                #fff 50%, /* Kadena Orange */
-                #4A9079 75%, /* Kadena Green */
-                #fff 100%
-            );
-            background-size: auto auto;
-            background-clip: border-box;
-            background-size: 200% auto;
-            color: #000000;
-            background-clip: text;
-            text-fill-color: transparent;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: textclip 7s linear infinite;
-            font-size: 35px;
-            text-align: center;
-        }
+    <title>Ron's Arb Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="index.css">
+    <script src="index.js" defer></script>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Ron's Arb Dashboard</h1>
+        </div>
 
-        @keyframes textclip {
-            to {
-                background-position: 200% center;
-            }
-        }
-      
-      .chart-container {
-        margin-left: 10px;
-        margin-right: 10px;
-        margin-bottom: 10px;
-        margin-top: 5px;
-        height: 400px;
-        width: auto;
-        border: 1px solid #555;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      }
-      
-      .swap-container {
-        margin: 10px;
-        height: 220px;
-        width: auto;
-        border: 1px solid #555;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      }
-      
-      .tradingview-widget-container {
-        margin: 0px;
-        padding: 0px 0px;
-      }
-      
-      li a {
-        text-decoration: none;
-        color: #ffffff;
-        text-align: left;
-        align-items: left;
-      }
-      
-      nav {
-        width : 100px;
-        height: 30px; 
-        background: #2d2f31;
-        margin: 0;
-        position: absolute;
-        top: 55px;
-        left: 10px;
-        border-radius: 5px; 
-        padding: 0px;
-        font-size: 12px;
-      }
-      
-      #drop {
-        padding: 0px;
-        height: 20px;
-        width: 100px;
-        background: #2d2f31; 
-        color: white;
-        font-size: 17px;
-        text-align: center;
-        cursor: pointer;
-        display: block;
-        border-radius: 5px;
-        z-index: 9999;
-        margin-top: 5px;
-        margin-bottom: 5px;
-        top: 55px;
-        left: 100px;
-      }
-      
-      #drop label {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      
-      #drop:hover {
-        color: #4A9079;
-      }
-      
-      #drop::after {
-        z-index: 9999;
-        background: #2d2f31;
-        border-radius: 5px;
-      }
-      
-      .slide {
-        clear: both;
-        width: 90px;
-        height: 0px;
-        overflow: hidden;
-        text-align: left;
-        transition: height .4s ease;
-        background: hsl(210, 4%, 18%);
-        border-radius: 5px;
-        padding-left: 10px;
-      }
-      
-      .slide li {
-        padding: 5px 0;
-        list-style: none;
-        text-align: left;
-        display: block;
-        align-items: left;
-        margin-right: 0px;
-      }
-      
-      .slide a {
-        align-items: left;
-        text-align: left;
-      }
-      
-      .slide a:hover {
-        color: #4A9079;
-      }
-      
-      #touch {
-        position: absolute;
-        opacity: 0; 
-        height: 0px;
-        width: 0px;
-      }
-      
-      #touch:checked + .slide {
-        height: 150px;
-        width: 90px;
-        border-radius: 5px;
-      }
-      
-      .token-logo {
-        width: 20px;
-        height: 20px;
-        margin-right: 10px;
-        vertical-align: middle;
-        margin-left: 0px;
-      }
-      
-      .tradingview-widget-container {
-        margin-top: 0px;
-        padding: 0px 0px;
-      }
-      /* Style for mobile screens */
-      @media (max-width: 400px) {
-      #drop {
-        margin-top: 5px;
-      }
-        
-      h1 {
-        margin-bottom: 50px;
-      }
-        
-      nav {
-        margin-top: 40px;
-      }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- TradingView Ticker Tape Widget BEGIN -->
-<div class="tradingview-widget-container">
-  <div class="tradingview-widget-container__widget"></div>
-  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-  {
-    "symbols": [
-                {
-                    "proName": "COINBASE:BTCUSD",
-                    "title": "Bitcoin"
-                },
-                {
-                    "proName": "COINBASE:ETHUSD",
-                    "title": "Ethereum"
-                },
-                {
-                    "proName": "COINBASE:SOLUSD",
-                    "title": "Solana"
-                },
-                {
-                    "proName": "CRYPTO:KDAUSD",
-                    "title": "Kadena"
-                },
-                {
-                    "proName": "BINANCE:FLUXUSD",
-                    "title": "Flux"
-                },
-                {
-                    "proName": "MEXC:NEOXUSDT",
-                    "title": "Neoxa"
-                },
-                {
-                    "proName": "CRYPTO:NEXAUSD",
-                    "title": "Nexa"
-                },
-                {
-                    "proName": "GATEIO:ALPHUSDT",
-                    "title": "Alephium"
-                },
-                {
-                    "proName": "MEXC:PYIUSDT",
-                    "title": "Pyrin"
-                },
-                {
-                    "proName": "MEXC:IRONUSDT",
-                    "title": "Iron Fish"
-                }
-            ],
-    "showSymbolLogo": true,
-    "colorTheme": "dark",
-    "isTransparent": false,
-    "largeChartUrl": "https://rondex.xyz/",
-    "displayMode": "",
-    "locale": "en"
-  }
-  </script>
-</div>
-<!-- TradingView Ticker Tape Widget END -->
-    
-<h1 class="animate-character">RonDEX</h1>
+        <div class="tab-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="bets">Bets</div>
+                <div class="tab" data-tab="balances">Balances</div>
+            </div>
 
-    <!-- Chart div BEGIN -->
-    <div class="chart-container">
-      <div class="tradingview-widget-content">
-        <div id="tradingview_69c82"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-        <script type="text/javascript">
-          new TradingView.widget(
-            {
-              "width": "auto",
-              "height": "400px",
-              "symbol": "CRYPTO:KDAUSD",
-              "interval": "H",
-              "timezone": "Etc/UTC",
-              "theme": "dark",
-              "style": "1",
-              "locale": "en",
-              "toolbar_bg": "white",
-              "enable_publishing": true,
-              "allow_symbol_change": true,
-              "hide_side_toolbar": false,
-              "withdateranges": false,
-              "container_id": "chart-container"
-            }
-          );
-        </script>
-      </div>
-      </div>
-    <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-    <!-- Chart div END -->
-    <!-- Nav BEGIN -->
-    <nav>
-      <label for="touch"><span id="drop">Tokens</span></label>               
-      <input type="checkbox" id="touch"> 
-      <ul class="slide">
-        <li><a href="#"><img src="https://s2.coinmarketcap.com/static/img/coins/64x64/5647.png" alt="KDA Logo" class="token-logo">$KDA</a></li>
-        <li><a href="https://rondex.xyz/wiza"><img src="https://assets.kdlaunch.com/tokens/wiza.jpg" alt="WIZA Logo" class="token-logo">$WIZA</a></li>
-        <li><a href="https://rondex.xyz/kds"><img src="https://assets.kdlaunch.com/tokens/kds-logo.svg" alt="KDS Logo" class="token-logo">$KDS</a></li>
-        <li><a href="https://rondex.xyz/mok"><img src="https://assets.kdlaunch.com/tokens/mok-logo.png" alt="MOK Logo" class="token-logo">$MOK</a></li>
-        <li><a href="https://rondex.xyz/arkd"><img src="https://assets.kdlaunch.com/tokens//arkade.png" alt="ARKD Logo" class="token-logo">$ARKD</a></li>
-      </ul>
-    </nav>
-    <!-- Nav END -->  
-    <!-- Swap Container BEGIN -->
-    <div class="swap-container">
-      <h2>Swap - Soon Soon</h2>
+            <div class="tab-content active" id="bets-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Wagers</div>
+                        <div class="stat-value" id="total-wagers">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Profit</div>
+                        <div class="stat-value" id="total-profit">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Average ROI</div>
+                        <div class="stat-value" id="avg-roi">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Number of Bets</div>
+                        <div class="stat-value" id="bet-count">0</div>
+                    </div>
+                </div>
+
+                <div class="error"></div>
+                <div class="table-container">
+                    <div class="loading">Loading data from Google Sheets...</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Sport</th>
+                                <th>Event/Teams</th>
+                                <th>Bet Title</th>
+                                <th>Wager</th>
+                                <th>Profit</th>
+                                <th>ROI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-content" id="balances-content">
+                <div class="balances-grid">
+                    <div class="balance-card draftkings">
+                        <div class="balance-label">DraftKings</div>
+                        <div class="balance-value" id="draftkings-balance">$0.00</div>
+                    </div>
+                    <div class="balance-card fanduel">
+                        <div class="balance-label">Fanduel</div>
+                        <div class="balance-value" id="fanduel-balance">$0.00</div>
+                    </div>
+                    <div class="balance-card betrivers">
+                        <div class="balance-label">BetRivers</div>
+                        <div class="balance-value" id="betrivers-balance">$0.00</div>
+                    </div>
+                    <div class="balance-card espnbet">
+                        <div class="balance-label">ESPNBet</div>
+                        <div class="balance-value" id="espnbet-balance">$0.00</div>
+                    </div>
+                    <div class="balance-card betmgm">
+                        <div class="balance-label">BetMGM</div>
+                        <div class="balance-value" id="betmgm-balance">$0.00</div>
+                    </div>
+                    <div class="balance-card fanatics">
+                        <div class="balance-label">Fanatics</div>
+                        <div class="balance-value" id="fanatics-balance">$0.00</div>
+                    </div>
+                    <div class="balance-card caesars">
+                        <div class="balance-label">Caesars</div>
+                        <div class="balance-value" id="caesars-balance">$0.00</div>
+                    </div>
+                    <div class="balance-card total">
+                        <div class="balance-label">Total Balance</div>
+                        <div class="balance-value" id="total-balance">$0.00</div>
+                    </div>
+                </div>
+                
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <canvas id="balanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- Swap Container END -->
+
 </body>
 </html>
