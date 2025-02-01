@@ -97,13 +97,18 @@ function toggleDetails(index) {
     details.style.display = currentDisplay === 'block' ? 'none' : 'block';
 }
 
+function getBalanceColor(balance) {
+    if (balance < 50) return '#ff4444';  // Red
+    if (balance < 150) return '#ffeb3b';  // Yellow
+    if (balance >= 200) return '#4caf50';  // Green
+    return '#ffffff';  // Default white
+}
+
 function updateBalances(values) {
     if (values.length < 2) return;
     
-    // Get the last row of data for current balances
     const lastRow = values[values.length - 1];
     
-    // Map column indices to sportsbook IDs
     const balanceMap = {
         1: 'draftkings',
         2: 'fanduel',
@@ -118,14 +123,16 @@ function updateBalances(values) {
 
     // Update individual balances
     Object.entries(balanceMap).forEach(([index, id]) => {
-        // Remove any $ signs and convert to float
         const balance = parseFloat(lastRow[index].replace(/[$,]/g, '')) || 0;
-        document.getElementById(`${id}-balance`).textContent = formatCurrency(balance);
+        const element = document.getElementById(`${id}-balance`);
+        element.textContent = formatCurrency(balance);
+        element.style.color = getBalanceColor(balance);
         total += balance;
     });
 
-    // Update total balance
+    // Update total balance (always white)
     document.getElementById('total-balance').textContent = formatCurrency(total);
+    document.getElementById('total-balance').style.color = '#ffffff';
 }
 
 let balanceChart = null;
