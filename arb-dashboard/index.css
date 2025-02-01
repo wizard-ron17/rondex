@@ -121,30 +121,6 @@ tr:hover {
     display: none;
 }
 
-.bet-details {
-    display: none;
-    background-color: var(--bg-darker);
-    padding: 1rem;
-    margin: 0.5rem 2rem;
-    border-radius: 4px;
-}
-
-.bet-details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.bet-details-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.bet-details-label {
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-}
-
 tr.clickable {
     cursor: pointer;
 }
@@ -246,4 +222,123 @@ tr.clickable:hover {
 
 .balance-card.selected {
     border: 1px solid var(--accent);
+}
+
+/* Update the modal positioning */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    overflow-y: auto; /* Allow scrolling if modal is taller than viewport */
+}
+
+.modal-content {
+    background-color: var(--bg-dark);
+    position: relative;
+    margin: 50px auto; /* Changed from percentage to fixed top margin */
+    padding: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 1200px;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+/* Update the animation to slide from top */
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Rest of the modal styles remain the same */
+.modal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.modal-column {
+    padding: 1rem;
+    background-color: var(--bg-darker);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.modal-column h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 1.1rem;
+}
+
+.bet-details-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.bet-details-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .modal-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .modal-content {
+        margin: 30px auto; /* Smaller margin for mobile */
+        width: 95%;
+    }
+}
+
+/* Style for the positive values */
+.positive {
+    color: var(--success);
+}
+
+/* Update close button positioning */
+.close-modal {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+    z-index: 1001;
+}
+
+.close-modal:hover {
+    color: var(--text-primary);
+}
+
+/* Add these styles to your existing CSS */
+.status-open {
+    background-color: var(--accent);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    width: 90px;
 }
