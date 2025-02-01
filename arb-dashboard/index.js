@@ -252,7 +252,7 @@ function initializeChart(data) {
             },
             scales: {
                 x: {
-                    reverse: false,
+                    reverse: true,
                     ticks: { 
                         color: '#b3b3b3',
                         maxRotation: 45,
