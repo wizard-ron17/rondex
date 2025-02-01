@@ -91,11 +91,237 @@ function displayData(values) {
     document.querySelector('.loading').style.display = 'none';
 }
 
-function toggleDetails(index) {
-    const details = document.getElementById(`details-${index}`);
-    const currentDisplay = details.style.display;
-    details.style.display = currentDisplay === 'block' ? 'none' : 'block';
+function calculatePotentialOutcomes(rowData) {
+    // Check if it's an open bet (Total Won is empty)
+    if (!rowData[5]) {
+        const wagerA = parseFloat(rowData[11].replace(/[$,]/g, ''));
+        const wagerB = parseFloat(rowData[16].replace(/[$,]/g, ''));
+        const toWinA = parseFloat(rowData[12].replace(/[$,]/g, ''));
+        const toWinB = parseFloat(rowData[17].replace(/[$,]/g, ''));
+        
+        // Calculate outcomes
+        const outcomeA = {
+            win: toWinA - wagerB,
+            description: `If ${rowData[8]} wins: Win ${formatCurrency(toWinA)} - ${formatCurrency(wagerB)} hedge`
+        };
+        
+        const outcomeB = {
+            win: toWinB - wagerA,
+            description: `If ${rowData[13]} wins: Win ${formatCurrency(toWinB)} - ${formatCurrency(wagerA)} hedge`
+        };
+        
+        return {
+            minWin: Math.min(outcomeA.win, outcomeB.win),
+            maxWin: Math.max(outcomeA.win, outcomeB.win),
+            scenarios: [outcomeA.description, outcomeB.description]
+        };
+    }
+    return null;
 }
+
+// Add helper function to calculate arbitrage outcomes
+function calculateArbitrageOutcomes(rowData) {
+    // Check if it's an open bet (Total Won is empty)
+    if (!rowData[5]) {
+        const wagerA = parseFloat(rowData[11].replace(/[$,]/g, ''));
+        const wagerB = parseFloat(rowData[16].replace(/[$,]/g, ''));
+        const toWinA = parseFloat(rowData[12].replace(/[$,]/g, ''));
+        const toWinB = parseFloat(rowData[17].replace(/[$,]/g, ''));
+        const totalWager = wagerA + wagerB;
+        
+        // Calculate profit range
+        const profitA = toWinA - totalWager;
+        const profitB = toWinB - totalWager;
+        
+        // Calculate ROI range (as percentages)
+        const roiA = (profitA / totalWager) * 100;
+        const roiB = (profitB / totalWager) * 100;
+        
+        return {
+            minProfit: Math.min(profitA, profitB),
+            maxProfit: Math.max(profitA, profitB),
+            minRoi: Math.min(roiA, roiB),
+            maxRoi: Math.max(roiA, roiB)
+        };
+    }
+    return null;
+}
+
+// Update the showBetModal function's middle column content
+function showBetModal(rowData) {
+    const modal = document.getElementById('betModal');
+    const modalContent = document.getElementById('modalBetDetails');
+    
+    // Calculate outcomes for open bets
+    const arbitrageOutcomes = calculateArbitrageOutcomes(rowData);
+    
+    // Create the middle column content based on whether it's an open bet or not
+    const middleColumnContent = !rowData[5] ? `
+        <div class="bet-details-item">
+            <span class="bet-details-label">Event/Teams</span>
+            <span>${rowData[2]}</span>
+        </div>
+        <div class="bet-details-item">
+            <span class="bet-details-label">Bet Title</span>
+            <span>${rowData[3]}</span>
+        </div>
+        <div class="bet-details-item">
+            <span class="bet-details-label">Total Wager</span>
+            <span>${rowData[4]}</span>
+        </div>
+        <div class="bet-details-item">
+            <span class="bet-details-label">Status</span>
+            <span class="status-open">OPEN BET</span>
+        </div>
+        <div class="bet-details-item">
+            <span class="bet-details-label">Potential Profit</span>
+            <span>${formatCurrency(arbitrageOutcomes.minProfit)} - ${formatCurrency(arbitrageOutcomes.maxProfit)}</span>
+        </div>
+        <div class="bet-details-item">
+            <span class="bet-details-label">Potential ROI</span>
+            <span>${arbitrageOutcomes.minRoi.toFixed(2)}% - ${arbitrageOutcomes.maxRoi.toFixed(2)}%</span>
+        </div>
+    ` : `
+        <div class="bet-details-item">
+            <span class="bet-details-label">Event/Teams</span>
+            <span>${rowData[2]}</span>
+        </div>
+        <div class="bet-details-item">
+            <span class="bet-details-label">Bet Title</span>
+            <span>${rowData[3]}</span>
+        </div>
+        <div class="bet-details-item">
+            <span class="bet-details-label">Total Wager</span>
+            <span>${rowData[4]}</span>
+        </div>
+        <div class="bet-details-item">
+            <span class="bet-details-label">Total Won</span>
+            <span>${rowData[5]}</span>
+        </div>
+        <div class="bet-details-item">
+            <span class="bet-details-label">Profit</span>
+            <span class="${parseFloat(rowData[6].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${rowData[6]}</span>
+        </div>
+        <div class="bet-details-item">
+            <span class="bet-details-label">ROI</span>
+            <span>${rowData[7]}</span>
+        </div>
+    `;
+
+    // Rest of the modal content remains the same...
+    modalContent.innerHTML = `
+        <div class="modal-grid">
+            <!-- Left Column - Sportsbook A -->
+            <div class="modal-column">
+                <h3>Sportsbook A Details</h3>
+                <div class="bet-details-item">
+                    <span class="bet-details-label">Sportsbook</span>
+                    <span>${rowData[8]}</span>
+                </div>
+                <div class="bet-details-item">
+                    <span class="bet-details-label">Prop</span>
+                    <span>${rowData[9]}</span>
+                </div>
+                <div class="bet-details-item">
+                    <span class="bet-details-label">Odds</span>
+                    <span>${rowData[10]}</span>
+                </div>
+                <div class="bet-details-item">
+                    <span class="bet-details-label">Wager</span>
+                    <span>${formatCurrency(rowData[11])}</span>
+                </div>
+                <div class="bet-details-item">
+                    <span class="bet-details-label">To Win</span>
+                    <span>${formatCurrency(rowData[12])}</span>
+                </div>
+            </div>
+
+            <!-- Middle Column - Overall Details -->
+            <div class="modal-column">
+                <h3>Bet Summary</h3>
+                ${middleColumnContent}
+            </div>
+
+            <!-- Right Column - Sportsbook B -->
+            <div class="modal-column">
+                <h3>Sportsbook B Details</h3>
+                <div class="bet-details-item">
+                    <span class="bet-details-label">Sportsbook</span>
+                    <span>${rowData[13]}</span>
+                </div>
+                <div class="bet-details-item">
+                    <span class="bet-details-label">Prop</span>
+                    <span>${rowData[14]}</span>
+                </div>
+                <div class="bet-details-item">
+                    <span class="bet-details-label">Odds</span>
+                    <span>${rowData[15]}</span>
+                </div>
+                <div class="bet-details-item">
+                    <span class="bet-details-label">Wager</span>
+                    <span>${formatCurrency(rowData[16])}</span>
+                </div>
+                <div class="bet-details-item">
+                    <span class="bet-details-label">To Win</span>
+                    <span>${formatCurrency(rowData[17])}</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'block';
+}
+
+// Update the displayData function to use the new modal
+function displayData(values) {
+    const headers = values[0];
+    const rows = values.slice(1);
+    let tableContent = '';
+    
+    rows.forEach((row, index) => {
+        tableContent += `
+            <tr class="clickable" onclick="showBetModal(${JSON.stringify(row).replace(/"/g, '&quot;')})">
+                <td>${row[0]}</td>
+                <td>${row[1]}</td>
+                <td>${row[2]}</td>
+                <td>${row[3]}</td>
+                <td>${row[4]}</td>
+                <td class="profit ${parseFloat(row[6].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${row[6]}</td>
+                <td>${row[7]}</td>
+            </tr>
+        `;
+    });
+    
+    document.getElementById('data').innerHTML = tableContent;
+    calculateStats(rows);
+    document.querySelector('.loading').style.display = 'none';
+}
+
+// Add event listeners for the modal
+document.addEventListener('DOMContentLoaded', function() {
+    // ... (keep existing DOMContentLoaded content) ...
+
+    // Add modal close functionality
+    const modal = document.getElementById('betModal');
+    const closeBtn = document.querySelector('.close-modal');
+
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Add keyboard support for closing modal
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && modal.style.display === 'block') {
+            modal.style.display = 'none';
+        }
+    });
+});
 
 function getBalanceColor(balance) {
     if (balance < 50) return '#ff4444';  // Red
