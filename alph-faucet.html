@@ -164,8 +164,8 @@
             // Update timer display every second
             setInterval(updateNextRequestTime, 1000);
             
-            // Set up recurring requests every 5 minutes
-            timer = setInterval(requestFaucet, 300000);
+            // Set up recurring requests every 5 minutes and 1 second
+            timer = setInterval(requestFaucet, 300001);
         }
 
         function stopAutoRequest() {
