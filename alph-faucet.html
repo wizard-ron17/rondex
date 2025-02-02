@@ -7,175 +7,220 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
             max-width: 600px;
             margin: 40px auto;
             padding: 20px;
+            text-align: center;
         }
-        .response {
-            margin-top: 20px;
+        input, button {
             padding: 10px;
-            border: 1px solid #ccc;
+            margin: 10px 0;
             border-radius: 4px;
-            min-height: 50px;
+            border: none;
+        }
+        input {
+            width: 90%;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
         }
         button {
-            background-color: #4CAF50;
+            background-color: #6200ea;
             color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
             cursor: pointer;
-            margin-right: 10px;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #3700b3;
         }
         button:disabled {
-            background-color: #cccccc;
+            background-color: #444;
             cursor: not-allowed;
         }
-        .status {
-            margin-top: 10px;
-            color: #666;
-        }
-        .counter {
+        .stats {
+            display: flex;
+            justify-content: space-around;
             margin-top: 20px;
+            background-color: #222;
             padding: 15px;
-            background-color: #f0f8ff;
             border-radius: 4px;
-            font-size: 1.2em;
         }
         .history {
             margin-top: 20px;
             max-height: 200px;
             overflow-y: auto;
+            background-color: #222;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: left;
         }
-        .history-item {
-            padding: 5px;
-            border-bottom: 1px solid #eee;
+        .history h3 {
+            margin-top: 0;
         }
-        .success {
-            color: #4CAF50;
+        .history div {
+            margin-bottom: 5px;
         }
-        .error {
-            color: #f44336;
-        }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .idle { color: yellow; }
+        .running { color: green; }
+        .stopped { color: red; }
     </style>
 </head>
 <body>
     <h1>Alephium Testnet Auto-Faucet</h1>
+    <input type="text" id="address" placeholder="Enter your address" value="">
     <div>
-        <button id="startButton" onclick="startAutoRequest()">Start Auto-Request</button>
+        <button id="startButton" onclick="startAutoRequest()" disabled>Start Auto-Request</button>
         <button id="stopButton" onclick="stopAutoRequest()" disabled>Stop Auto-Request</button>
     </div>
-    <div id="status" class="status">Status: Idle</div>
-    <div id="nextRequest" class="status"></div>
-    <div class="counter">
-        <div>Successful Requests: <span id="successCount">0</span></div>
-        <div>Total ALPH Received: <span id="totalAlph">0</span> ALPH</div>
+    <div id="status" class="idle">Status: Idle</div>
+    <div id="nextRequest"></div>
+    <div class="stats">
+        <div>Successes: <span id="successCount">0</span></div>
+        <div>Failures: <span id="failureCount">0</span></div>
+        <div>Total ALPH: <span id="totalAlph">0</span></div>
+        <div>Run-time: <span id="runtime">0s</span></div>
     </div>
-    <div id="response" class="response">Response will appear here...</div>
-    <div class="history" id="history">
-        <h3>Request History</h3>
-    </div>
+    <h3>Request History</h3>
+    <div class="history" id="history"></div>
 
     <script>
-        const address = '19KzzRrWpSPJw89ujfYBBaQzkWdL6qcVSUbEs8CFvceqe';
         let timer = null;
         let nextRequestTime = null;
         let successCount = 0;
+        let failureCount = 0;
         let totalAlph = 0;
+        let startTime = null;
+        let runtimeSeconds = 0;
+        let requestNumber = 1;
 
+        const REQUEST_INTERVAL = 602000; // 10 minutes in ms
+        const UPDATE_RUNTIME_INTERVAL = 1000; // 1 second in ms
+        const UPDATE_NEXT_REQUEST_INTERVAL = 1000; // 1 second in ms
+
+        // Function to update next request time
         function updateNextRequestTime() {
             if (nextRequestTime) {
                 const now = new Date().getTime();
                 const timeLeft = Math.max(0, nextRequestTime - now);
                 const minutes = Math.floor(timeLeft / 60000);
                 const seconds = Math.floor((timeLeft % 60000) / 1000);
-                document.getElementById('nextRequest').textContent = 
-                    `Next request in: ${minutes}m ${seconds}s`;
+                document.getElementById('nextRequest').textContent = `Next request in: ${minutes}m ${seconds}s`;
             }
         }
 
-        function addToHistory(message, isSuccess = false) {
+        // Function to update run-time
+        function updateRuntime() {
+            if (startTime) {
+                runtimeSeconds = Math.floor((new Date().getTime() - startTime) / 1000);
+                const minutes = Math.floor(runtimeSeconds / 60);
+                const seconds = runtimeSeconds % 60;
+                document.getElementById('runtime').textContent = `${minutes}m ${seconds}s`;
+            }
+        }
+
+        // Function to add to history
+        function addToHistory(message, isSuccess) {
             const historyDiv = document.getElementById('history');
             const time = new Date().toLocaleTimeString();
             const item = document.createElement('div');
-            item.className = `history-item ${isSuccess ? 'success' : 'error'}`;
-            item.textContent = `${time}: ${message}`;
+            item.className = isSuccess ? 'success' : 'error';
+            item.textContent = `#${requestNumber++}: ${time} - ${message}`;
             historyDiv.insertBefore(item, historyDiv.firstChild);
         }
 
+        // Function to update success/failure counters
         function updateCounters(isSuccess) {
             if (isSuccess) {
                 successCount++;
-                totalAlph += 3; // Each successful request gives 3 ALPH
-                document.getElementById('successCount').textContent = successCount;
-                document.getElementById('totalAlph').textContent = totalAlph;
+                totalAlph += 3;
+            } else {
+                failureCount++;
             }
+            document.getElementById('successCount').textContent = successCount;
+            document.getElementById('failureCount').textContent = failureCount;
+            document.getElementById('totalAlph').textContent = totalAlph;
         }
 
+        // Check if the response indicates success
         function isSuccessfulResponse(response) {
-            // Check for any error indicators in the response
-            const errorIndicators = [
-                'error',
-                'Error',
-                'did not complete',
-                'throttled',
-                'failed'
-            ];
-            return !errorIndicators.some(indicator => response.includes(indicator));
+            return !['error', 'failed', 'throttled'].some(err => response.toLowerCase().includes(err));
         }
 
+        // Request faucet with the entered address
         async function requestFaucet() {
-            const responseDiv = document.getElementById('response');
-            const statusDiv = document.getElementById('status');
-            statusDiv.textContent = 'Status: Sending request...';
-            
+            const address = document.getElementById('address').value.trim();
+            if (!address) {
+                alert('Please enter an address');
+                stopAutoRequest();
+                return;
+            }
+            document.getElementById('status').textContent = 'Status: Sending request...';
+            document.getElementById('status').className = 'running';
             try {
                 const response = await fetch('https://faucet.testnet.alephium.org/send', {
                     method: 'POST',
                     body: address,
                 });
                 const data = await response.text();
-                responseDiv.textContent = data;
-                
                 const isSuccess = isSuccessfulResponse(data);
+                const message = isSuccess ? `Success! +3 ALPH` : `Failure: Too Many Requests!`;
                 updateCounters(isSuccess);
-                addToHistory(data, isSuccess);
+                addToHistory(message, isSuccess);
             } catch (error) {
-                const errorMessage = 'Error: ' + error.message;
-                responseDiv.textContent = errorMessage;
-                addToHistory(errorMessage, false);
+                addToHistory('Error: ' + error.message, false);
+                updateCounters(false);
             }
-            
-            nextRequestTime = new Date().getTime() + 300001; // 5 minutes and 1 second
-            statusDiv.textContent = 'Status: Waiting for next request';
+            nextRequestTime = new Date().getTime() + REQUEST_INTERVAL;
+            document.getElementById('status').textContent = 'Status: Waiting for next request';
+            document.getElementById('status').className = 'idle';
         }
 
+        // Start the auto request process
         function startAutoRequest() {
+            // Reset stats
+            successCount = 0;
+            failureCount = 0;
+            totalAlph = 0;
+            document.getElementById('successCount').textContent = successCount;
+            document.getElementById('failureCount').textContent = failureCount;
+            document.getElementById('totalAlph').textContent = totalAlph;
+
+            // Start the process
             document.getElementById('startButton').disabled = true;
             document.getElementById('stopButton').disabled = false;
             document.getElementById('status').textContent = 'Status: Auto-request started';
-            
-            // Make first request immediately
+            document.getElementById('status').className = 'running';
+            startTime = new Date().getTime();
             requestFaucet();
-            
-            // Update timer display every second
-            setInterval(updateNextRequestTime, 1000);
-            
-            // Set up recurring requests every 5 minutes and 1 second
-            timer = setInterval(requestFaucet, 300001);
+            setInterval(updateNextRequestTime, UPDATE_NEXT_REQUEST_INTERVAL);
+            setInterval(updateRuntime, UPDATE_RUNTIME_INTERVAL);
+            timer = setInterval(requestFaucet, REQUEST_INTERVAL);
         }
 
+        // Stop the auto request process
         function stopAutoRequest() {
             document.getElementById('startButton').disabled = false;
             document.getElementById('stopButton').disabled = true;
             document.getElementById('status').textContent = 'Status: Stopped';
+            document.getElementById('status').className = 'stopped';
             document.getElementById('nextRequest').textContent = '';
             nextRequestTime = null;
             clearInterval(timer);
         }
+
+        // Enable the start button if anything is entered
+        document.getElementById('address').addEventListener('input', function() {
+            const address = document.getElementById('address').value.trim();
+            const startButton = document.getElementById('startButton');
+            if (address.length >= 45) {
+                startButton.disabled = false;
+            } else {
+                startButton.disabled = true;
+            }
+        });
     </script>
 </body>
 </html>
