@@ -272,7 +272,7 @@ function showBetModal(rowData) {
     modal.style.display = 'block';
 }
 
-// Update the displayData function to use the new modal
+// Update the displayData function for main table
 function displayData(values) {
     const headers = values[0];
     const rows = values.slice(1);
@@ -282,12 +282,12 @@ function displayData(values) {
         tableContent += `
             <tr class="clickable" onclick="showBetModal(${JSON.stringify(row).replace(/"/g, '&quot;')})">
                 <td>${row[0]}</td>
+                <td>${row[4]}</td>
+                <td>${row[5]}</td>
+                <td class="profit ${parseFloat(row[6].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${row[6]}</td>
                 <td>${row[1]}</td>
                 <td>${row[2]}</td>
                 <td>${row[3]}</td>
-                <td>${row[4]}</td>
-                <td class="profit ${parseFloat(row[6].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${row[6]}</td>
-                <td>${row[7]}</td>
             </tr>
         `;
     });
