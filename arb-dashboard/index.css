@@ -342,3 +342,11 @@ tr.clickable:hover {
     font-weight: 600;
     width: 90px;
 }
+
+th.asc::after {
+    content: ' ▲'; /* Up arrow for ascending */
+}
+
+th:not(.asc)::after {
+    content: ' ▼'; /* Down arrow for descending */
+}
