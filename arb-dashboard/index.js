@@ -283,8 +283,8 @@ function displayData(values) {
             <tr class="clickable" onclick="showBetModal(${JSON.stringify(row).replace(/"/g, '&quot;')})">
                 <td>${row[0]}</td>
                 <td>${row[4]}</td>
-                <td>${row[5]}</td>
-                <td class="profit ${parseFloat(row[6].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${row[6]}</td>
+                <td>${row[6]}</td>
+                <td class="profit ${parseFloat(row[7].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${row[7]}</td>
                 <td>${row[1]}</td>
                 <td>${row[2]}</td>
                 <td>${row[3]}</td>
@@ -320,6 +320,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.key === 'Escape' && modal.style.display === 'block') {
             modal.style.display = 'none';
         }
+    });
+
+    // Add event listeners for sorting
+    const headers = document.querySelectorAll('th[data-sort]');
+    headers.forEach(header => {
+        header.addEventListener('click', () => {
+            const sortKey = header.getAttribute('data-sort');
+            const isAscending = header.classList.toggle('asc');
+            sortTable(sortKey, isAscending);
+        });
     });
 });
 
@@ -374,11 +384,11 @@ function initializeChart(data) {
         { name: 'Total Balance', index: 'total', color: '#ffffff' },
         { name: 'DraftKings', index: 1, color: '#00dc00' },
         { name: 'Fanduel', index: 2, color: '#1c64d9' },
-        { name: 'BetRivers', index: 3, color: '#f2c800' },
-        { name: 'ESPNBet', index: 4, color: '#00ff87' },
+        { name: 'BetRivers', index: 3, color: '#ffff00' },
+        { name: 'ESPNBet', index: 4, color: '#66ffcc' },
         { name: 'BetMGM', index: 5, color: '#d4af37' },
         { name: 'Fanatics', index: 6, color: '#ff0000' },
-        { name: 'Caesars', index: 7, color: '#ffd700' }
+        { name: 'Caesars', index: 7, color: '#006600' }
     ];
 
     // Create datasets for each sportsbook and total
@@ -557,3 +567,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch balances
     fetchBalances();
 });
+
+function sortTable(sortKey, isAscending) {
+    const tableBody = document.getElementById('data');
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+
+    const sortIndex = {
+        date: 0,
+        wager: 1,
+        profit: 2,
+        roi: 3,
+        sport: 4,
+        event: 5,
+        title: 6
+    }[sortKey];
+
+    rows.sort((a, b) => {
+        const aText = a.children[sortIndex].textContent.trim();
+        const bText = b.children[sortIndex].textContent.trim();
+
+        const aValue = isNaN(aText) ? aText : parseFloat(aText.replace(/[$,]/g, ''));
+        const bValue = isNaN(bText) ? bText : parseFloat(bText.replace(/[$,]/g, ''));
+
+        return isAscending ? aValue > bValue ? 1 : -1 : aValue < bValue ? 1 : -1;
+    });
+
+    // Reattach sorted rows to the table body
+    rows.forEach(row => tableBody.appendChild(row));
+}
