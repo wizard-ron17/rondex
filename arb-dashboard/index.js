@@ -586,8 +586,14 @@ function sortTable(sortKey, isAscending) {
         const aText = a.children[sortIndex].textContent.trim();
         const bText = b.children[sortIndex].textContent.trim();
 
-        const aValue = isNaN(aText) ? aText : parseFloat(aText.replace(/[$,]/g, ''));
-        const bValue = isNaN(bText) ? bText : parseFloat(bText.replace(/[$,]/g, ''));
+        // Parse as float for numeric comparison
+        const aValue = sortKey === 'wager' || sortKey === 'profit' || sortKey === 'roi' 
+            ? parseFloat(aText.replace(/[$,]/g, '')) 
+            : aText;
+
+        const bValue = sortKey === 'wager' || sortKey === 'profit' || sortKey === 'roi' 
+            ? parseFloat(bText.replace(/[$,]/g, '')) 
+            : bText;
 
         return isAscending ? aValue > bValue ? 1 : -1 : aValue < bValue ? 1 : -1;
     });
