@@ -350,3 +350,9 @@ th.asc::after {
 th:not(.asc)::after {
     content: ' ▼'; /* Down arrow for descending */
 }
+
+.profit-percentage {
+    color: var(--text-secondary);
+    font-size: 0.8rem; /* Smaller text */
+    margin-left: 0.5rem; /* Space between profit and percentage */
+}
