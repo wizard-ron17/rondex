@@ -31,8 +31,10 @@ function calculateStats(rows) {
     const avgRoi = rows.reduce((sum, row) => sum + parseFloat(row[7].replace('%', '')), 0) / rows.length;
     const betCount = rows.length;
 
+    const profitPercentage = totalWagers > 0 ? (totalProfit / totalWagers) * 100 : 0;
+
     document.getElementById('total-wagers').textContent = formatCurrency(totalWagers);
-    document.getElementById('total-profit').textContent = formatCurrency(totalProfit);
+    document.getElementById('total-profit').innerHTML = `${formatCurrency(totalProfit)} <span style="color: #b3b3b3; font-size: 0.9rem;">(${profitPercentage.toFixed(2)}%)</span>`;
     document.getElementById('avg-roi').textContent = formatPercent(avgRoi);
     document.getElementById('bet-count').textContent = betCount;
 }
