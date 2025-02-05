@@ -19,6 +19,8 @@
             <div class="tabs">
                 <div class="tab active" data-tab="bets">Bets</div>
                 <div class="tab" data-tab="balances">Balances</div>
+                <div class="tab" data-tab="stats">Stats</div>
+                <div class="tab" data-tab="calendar">Calendar</div>
             </div>
 
             <div class="tab-content active" id="bets-content">
@@ -36,7 +38,7 @@
                         <div class="stat-value" id="avg-roi">0%</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Number of Arbs</div>
+                        <div class="stat-label">Number of Bets</div>
                         <div class="stat-value" id="bet-count">0</div>
                     </div>
                 </div>
@@ -47,13 +49,13 @@
                     <table>
                         <thead>
                             <tr>
-                                <th data-sort="date">Date</th>
-                                <th data-sort="wager">Wager</th>
-                                <th data-sort="profit">Profit</th>
-                                <th data-sort="roi">ROI</th>
-                                <th data-sort="sport">Sport</th>
-                                <th data-sort="event">Event/Teams</th>
-                                <th data-sort="title">Bet Title</th>
+                                <th data-sort="date" class="bet-th">Date</th>
+                                <th data-sort="wager" class="bet-th">Wager</th>
+                                <th data-sort="profit" class="bet-th">Profit</th>
+                                <th data-sort="roi" class="bet-th">ROI</th>
+                                <th data-sort="sport" class="bet-th">Sport</th>
+                                <th data-sort="event" class="bet-th">Event/Teams</th>
+                                <th data-sort="title" class="bet-th">Bet Title</th>
                             </tr>
                         </thead>
                         <tbody id="data"></tbody>
@@ -101,6 +103,19 @@
                     <div class="chart-wrapper">
                         <canvas id="balanceChart"></canvas>
                     </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="calendar-content">
+                <div class="calendar-container"></div>
+            </div>
+
+            <div class="tab-content" id="stats-content">
+                <div class="chart-wrapper">
+                    <canvas id="profitChart"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="wagerChart"></canvas>
                 </div>
             </div>
         </div>
