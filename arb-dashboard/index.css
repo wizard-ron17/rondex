@@ -198,16 +198,28 @@ tr.clickable:hover {
 .chart-wrapper {
     position: relative;
     height: 60vh;
-    min-height: 300px;
-    max-height: 600px;
+    min-height: 400px;
     width: 100%;
     margin: 20px 0;
+    padding: 1rem;
+    background-color: var(--bg-dark);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+#stats-content {
+    padding: 1rem;
 }
 
 @media (max-width: 768px) {
     .chart-wrapper {
         height: 70vh;
         min-height: 250px;
+    }
+
+    .tab {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
     }
 }
 
@@ -308,6 +320,26 @@ tr.clickable:hover {
         margin: 30px auto; /* Smaller margin for mobile */
         width: 95%;
     }
+
+    .calendar-container {
+        background-color: var(--bg-dark);
+        border-radius: 8px;
+        padding: 0;
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    .dashboard {
+        padding: 1rem;
+    }
 }
 
 /* Style for the positive values */
@@ -343,11 +375,11 @@ tr.clickable:hover {
     width: 90px;
 }
 
-th.asc::after {
+.bet-th.asc::after {
     content: ' ▲'; /* Up arrow for ascending */
 }
 
-th:not(.asc)::after {
+.bet-th:not(.asc)::after {
     content: ' ▼'; /* Down arrow for descending */
 }
 
@@ -356,3 +388,115 @@ th:not(.asc)::after {
     font-size: 0.8rem; /* Smaller text */
     margin-left: 0.5rem; /* Space between profit and percentage */
 }
+
+.calendar-container {
+    background-color: var(--bg-dark);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    width: 100%;
+    padding: 0 1rem;
+    position: relative; /* Add this */
+}
+
+.calendar-header h2 {
+    position: absolute; /* Add this */
+    left: 50%; /* Add this */
+    transform: translateX(-50%); /* Add this */
+    margin: 0; /* Add this */
+}
+
+.calendar-navigation {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Adjust this from 300% */
+    width: 100%; /* Add this */
+    justify-content: space-between; /* Add this */
+}
+
+/* Add these new styles */
+.calendar-nav-btn {
+    z-index: 1; /* Ensure buttons are clickable */
+}
+
+.calendar-nav-btn {
+    background: #333;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.calendar-nav-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.calendar-table th {
+    padding: 0.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-weight: normal;
+    font-size: 0.9rem;
+}
+
+.calendar-th.asc::after,
+.calendar-th.desc::after {
+    content: none !important; /* Hides the sort arrows only in the calendar */
+}
+
+.calendar-day {
+    border: 1px solid var(--border);
+    height: 100px;
+    width: calc(100% / 7);
+    padding: 0.5rem;
+    vertical-align: top;
+    position: relative;
+}
+
+.day-number {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+}
+
+.profit-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 0.25rem;
+}
+
+.profit-amount {
+    font-weight: bold;
+}
+
+.bet-count {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.profit-positive {
+    color: var(--success);
+}
+
+.profit-negative {
+    color: #ff4444;
+}
+
