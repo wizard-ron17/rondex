@@ -603,3 +603,437 @@ function sortTable(sortKey, isAscending) {
     // Reattach sorted rows to the table body
     rows.forEach(row => tableBody.appendChild(row));
 }
+
+let profitChart = null;
+
+function createProfitChart(data) {
+    const rows = data.slice(1); // Skip header row
+    
+    // Process daily profits
+    const dailyProfits = rows.reduce((acc, row) => {
+        const date = row[0];
+        const profit = parseFloat(row[6].replace(/[$,]/g, '')) || 0;
+        
+        if (!acc[date]) {
+            acc[date] = profit;
+        } else {
+            acc[date] += profit;
+        }
+        return acc;
+    }, {});
+
+    // Convert to arrays for the chart
+    const dates = Object.keys(dailyProfits).sort((a, b) => new Date(a) - new Date(b));
+    const profits = dates.map(date => dailyProfits[date]);
+    
+    // Calculate cumulative profits
+    let runningTotal = 0;
+    const cumulativeProfits = profits.map(profit => runningTotal += profit);
+
+    // Create chart
+    const ctx = document.getElementById('profitChart').getContext('2d');
+    
+    if (profitChart) {
+        profitChart.destroy();
+    }
+
+    profitChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [
+                {
+                    label: 'Daily Profit',
+                    data: profits,
+                    borderColor: '#2196f3',
+                    tension: 0.1,
+                    fill: false,
+                    order: 2
+                },
+                {
+                    label: 'Cumulative Profit',
+                    data: cumulativeProfits,
+                    borderColor: '#4caf50',
+                    tension: 0.1,
+                    fill: false,
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Profit Over Time',
+                    color: '#ffffff',
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#ffffff',
+                        padding: 10,
+                        usePointStyle: true,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#333',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += formatCurrency(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { 
+                        color: '#b3b3b3',
+                        maxRotation: 45,
+                        minRotation: 45,
+                        font: {
+                            size: 10
+                        },
+                        maxTicksLimit: 8
+                    },
+                    grid: { color: '#333' }
+                },
+                y: {
+                    ticks: { 
+                        color: '#b3b3b3',
+                        callback: value => formatCurrency(value),
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: { color: '#333' }
+                }
+            }
+        }
+    });
+}
+
+function createCalendar() {
+    const container = document.querySelector('.calendar-container');
+    const currentDate = new Date();
+    
+    function renderCalendarMonth(date, data) {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        // Create calendar HTML
+        let calendarHTML = `
+            <div class="calendar-header">
+                <h2>${monthNames[month]} ${year}</h2>
+                <div class="calendar-navigation">
+                    <button class="calendar-nav-btn prev-month">←</button>
+                    <button class="calendar-nav-btn next-month">→</button>
+                </div>
+            </div>
+            <table class="calendar-table">
+                <thead>
+                    <tr>
+                        <th class="calendar-th">Sun</th>
+                        <th class="calendar-th">Mon</th>
+                        <th class="calendar-th">Tue</th>
+                        <th class="calendar-th">Wed</th>
+                        <th class="calendar-th">Thu</th>
+                        <th class="calendar-th">Fri</th>
+                        <th class="calendar-th">Sat</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        let day = 1;
+        let calendarDays = '';
+        
+        for (let i = 0; i < 6; i++) {
+            let row = '<tr>';
+            for (let j = 0; j < 7; j++) {
+                if (i === 0 && j < firstDay) {
+                    row += '<td class="calendar-day"></td>';
+                } else if (day > daysInMonth) {
+                    row += '<td class="calendar-day"></td>';
+                } else {
+                    const dateStr = `${month + 1}/${day}/${year.toString().slice(-2)}`;
+                    const dayData = data[dateStr] || { profit: 0, bets: 0 };
+                    const profitClass = dayData.profit > 0 ? 'profit-positive' : 
+                                      dayData.profit < 0 ? 'profit-negative' : '';
+                    
+                    row += `
+                        <td class="calendar-day">
+                            <span class="day-number">${day}</span>
+                            ${dayData.bets > 0 ? `
+                                <div class="profit-cell">
+                                    <span class="profit-amount ${profitClass}">
+                                        ${formatCurrency(dayData.profit)}
+                                    </span>
+                                    <span class="bet-count">
+                                        ${dayData.bets} bet${dayData.bets !== 1 ? 's' : ''}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </td>
+                    `;
+                    day++;
+                }
+            }
+            row += '</tr>';
+            calendarDays += row;
+            if (day > daysInMonth) break;
+        }
+        
+        calendarHTML += calendarDays + '</tbody></table>';
+        container.innerHTML = calendarHTML;
+        
+        // Add event listeners for navigation
+        container.querySelector('.prev-month').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendarMonth(currentDate, data);
+        });
+        
+        container.querySelector('.next-month').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendarMonth(currentDate, data);
+        });
+    }
+
+    // Process the bet data for calendar display
+    function processDataForCalendar(rows) {
+        const dailyData = {};
+        
+        rows.forEach(row => {
+            const date = row[0];  // Date is in column 0
+            const profit = parseFloat(row[6].replace(/[$,]/g, '')); // Profit is in column 6
+            
+            if (!dailyData[date]) {
+                dailyData[date] = { profit: 0, bets: 0 };
+            }
+            
+            dailyData[date].profit += profit;
+            dailyData[date].bets += 1;
+        });
+        
+        return dailyData;
+    }
+
+    // Update the fetch call to include calendar rendering
+    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.values && data.values.length > 0) {
+                const calendarData = processDataForCalendar(data.values.slice(1));
+                renderCalendarMonth(currentDate, calendarData);
+            }
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs and content
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding content
+            tab.classList.add('active');
+            const tabName = tab.dataset.tab;
+            document.getElementById(`${tabName}-content`).classList.add('active');
+            
+            // Initialize specific tab content
+            if (tabName === 'calendar') {
+                createCalendar();
+            } else if (tabName === 'stats') {
+                // Fetch data for profit chart if not already loaded
+                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.values && data.values.length > 0) {
+                            createProfitChart(data.values);
+                        }
+                    });
+            }
+        });
+    });
+})
+
+let wagerChart = null;
+
+function createWagerChart(data) {
+    const rows = data.slice(1); // Skip header row
+    
+    // Process daily wagers
+    const dailyWagers = rows.reduce((acc, row) => {
+        const date = row[0];
+        const wager = parseFloat(row[4].replace(/[$,]/g, '')) || 0; // Wager is in column 4
+        
+        if (!acc[date]) {
+            acc[date] = wager;
+        } else {
+            acc[date] += wager;
+        }
+        return acc;
+    }, {});
+
+    // Convert to arrays for the chart
+    const dates = Object.keys(dailyWagers).sort((a, b) => new Date(a) - new Date(b));
+    const wagers = dates.map(date => dailyWagers[date]);
+
+    // Calculate cumulative wagers
+    const cumulativeWagers = [];
+    let runningTotal = 0;
+    for (let wager of wagers) {
+        runningTotal += wager;
+        cumulativeWagers.push(runningTotal);
+    }
+    
+    // Create chart
+    const ctx = document.getElementById('wagerChart').getContext('2d');
+    
+    if (wagerChart) {
+        wagerChart.destroy(); // Destroy the existing chart if it exists
+    }
+    
+    wagerChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [
+                {
+                    label: 'Daily Wagers',
+                    data: wagers,
+                    borderColor: '#ff9800', // Change color as needed
+                    tension: 0.1,
+                    fill: false,
+                    order: 1
+                },
+                {
+                    label: 'Cumulative Wagers',
+                    data: cumulativeWagers,
+                    borderColor: '#2196f3', // Change color as needed
+                    tension: 0.1,
+                    fill: false,
+                    order: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Wagers Over Time',
+                    color: '#ffffff',
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#ffffff',
+                        padding: 10,
+                        usePointStyle: true,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#333',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += formatCurrency(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { 
+                        color: '#b3b3b3',
+                        maxRotation: 45,
+                        minRotation: 45,
+                        font: {
+                            size: 10
+                        },
+                        maxTicksLimit: 8
+                    },
+                    grid: { color: '#333' }
+                },
+                y: {
+                    ticks: { 
+                        color: '#b3b3b3',
+                        callback: value => formatCurrency(value),
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: { color: '#333' }
+                }
+            }
+        }
+    });
+}
+
+// Call this function in the appropriate place after fetching data
+fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.values && data.values.length > 0) {
+            displayData(data.values);
+            createWagerChart(data.values); // Call the new chart function here
+        }
+    });
