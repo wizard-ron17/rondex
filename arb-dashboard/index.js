@@ -354,7 +354,9 @@ function updateBalances(values) {
         4: 'espnbet',
         5: 'betmgm',
         6: 'fanatics',
-        7: 'caesars'
+        7: 'caesars',
+        8: 'novig',
+        9: 'prophetx'
     };
 
     let total = 0;
@@ -383,14 +385,16 @@ function initializeChart(data) {
 
     // Define sportsbooks and their colors
     const sportsbooks = [
-        { name: 'Total Balance', index: 'total', color: '#ffffff' },
+        { name: 'Total Balance', index: 'total', color: '#777777' },
         { name: 'DraftKings', index: 1, color: '#00dc00' },
         { name: 'Fanduel', index: 2, color: '#1c64d9' },
         { name: 'BetRivers', index: 3, color: '#ffff00' },
         { name: 'ESPNBet', index: 4, color: '#66ffcc' },
         { name: 'BetMGM', index: 5, color: '#d4af37' },
         { name: 'Fanatics', index: 6, color: '#ff0000' },
-        { name: 'Caesars', index: 7, color: '#006600' }
+        { name: 'Caesars', index: 7, color: '#006600' },
+        { name: 'Novig', index: 8, color: '#ffffff' },
+        { name: 'ProphetX', index: 9, color: '#60c1a0' }
     ];
 
     // Create datasets for each sportsbook and total
@@ -400,7 +404,7 @@ function initializeChart(data) {
             // Calculate total balance for each date
             data = chartData.map(row => {
                 let total = 0;
-                for (let i = 1; i <= 7; i++) {
+                for (let i = 1; i <= 9; i++) {
                     total += parseFloat(row[i].replace(/[$,]/g, '')) || 0;
                 }
                 return total;
