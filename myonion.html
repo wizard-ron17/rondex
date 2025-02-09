@@ -34,7 +34,7 @@
             background: rgba(0, 0, 0, 0.7);
             padding: 20px;
             border-radius: 10px;
-            width: 300px;
+            width: 350px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
@@ -57,10 +57,26 @@
             margin-right: 10px;
         }
 
-        #result, #presalePrice {
-            margin-top: 10px;
+        .price-container {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 15px;
+            padding-top: 15px;
+        }
+
+        .price-group {
+            margin-bottom: 10px;
+        }
+
+        .main-price {
             font-size: 18px;
             font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .usd-price {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -77,14 +93,31 @@
             <span>$ONION</span>
             <span id="exBalance">Loading...</span>
         </div>
-        <div id="result">Calculating price...</div>
-        <div id="presalePrice">Presale Price: 0.0004 ALPH</div>
+        <div class="price-container">
+            <div class="price-group">
+                <div id="result" class="main-price">Calculating price...</div>
+                <div id="usdPrice" class="usd-price">Calculating...</div>
+            </div>
+            <div class="price-group">
+                <div id="mcfdv" class="main-price">Calculating MC(FDV)...</div>
+                <div id="usdMcfdv" class="usd-price">Calculating...</div>
+            </div>
+            <div class="price-group">
+                <div id="presalePrice" class="main-price">Presale Price: 0.0004 ALPH</div>
+                <div id="presaleUsdPrice" class="usd-price">Calculating...</div>
+            </div>
+        </div>
     </div>
 
     <script>
         async function fetchBalances() {
             try {
                 const presalePrice = 0.0004;  // Presale price in ALPH
+
+                // Fetch ALPH/USD price
+                const alphPriceResponse = await fetch('https://api.coinpaprika.com/v1/tickers/alph-alephium');
+                const alphPriceData = await alphPriceResponse.json();
+                const alphUsdPrice = alphPriceData.quotes.USD.price;
 
                 // Fetch ALPH balance
                 const alphResponse = await fetch('https://backend.mainnet.alephium.org/addresses/25zYnMyuypUhdyULwt1Zgft5k9dJGc3FGAeozZAFwDmRZ/balance');
@@ -99,16 +132,27 @@
                 const exBalance = parseFloat(exBalanceData.balance) / 1e18;
                 document.getElementById('exBalance').innerText = exBalance.toFixed(2);
 
-                // Calculate the price in $ALPH (ALPH/EX)
+                // Calculate the price in ALPH
                 const currentPrice = alphBalance / exBalance;
                 document.getElementById('result').innerText = `Price: ${currentPrice.toFixed(6)} $ALPH`;
+                document.getElementById('usdPrice').innerText = `$${(currentPrice * alphUsdPrice).toFixed(6)}`;
 
-                // Calculate the multiplier and display it with the presale price
+                // Calculate MC(FDV)
+                const mcfdv = currentPrice * 1000000000;
+                document.getElementById('mcfdv').innerText = `MC(FDV): ${mcfdv.toLocaleString()} $ALPH`;
+                document.getElementById('usdMcfdv').innerText = `$${(mcfdv * alphUsdPrice).toLocaleString()}`;
+
+                // Calculate the multiplier and display presale prices
                 const multiplier = currentPrice / presalePrice;
                 document.getElementById('presalePrice').innerText = `Presale Price: 0.0004 $ALPH (${multiplier.toFixed(2)}x)`;
+                document.getElementById('presaleUsdPrice').innerText = `$${(presalePrice * alphUsdPrice).toFixed(6)}`;
             } catch (error) {
-                console.error("Error fetching balance data:", error);
+                console.error("Error fetching data:", error);
                 document.getElementById('result').innerText = "Error loading data";
+                document.getElementById('usdPrice').innerText = "Error calculating USD price";
+                document.getElementById('mcfdv').innerText = "Error calculating MC(FDV)";
+                document.getElementById('usdMcfdv').innerText = "Error calculating USD MC(FDV)";
+                document.getElementById('presaleUsdPrice').innerText = "Error calculating USD price";
             }
         }
 
