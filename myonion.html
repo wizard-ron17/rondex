@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LP Balance Calculator</title>
+    <style>
+        /* Basic reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Background and layout */
+        body {
+            background-image: url('https://static.vecteezy.com/system/resources/thumbnails/007/403/225/small_2x/egyptian-desert-background-vector.jpg');
+            background-size: cover;
+            background-color: #000;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Container styling */
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .balance {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .balance img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        #result, #presalePrice {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>$ONION Liquidity & Price</h1>
+        <div class="balance">
+            <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/ALPH.png" alt="ALPH logo">
+            <span>$ALPH</span>
+            <span id="alphBalance">Loading...</span>
+        </div>
+        <div class="balance">
+            <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/ONION.png" alt="EX logo">
+            <span>$ONION</span>
+            <span id="exBalance">Loading...</span>
+        </div>
+        <div id="result">Calculating price...</div>
+        <div id="presalePrice">Presale Price: 0.0004 ALPH</div>
+    </div>
+
+    <script>
+        async function fetchBalances() {
+            try {
+                const presalePrice = 0.0004;  // Presale price in ALPH
+
+                // Fetch ALPH balance
+                const alphResponse = await fetch('https://backend.mainnet.alephium.org/addresses/25zYnMyuypUhdyULwt1Zgft5k9dJGc3FGAeozZAFwDmRZ/balance');
+                const alphData = await alphResponse.json();
+                const alphBalance = parseFloat(alphData.balance) / 1e18;
+                document.getElementById('alphBalance').innerText = alphBalance.toFixed(2);
+
+                // Fetch EX token balance
+                const tokenResponse = await fetch('https://backend.mainnet.alephium.org/addresses/25zYnMyuypUhdyULwt1Zgft5k9dJGc3FGAeozZAFwDmRZ/tokens-balance?limit=100&page=1');
+                const tokenData = await tokenResponse.json();
+                const exBalanceData = tokenData.find(token => token.tokenId === "a7af44d2756d69dedf4ea4cf8e6415f1188b80e99f217d0b73e270b9c0408300");
+                const exBalance = parseFloat(exBalanceData.balance) / 1e18;
+                document.getElementById('exBalance').innerText = exBalance.toFixed(2);
+
+                // Calculate the price in $ALPH (ALPH/EX)
+                const currentPrice = alphBalance / exBalance;
+                document.getElementById('result').innerText = `Price: ${currentPrice.toFixed(6)} $ALPH`;
+
+                // Calculate the multiplier and display it with the presale price
+                const multiplier = currentPrice / presalePrice;
+                document.getElementById('presalePrice').innerText = `Presale Price: 0.0004 $ALPH (${multiplier.toFixed(2)}x)`;
+            } catch (error) {
+                console.error("Error fetching balance data:", error);
+                document.getElementById('result').innerText = "Error loading data";
+            }
+        }
+
+        fetchBalances();
+    </script>
+</body>
+</html>
