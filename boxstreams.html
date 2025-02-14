@@ -50,6 +50,7 @@
             margin-bottom: 2rem;
             border-bottom: 1px solid #334155;
             padding-bottom: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .tab {
@@ -129,6 +130,11 @@
             align-items: center;
             gap: 0.375rem;
         }
+
+        .score {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -140,9 +146,13 @@
 
     <main>
         <div class="tabs" id="sportTabs">
-            <button class="tab active" data-sport="boxing">Boxing</button>
+            <button class="tab active" data-sport="nfl">NFL</button>
+            <button class="tab" data-sport="nba">NBA</button>
+            <button class="tab" data-sport="mlb">MLB</button>
+            <button class="tab" data-sport="cfb">CFB</button>
+            <button class="tab" data-sport="ncaam">NCAAM</button>
+            <button class="tab" data-sport="boxing">Boxing</button>
             <button class="tab" data-sport="mma">MMA</button>
-            <button class="tab" data-sport="kickboxing">Kickboxing</button>
         </div>
 
         <div class="game-list" id="gameList">
@@ -151,26 +161,42 @@
 
     <script>
         const games = {
+            nfl: [
+                { id: 1, title: 'Chiefs vs Ravens', league: 'AFC Championship', viewers: 125234, score: '24-21' },
+                { id: 2, title: '49ers vs Lions', league: 'NFC Championship', viewers: 118856, score: '28-17' }
+            ],
+            nba: [
+                { id: 3, title: 'Lakers vs Celtics', league: 'NBA Regular Season', viewers: 45423, score: '112-108' },
+                { id: 4, title: 'Warriors vs Suns', league: 'NBA Regular Season', viewers: 38789, score: '98-95' }
+            ],
+            mlb: [
+                { id: 5, title: 'Yankees vs Red Sox', league: 'AL East', viewers: 29912, score: '5-3' },
+                { id: 6, title: 'Dodgers vs Giants', league: 'NL West', viewers: 27234, score: '4-2' }
+            ],
+            cfb: [
+                { id: 7, title: 'Alabama vs Georgia', league: 'SEC', viewers: 89567, score: '35-28' },
+                { id: 8, title: 'Ohio State vs Michigan', league: 'Big Ten', viewers: 92345, score: '31-27' }
+            ],
+            ncaam: [
+                { id: 9, title: 'Duke vs UNC', league: 'ACC', viewers: 42123, score: '78-75' },
+                { id: 10, title: 'Kansas vs Kentucky', league: 'NCAA', viewers: 38567, score: '82-79' }
+            ],
             boxing: [
-                { id: 1, title: 'Joshua vs Fury', league: 'WBA Championship', viewers: 15234 },
-                { id: 2, title: 'Canelo vs Smith', league: 'WBC Title Fight', viewers: 12856 },
-                { id: 3, title: 'Taylor vs Serrano', league: 'Lightweight Division', viewers: 8567 }
+                { id: 11, title: 'Joshua vs Fury', league: 'WBA Championship', viewers: 15234 },
+                { id: 12, title: 'Canelo vs Smith', league: 'WBC Title Fight', viewers: 12856 }
             ],
             mma: [
-                { id: 4, title: 'McGregor vs Poirier', league: 'UFC 289', viewers: 25423 },
-                { id: 5, title: 'Adesanya vs Pereira', league: 'UFC Title Fight', viewers: 18789 }
-            ],
-            kickboxing: [
-                { id: 6, title: 'Rico vs Badr', league: 'Glory Championship', viewers: 9912 },
-                { id: 7, title: 'Cedric vs Masoud', league: 'ONE Championship', viewers: 7234 }
+                { id: 13, title: 'McGregor vs Poirier', league: 'UFC 289', viewers: 25423 },
+                { id: 14, title: 'Adesanya vs Pereira', league: 'UFC Title Fight', viewers: 18789 }
             ]
         };
 
         function createGameItem(game) {
+            const scoreDisplay = game.score ? `<span class="score">${game.score}</span>` : '';
             return `
                 <a href="/watch/${game.id}" class="game-item">
                     <div class="game-info">
-                        <div class="game-title">${game.title}</div>
+                        <div class="game-title">${game.title} ${scoreDisplay}</div>
                         <div class="game-meta">
                             <span>${game.league}</span>
                             <div class="viewers">👥 ${game.viewers.toLocaleString()}</div>
@@ -198,8 +224,8 @@
             }
         });
 
-        // Initialize with boxing games
-        showGames('boxing');
+        // Initialize with NFL games
+        showGames('nfl');
     </script>
 </body>
 </html>
