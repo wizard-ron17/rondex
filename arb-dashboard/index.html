@@ -101,6 +101,10 @@
                         <div class="balance-label">ProphetX</div>
                         <div class="balance-value" id="prophetx-balance">$0.00</div>
                     </div>
+                    <div class="balance-card rebet">
+                        <div class="balance-label">Rebet</div>
+                        <div class="balance-value" id="rebet-balance">$0.00</div>
+                    </div>
                     <div class="balance-card total">
                         <div class="balance-label">Total Balance</div>
                         <div class="balance-value" id="total-balance">$0.00</div>
@@ -132,9 +136,76 @@
     <div id="betModal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h2>Bet Details</h2>
-            <div class="bet-details-grid" id="modalBetDetails">
-                <!-- Content will be populated dynamically -->
+            
+            <div class="bet-header">
+                <div class="bet-title" id="modal-event-title"></div>
+                <div class="bet-subtitle-row">
+                    <div class="bet-subtitle" id="modal-bet-title"></div>
+                    <div class="bet-date" id="modal-date"></div>
+                </div>
+            </div>
+
+            <div class="modal-grid">
+                <!-- Sportsbook A Card -->
+                <div class="sportsbook-card">
+                    <div class="sportsbook-header">
+                        <div class="sportsbook-name" id="sportsbook-a-name"></div>
+                        <div class="bet-type" id="bet-type-a"></div>
+                    </div>
+                    <div class="bet-info-grid">
+                        <div class="bet-info-item">
+                            <span class="bet-info-label">Odds</span>
+                            <span class="bet-info-value" id="odds-a"></span>
+                        </div>
+                        <div class="bet-info-item">
+                            <span class="bet-info-label">Wager</span>
+                            <span class="bet-info-value" id="wager-a"></span>
+                        </div>
+                        <div class="bet-info-item">
+                            <span class="bet-info-label">To Win</span>
+                            <span class="bet-info-value" id="to-win-a"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sportsbook B Card -->
+                <div class="sportsbook-card">
+                    <div class="sportsbook-header">
+                        <div class="sportsbook-name" id="sportsbook-b-name"></div>
+                        <div class="bet-type" id="bet-type-b"></div>
+                    </div>
+                    <div class="bet-info-grid">
+                        <div class="bet-info-item">
+                            <span class="bet-info-label">Odds</span>
+                            <span class="bet-info-value" id="odds-b"></span>
+                        </div>
+                        <div class="bet-info-item">
+                            <span class="bet-info-label">Wager</span>
+                            <span class="bet-info-value" id="wager-b"></span>
+                        </div>
+                        <div class="bet-info-item">
+                            <span class="bet-info-label">To Win</span>
+                            <span class="bet-info-value" id="to-win-b"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bet-summary">
+                <div class="summary-grid">
+                    <div class="bet-info-item">
+                        <span class="bet-info-label">Total Wager</span>
+                        <span class="bet-info-value" id="total-wager"></span>
+                    </div>
+                    <div class="bet-info-item">
+                        <span class="bet-info-label" id="profit-label">Potential Profit</span>
+                        <span class="bet-info-value" id="potential-profit"></span>
+                    </div>
+                    <div class="bet-info-item">
+                        <span class="bet-info-label" id="roi-label">Potential ROI</span>
+                        <span class="bet-info-value" id="potential-roi"></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
