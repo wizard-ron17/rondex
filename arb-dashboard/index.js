@@ -152,126 +152,82 @@ function calculateArbitrageOutcomes(rowData) {
 // Update the showBetModal function's middle column content
 function showBetModal(rowData) {
     const modal = document.getElementById('betModal');
-    const modalContent = document.getElementById('modalBetDetails');
+    console.log('Modal element:', modal); // Debug log
     
-    // Calculate outcomes for open bets
-    const arbitrageOutcomes = calculateArbitrageOutcomes(rowData);
+    // Check each element before setting content
+    const elements = {
+        eventTitle: document.getElementById('modal-event-title'),
+        betTitle: document.getElementById('modal-bet-title'),
+        date: document.getElementById('modal-date'),
+        sbookAName: document.getElementById('sportsbook-a-name'),
+        betTypeA: document.getElementById('bet-type-a'),
+        oddsA: document.getElementById('odds-a'),
+        wagerA: document.getElementById('wager-a'),
+        toWinA: document.getElementById('to-win-a'),
+        sbookBName: document.getElementById('sportsbook-b-name'),
+        betTypeB: document.getElementById('bet-type-b'),
+        oddsB: document.getElementById('odds-b'),
+        wagerB: document.getElementById('wager-b'),
+        toWinB: document.getElementById('to-win-b'),
+        totalWager: document.getElementById('total-wager'),
+        potentialProfit: document.getElementById('potential-profit'),
+        potentialRoi: document.getElementById('potential-roi')
+    };
     
-    // Create the middle column content based on whether it's an open bet or not
-    const middleColumnContent = !rowData[5] ? `
-        <div class="bet-details-item">
-            <span class="bet-details-label">Event/Teams</span>
-            <span>${rowData[2]}</span>
-        </div>
-        <div class="bet-details-item">
-            <span class="bet-details-label">Bet Title</span>
-            <span>${rowData[3]}</span>
-        </div>
-        <div class="bet-details-item">
-            <span class="bet-details-label">Total Wager</span>
-            <span>${rowData[4]}</span>
-        </div>
-        <div class="bet-details-item">
-            <span class="bet-details-label">Status</span>
-            <span class="status-open">OPEN BET</span>
-        </div>
-        <div class="bet-details-item">
-            <span class="bet-details-label">Potential Profit</span>
-            <span>${formatCurrency(arbitrageOutcomes.minProfit)} - ${formatCurrency(arbitrageOutcomes.maxProfit)}</span>
-        </div>
-        <div class="bet-details-item">
-            <span class="bet-details-label">Potential ROI</span>
-            <span>${arbitrageOutcomes.minRoi.toFixed(2)}% - ${arbitrageOutcomes.maxRoi.toFixed(2)}%</span>
-        </div>
-    ` : `
-        <div class="bet-details-item">
-            <span class="bet-details-label">Event/Teams</span>
-            <span>${rowData[2]}</span>
-        </div>
-        <div class="bet-details-item">
-            <span class="bet-details-label">Bet Title</span>
-            <span>${rowData[3]}</span>
-        </div>
-        <div class="bet-details-item">
-            <span class="bet-details-label">Total Wager</span>
-            <span>${rowData[4]}</span>
-        </div>
-        <div class="bet-details-item">
-            <span class="bet-details-label">Total Won</span>
-            <span>${rowData[5]}</span>
-        </div>
-        <div class="bet-details-item">
-            <span class="bet-details-label">Profit</span>
-            <span class="${parseFloat(rowData[6].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${rowData[6]}</span>
-        </div>
-        <div class="bet-details-item">
-            <span class="bet-details-label">ROI</span>
-            <span>${rowData[7]}</span>
-        </div>
-    `;
-
-    // Rest of the modal content remains the same...
-    modalContent.innerHTML = `
-        <div class="modal-grid">
-            <!-- Left Column - Sportsbook A -->
-            <div class="modal-column">
-                <h3>Sportsbook A Details</h3>
-                <div class="bet-details-item">
-                    <span class="bet-details-label">Sportsbook</span>
-                    <span>${rowData[8]}</span>
-                </div>
-                <div class="bet-details-item">
-                    <span class="bet-details-label">Prop</span>
-                    <span>${rowData[9]}</span>
-                </div>
-                <div class="bet-details-item">
-                    <span class="bet-details-label">Odds</span>
-                    <span>${rowData[10]}</span>
-                </div>
-                <div class="bet-details-item">
-                    <span class="bet-details-label">Wager</span>
-                    <span>${formatCurrency(rowData[11])}</span>
-                </div>
-                <div class="bet-details-item">
-                    <span class="bet-details-label">To Win</span>
-                    <span>${formatCurrency(rowData[12])}</span>
-                </div>
-            </div>
-
-            <!-- Middle Column - Overall Details -->
-            <div class="modal-column">
-                <h3>Bet Summary</h3>
-                ${middleColumnContent}
-            </div>
-
-            <!-- Right Column - Sportsbook B -->
-            <div class="modal-column">
-                <h3>Sportsbook B Details</h3>
-                <div class="bet-details-item">
-                    <span class="bet-details-label">Sportsbook</span>
-                    <span>${rowData[13]}</span>
-                </div>
-                <div class="bet-details-item">
-                    <span class="bet-details-label">Prop</span>
-                    <span>${rowData[14]}</span>
-                </div>
-                <div class="bet-details-item">
-                    <span class="bet-details-label">Odds</span>
-                    <span>${rowData[15]}</span>
-                </div>
-                <div class="bet-details-item">
-                    <span class="bet-details-label">Wager</span>
-                    <span>${formatCurrency(rowData[16])}</span>
-                </div>
-                <div class="bet-details-item">
-                    <span class="bet-details-label">To Win</span>
-                    <span>${formatCurrency(rowData[17])}</span>
-                </div>
-            </div>
-        </div>
-    `;
+    // Debug log to see which elements are null
+    console.log('Elements:', elements);
     
-    modal.style.display = 'block';
+    // Only proceed if all elements exist
+    if (Object.values(elements).every(el => el !== null)) {
+        elements.eventTitle.textContent = `${rowData[1]} | ${rowData[2]}`;
+        elements.betTitle.textContent = rowData[3];
+        elements.date.textContent = rowData[0];
+        
+        elements.sbookAName.textContent = rowData[8];
+        elements.betTypeA.textContent = rowData[9];
+        elements.oddsA.textContent = rowData[10];
+        elements.wagerA.textContent = formatCurrency(rowData[11]);
+        elements.toWinA.textContent = formatCurrency(rowData[12]);
+        
+        elements.sbookBName.textContent = rowData[13];
+        elements.betTypeB.textContent = rowData[14];
+        elements.oddsB.textContent = rowData[15];
+        elements.wagerB.textContent = formatCurrency(rowData[16]);
+        elements.toWinB.textContent = formatCurrency(rowData[17]);
+        
+        const totalWager = parseFloat(rowData[4].replace(/[$,]/g, ''));
+        elements.totalWager.textContent = formatCurrency(totalWager);
+        
+        const profit = parseFloat(rowData[6].replace(/[$,]/g, ''));
+        const roi = parseFloat(rowData[7].replace('%', ''));
+        
+        if (profit < 0 && roi === -100) {
+            const outcomes = calculateArbitrageOutcomes(rowData);
+            elements.potentialProfit.textContent = 
+                `${formatCurrency(outcomes.minProfit)} - ${formatCurrency(outcomes.maxProfit)}`;
+            elements.potentialRoi.textContent = 
+                `${outcomes.minRoi.toFixed(2)}% - ${outcomes.maxRoi.toFixed(2)}%`;
+            
+            document.getElementById('profit-label').textContent = 'Potential Profit';
+            document.getElementById('roi-label').textContent = 'Potential ROI';
+        } else {
+            elements.potentialProfit.textContent = formatCurrency(profit);
+            elements.potentialRoi.textContent = `${roi.toFixed(2)}%`;
+            
+            document.getElementById('profit-label').textContent = 'Profit';
+            document.getElementById('roi-label').textContent = 'ROI';
+        }
+        
+        modal.style.display = 'block';
+    } else {
+        console.error('Some elements are missing from the DOM');
+        // Log which elements are missing
+        Object.entries(elements).forEach(([key, value]) => {
+            if (value === null) {
+                console.error(`Missing element: ${key}`);
+            }
+        });
+    }
 }
 
 // Update the displayData function for main table
@@ -356,7 +312,8 @@ function updateBalances(values) {
         6: 'fanatics',
         7: 'caesars',
         8: 'novig',
-        9: 'prophetx'
+        9: 'prophetx',
+        10: 'rebet'
     };
 
     let total = 0;
@@ -394,7 +351,8 @@ function initializeChart(data) {
         { name: 'Fanatics', index: 6, color: '#ff0000' },
         { name: 'Caesars', index: 7, color: '#006600' },
         { name: 'Novig', index: 8, color: '#ffffff' },
-        { name: 'ProphetX', index: 9, color: '#60c1a0' }
+        { name: 'ProphetX', index: 9, color: '#60c1a0' },
+        { name: 'Rebet', index: 10, color: '#ff7c34' }
     ];
 
     // Create datasets for each sportsbook and total
@@ -404,7 +362,7 @@ function initializeChart(data) {
             // Calculate total balance for each date
             data = chartData.map(row => {
                 let total = 0;
-                for (let i = 1; i <= 9; i++) {
+                for (let i = 1; i <= 10; i++) {
                     total += parseFloat(row[i].replace(/[$,]/g, '')) || 0;
                 }
                 return total;
