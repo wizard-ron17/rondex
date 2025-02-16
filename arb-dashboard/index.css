@@ -278,7 +278,7 @@ tr.clickable:hover {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    color: #666;
+    color: #777;
     gap: 0.5rem;
 }
 
@@ -288,7 +288,7 @@ tr.clickable:hover {
 
 .bet-date {
     font-size: 1rem;
-    color: #666;
+    color: #777;
 }
 
 /* Optional: Add a subtle separator between subtitle and date */
@@ -340,7 +340,7 @@ tr.clickable:hover {
 }
 
 .bet-info-label {
-    color: #666;
+    color: #777;
     font-size: 1.1rem;
 }
 
@@ -371,7 +371,7 @@ tr.clickable:hover {
 }
 
 .summary-grid .bet-info-label {
-    color: #666;
+    color: #777;
     font-size: 1rem;
 }
 
