@@ -708,20 +708,30 @@ function createCalendar() {
         const year = date.getFullYear();
         const month = date.getMonth();
         
+        // Calculate first day and days in month
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        // Calculate monthly total
+        const monthlyTotal = Object.entries(data).reduce((total, [dateStr, dayData]) => {
+            const [m] = dateStr.split('/');
+            if (parseInt(m) === month + 1) {
+                return total + dayData.profit;
+            }
+            return total;
+        }, 0);
         
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                            'July', 'August', 'September', 'October', 'November', 'December'];
         
-        // Create calendar HTML
         let calendarHTML = `
             <div class="calendar-header">
-                <h2>${monthNames[month]} ${year}</h2>
                 <div class="calendar-navigation">
                     <button class="calendar-nav-btn prev-month">←</button>
+                    <h2>${monthNames[month]} ${year}</h2>
                     <button class="calendar-nav-btn next-month">→</button>
                 </div>
+                <div class="month-total">Monthly Profit: ${formatCurrency(monthlyTotal)}</div>
             </div>
             <table class="calendar-table">
                 <thead>
