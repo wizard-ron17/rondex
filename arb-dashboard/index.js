@@ -39,51 +39,89 @@ function calculateStats(rows) {
     document.getElementById('bet-count').textContent = betCount;
 }
 
+function parseDate(dateStr) {
+    const [month, day, year] = dateStr.split('/');
+    // Convert to YYYY-MM-DD format for proper comparison
+    return new Date(`20${year}`, month - 1, day);
+}
+
+function getColumnIndex(sortKey) {
+    const columnMap = {
+        'date': 0,
+        'wager': 1,
+        'profit': 2,
+        'roi': 3,
+        'sport': 4,
+        'event': 5,
+        'title': 6
+    };
+    return columnMap[sortKey];
+}
+
+function sortTable(sortKey, isAscending) {
+    const tbody = document.getElementById('data');
+    const rows = Array.from(tbody.getElementsByTagName('tr'));
+    const headers = document.querySelectorAll('th[data-sort]');
+
+    // Reset all headers except the current one
+    headers.forEach(header => {
+        if (header.getAttribute('data-sort') !== sortKey) {
+            header.classList.remove('asc');
+        }
+    });
+
+    rows.sort((a, b) => {
+        const aValue = a.cells[getColumnIndex(sortKey)].textContent;
+        const bValue = b.cells[getColumnIndex(sortKey)].textContent;
+        
+        if (sortKey === 'date') {
+            const dateA = parseDate(aValue);
+            const dateB = parseDate(bValue);
+            return isAscending ? dateA - dateB : dateB - dateA;
+        } else if (sortKey === 'wager' || sortKey === 'profit') {
+            const numA = parseFloat(aValue.replace(/[$,]/g, ''));
+            const numB = parseFloat(bValue.replace(/[$,]/g, ''));
+            return isAscending ? numA - numB : numB - numA;
+        } else if (sortKey === 'roi') {
+            const numA = parseFloat(aValue.replace('%', ''));
+            const numB = parseFloat(bValue.replace('%', ''));
+            return isAscending ? numA - numB : numB - numA;
+        } else {
+            return isAscending ? 
+                aValue.localeCompare(bValue) : 
+                bValue.localeCompare(aValue);
+        }
+    });
+
+    // Clear and re-append sorted rows
+    while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+    }
+    rows.forEach(row => tbody.appendChild(row));
+}
+
 function displayData(values) {
     const headers = values[0];
     const rows = values.slice(1);
-    let tableContent = '';
     
+    // Sort rows by date in descending order by default
+    rows.sort((a, b) => {
+        const dateA = parseDate(a[0]);
+        const dateB = parseDate(b[0]);
+        return dateB - dateA;
+    });
+    
+    let tableContent = '';
     rows.forEach((row, index) => {
         tableContent += `
-            <tr class="clickable" onclick="toggleDetails(${index})">
+            <tr class="clickable" onclick="showBetModal(${JSON.stringify(row).replace(/"/g, '&quot;')})">
                 <td>${row[0]}</td>
+                <td>${row[4]}</td>
+                <td>${row[6]}</td>
+                <td class="profit ${parseFloat(row[7].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${row[7]}</td>
                 <td>${row[1]}</td>
                 <td>${row[2]}</td>
                 <td>${row[3]}</td>
-                <td>${row[4]}</td>
-                <td class="profit ${parseFloat(row[6].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${row[6]}</td>
-                <td>${row[7]}</td>
-            </tr>
-            <tr>
-                <td colspan="7" class="bet-details" id="details-${index}">
-                    <div class="bet-details-grid">
-                        <div class="bet-details-item">
-                            <span class="bet-details-label">Sportsbook A</span>
-                            <span>${row[8]}</span>
-                        </div>
-                        <div class="bet-details-item">
-                            <span class="bet-details-label">Prop A</span>
-                            <span>${row[9]}</span>
-                        </div>
-                        <div class="bet-details-item">
-                            <span class="bet-details-label">Odds A</span>
-                            <span>${row[10]}</span>
-                        </div>
-                        <div class="bet-details-item">
-                            <span class="bet-details-label">Sportsbook B</span>
-                            <span>${row[13]}</span>
-                        </div>
-                        <div class="bet-details-item">
-                            <span class="bet-details-label">Prop B</span>
-                            <span>${row[14]}</span>
-                        </div>
-                        <div class="bet-details-item">
-                            <span class="bet-details-label">Odds B</span>
-                            <span>${row[15]}</span>
-                        </div>
-                    </div>
-                </td>
             </tr>
         `;
     });
@@ -91,6 +129,10 @@ function displayData(values) {
     document.getElementById('data').innerHTML = tableContent;
     calculateStats(rows);
     document.querySelector('.loading').style.display = 'none';
+    
+    // Update the date header to show it's sorted in descending order
+    const dateHeader = document.querySelector('th[data-sort="date"]');
+    dateHeader.classList.remove('asc');
 }
 
 function calculatePotentialOutcomes(rowData) {
@@ -228,31 +270,6 @@ function showBetModal(rowData) {
             }
         });
     }
-}
-
-// Update the displayData function for main table
-function displayData(values) {
-    const headers = values[0];
-    const rows = values.slice(1);
-    let tableContent = '';
-    
-    rows.forEach((row, index) => {
-        tableContent += `
-            <tr class="clickable" onclick="showBetModal(${JSON.stringify(row).replace(/"/g, '&quot;')})">
-                <td>${row[0]}</td>
-                <td>${row[4]}</td>
-                <td>${row[6]}</td>
-                <td class="profit ${parseFloat(row[7].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${row[7]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
-                <td>${row[3]}</td>
-            </tr>
-        `;
-    });
-    
-    document.getElementById('data').innerHTML = tableContent;
-    calculateStats(rows);
-    document.querySelector('.loading').style.display = 'none';
 }
 
 // Add event listeners for the modal
@@ -531,40 +548,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch balances
     fetchBalances();
 });
-
-function sortTable(sortKey, isAscending) {
-    const tableBody = document.getElementById('data');
-    const rows = Array.from(tableBody.querySelectorAll('tr'));
-
-    const sortIndex = {
-        date: 0,
-        wager: 1,
-        profit: 2,
-        roi: 3,
-        sport: 4,
-        event: 5,
-        title: 6
-    }[sortKey];
-
-    rows.sort((a, b) => {
-        const aText = a.children[sortIndex].textContent.trim();
-        const bText = b.children[sortIndex].textContent.trim();
-
-        // Parse as float for numeric comparison
-        const aValue = sortKey === 'wager' || sortKey === 'profit' || sortKey === 'roi' 
-            ? parseFloat(aText.replace(/[$,]/g, '')) 
-            : aText;
-
-        const bValue = sortKey === 'wager' || sortKey === 'profit' || sortKey === 'roi' 
-            ? parseFloat(bText.replace(/[$,]/g, '')) 
-            : bText;
-
-        return isAscending ? aValue > bValue ? 1 : -1 : aValue < bValue ? 1 : -1;
-    });
-
-    // Reattach sorted rows to the table body
-    rows.forEach(row => tableBody.appendChild(row));
-}
 
 let profitChart = null;
 
