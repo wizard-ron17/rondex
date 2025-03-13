@@ -20,6 +20,10 @@
             font-size: 16px;
             cursor: pointer;
         }
+        #hiddenContent {
+            position: absolute;
+            left: -9999px;
+        }
     </style>
 </head>
 <body>
@@ -27,20 +31,36 @@
         <h2>Embedded Loom Video</h2>
         <iframe width="640" height="360" src="https://www.loom.com/embed/787488f0a36344a689194da2f496d897?sid=9989b2cf-2754-4c03-891b-be0858499843" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
         
-        <h3>Copy GIF Thumbnail</h3>
+        <h3>Copy GIF Thumbnail for Email</h3>
         <img id="thumbnail" src="https://raw.githubusercontent.com/wizard-ron17/rondex/main/unnamed.gif" alt="GIF Thumbnail" width="320">
         <br>
-        <button onclick="copyThumbnail()">Copy Thumbnail Link</button>
+        <button onclick="copyRichText()">Copy for Email</button>
+        
+        <!-- Hidden content that gets copied -->
+        <div id="hiddenContent">
+            <a href="https://www.loom.com/share/787488f0a36344a689194da2f496d897" target="_blank">
+                <img src="https://raw.githubusercontent.com/wizard-ron17/rondex/main/unnamed.gif" alt="Complimentary Quote Inquiry - Watch Video" style="width: 600px; max-width: 100%; border: 0;">
+            </a>
+        </div>
     </div>
 
     <script>
-        function copyThumbnail() {
-            const text = '<a href="https://www.loom.com/share/787488f0a36344a689194da2f496d897">\n  <img src="https://raw.githubusercontent.com/wizard-ron17/rondex/main/unnamed.gif" alt="Watch Video">\n</a>';
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Thumbnail link copied to clipboard!");
-            }).catch(err => {
-                console.error("Failed to copy: ", err);
-            });
+        function copyRichText() {
+            const hiddenContent = document.getElementById("hiddenContent");
+            const range = document.createRange();
+            range.selectNode(hiddenContent);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            try {
+                document.execCommand("copy");
+                alert("Copied! Now paste into your email.");
+            } catch (err) {
+                console.error("Copy failed:", err);
+            }
+
+            selection.removeAllRanges();
         }
     </script>
 </body>
