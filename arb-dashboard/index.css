@@ -621,3 +621,52 @@ tr.clickable:hover {
         left: 0.15rem;
     }
 }
+
+.profit-summary-container {
+    margin-top: 2rem;
+    padding: 1rem;
+}
+
+.yearly-profit {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.yearly-profit h3 {
+    color: #ffffff;
+    font-size: 1.2rem;
+}
+
+.monthly-chart-container {
+    height: 300px;
+    margin-top: 1rem;
+}
+
+.profit-overview-container {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: var(--bg-dark);
+    border-radius: 8px;
+}
+
+.chart-title {
+    color: #ffffff;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.yearly-profit {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.yearly-profit h3 {
+    color: #ffffff;
+    font-size: 1.2rem;
+}
+
+.monthly-chart-container {
+    height: 300px;
+    margin-top: 1rem;
+}
