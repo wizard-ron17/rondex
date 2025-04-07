@@ -331,7 +331,9 @@ function updateBalances(values) {
         8: 'novig',
         9: 'prophetx',
         10: 'rebet',
-        11: 'betonline'
+        11: 'betonline',
+        12: 'fliff',
+        13: 'mybookie'
     };
 
     let total = 0;
@@ -371,7 +373,9 @@ function initializeChart(data) {
         { name: 'Novig', index: 8, color: '#ffffff' },
         { name: 'ProphetX', index: 9, color: '#60c1a0' },
         { name: 'Rebet', index: 10, color: '#ff7c34' },
-        { name: 'BetOnline', index: 11, color: '#ff3a3c' }
+        { name: 'BetOnline', index: 11, color: '#ff3a3c' },
+        { name: 'Fliff', index: 12, color: '#80cfda' },
+        { name: 'MyBookie', index: 13, color: '#f99b2e' }
     ];
 
     // Create datasets for each sportsbook and total
@@ -381,7 +385,7 @@ function initializeChart(data) {
             // Calculate total balance for each date
             data = chartData.map(row => {
                 let total = 0;
-                for (let i = 1; i <= 11; i++) {
+                for (let i = 1; i <= 13; i++) {
                     total += parseFloat(row[i].replace(/[$,]/g, '')) || 0;
                 }
                 return total;
@@ -517,38 +521,54 @@ function fetchBalances() {
 // Add tab functionality
 document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.tab');
+    
+    // Function to switch tabs
+    function switchTab(tabName) {
+        // Remove active class from all tabs and content
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Add active class to selected tab and content
+        const selectedTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+        if (selectedTab) {
+            selectedTab.classList.add('active');
+            document.getElementById(`${tabName}-content`).classList.add('active');
+            
+            // Initialize specific tab content
+            if (tabName === 'calendar') {
+                createCalendar();
+            } else if (tabName === 'stats') {
+                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.values && data.values.length > 0) {
+                            createProfitChart(data.values);
+                        }
+                    });
+            }
+        }
+    }
+
+    // Handle tab clicks
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            // Remove active class from all tabs and content
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            // Add active class to clicked tab and corresponding content
-            tab.classList.add('active');
-            document.getElementById(`${tab.dataset.tab}-content`).classList.add('active');
+            const tabName = tab.dataset.tab;
+            window.location.hash = tabName; // Update URL hash when clicking tabs
+            switchTab(tabName);
         });
     });
 
-    // Initial data fetch
-    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.values && data.values.length > 0) {
-                displayData(data.values);
-            } else {
-                document.querySelector('.error').textContent = 'No data found in spreadsheet.';
-                document.querySelector('.error').style.display = 'block';
-                document.querySelector('.loading').style.display = 'none';
-            }
-        })
-        .catch(error => {
-            document.querySelector('.error').textContent = 'Error loading data: ' + error.message;
-            document.querySelector('.error').style.display = 'block';
-            document.querySelector('.loading').style.display = 'none';
-        });
+    // Handle initial load and hash changes
+    function handleHashChange() {
+        const hash = window.location.hash.slice(1) || 'bets'; // Default to 'bets' if no hash
+        switchTab(hash);
+    }
 
-    // Fetch balances
-    fetchBalances();
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    
+    // Handle initial page load
+    handleHashChange();
 });
 
 let profitChart = null;
@@ -685,6 +705,8 @@ function createProfitChart(data) {
     });
 }
 
+fetchBalances();
+
 function createCalendar() {
     const container = document.querySelector('.calendar-container');
     const currentDate = new Date();
@@ -755,7 +777,7 @@ function createCalendar() {
                             ${dayData.bets > 0 ? `
                                 <div class="profit-cell">
                                     <span class="profit-amount ${profitClass}">
-                                        ${formatCurrency(dayData.profit)}
+                                        ${formatCurrency(Math.round(dayData.profit)).split('.')[0]}
                                     </span>
                                     <span class="bet-count">
                                         ${dayData.bets} bet${dayData.bets !== 1 ? 's' : ''}
@@ -816,36 +838,6 @@ function createCalendar() {
             }
         });
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Remove active class from all tabs and content
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            // Add active class to clicked tab and corresponding content
-            tab.classList.add('active');
-            const tabName = tab.dataset.tab;
-            document.getElementById(`${tabName}-content`).classList.add('active');
-            
-            // Initialize specific tab content
-            if (tabName === 'calendar') {
-                createCalendar();
-            } else if (tabName === 'stats') {
-                // Fetch data for profit chart if not already loaded
-                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.values && data.values.length > 0) {
-                            createProfitChart(data.values);
-                        }
-                    });
-            }
-        });
-    });
-})
 
 let wagerChart = null;
 
