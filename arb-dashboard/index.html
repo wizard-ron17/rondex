@@ -21,6 +21,7 @@
                 <div class="tab" data-tab="balances">Balances</div>
                 <div class="tab" data-tab="stats">Stats</div>
                 <div class="tab" data-tab="calendar">Calendar</div>
+                <div class="tab" data-tab="format">Format</div>
             </div>
 
             <div class="tab-content active" id="bets-content">
@@ -140,6 +141,32 @@
                 </div>
                 <div class="chart-wrapper">
                     <canvas id="wagerChart"></canvas>
+                </div>
+            </div>
+
+            <div class="tab-content" id="format-content">
+                <div class="container">
+                    <div class="input-section">
+                        <h2>Input Data</h2>
+                        <p>Paste your sports bet data below:</p>
+                        <textarea id="inputData" placeholder="Paste your data here..."></textarea>
+                        <div class="button-container">
+                            <button id="processBtn">Process Data</button>
+                        </div>
+                    </div>
+                    
+                    <div class="output-section">
+                        <h2>Formatted Output</h2>
+                        <textarea id="outputData" readonly></textarea>
+                        <button id="copyBtn" class="copy-btn">Copy to Clipboard</button>
+                        
+                        <div id="summary" class="summary">
+                            <h3>Summary</h3>
+                            <p>Paste your data and click "Process Data" to see summary information.</p>
+                        </div>
+                        
+                        <div id="tableContainer"></div>
+                    </div>
                 </div>
             </div>
         </div>
