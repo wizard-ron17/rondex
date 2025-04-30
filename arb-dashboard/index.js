@@ -986,3 +986,307 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${
             createWagerChart(data.values); // Call the new chart function here
         }
     });
+
+// Format Tab Functionality
+function initializeFormatTab() {
+    const inputData = document.getElementById('inputData');
+    const outputData = document.getElementById('outputData');
+    const processBtn = document.getElementById('processBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const summaryDiv = document.getElementById('summary');
+    const tableContainer = document.getElementById('tableContainer');
+    
+    if (!inputData || !outputData || !processBtn || !copyBtn) {
+        console.error('Format tab elements not found');
+        return;
+    }
+
+    processBtn.addEventListener('click', processData);
+    copyBtn.addEventListener('click', copyToClipboard);
+    
+    function processData() {
+        const input = inputData.value.trim();
+        if (!input) {
+            alert('Please paste some data first!');
+            return;
+        }
+        
+        const lines = input.split('\n');
+        const processedLines = [];
+        const bets = [];
+        
+        console.log("Total lines to process:", lines.length);
+        
+        lines.forEach((line, index) => {
+            if (!line.trim()) return;
+            
+            const parts = line.split('\t');
+            if (parts.length < 16) {
+                console.log(`Line ${index + 1}: Not enough columns (${parts.length})`);
+                return;
+            }
+            
+            try {
+                // Format date as MM/DD/YY instead of MM/DD/YYYY
+                const fullDateStr = parts[0].split(',')[0];
+                const dateComponents = fullDateStr.split('/');
+                const dateStr = `${dateComponents[0]}/${dateComponents[1]}/${dateComponents[2].substring(2)}`;
+                
+                const bookmaker = parts[1];
+                
+                // Remove city names from team names
+                const fullTeams = parts[4];
+                const teamsArray = fullTeams.split(' vs ');
+                
+                // Filter out city names, keeping only the team name
+                const simplifyTeamName = (team) => {
+                    // Common team names to keep (without the city)
+                    const teamNames = [
+                        'Yankees', 'Orioles', 'Cubs', 'Pirates', 'Braves', 'Rockies', 
+                        'Twins', 'Guardians', 'Bucks', 'Pacers', 'Angels', 'Mariners',
+                        'Pistons', 'Knicks', 'Heat', 'Celtics', 'Lakers', 'Warriors'
+                    ];
+                    
+                    // Find the team name in the full city+team string
+                    for (const name of teamNames) {
+                        if (team.includes(name)) {
+                            return name;
+                        }
+                    }
+                    
+                    // If no match found, return the original
+                    return team;
+                };
+                
+                const team1 = simplifyTeamName(teamsArray[0]);
+                const team2 = simplifyTeamName(teamsArray[1]);
+                const teams = `${team1} vs ${team2}`;
+                
+                // Get bet type and details
+                const betType = parts[7];
+                const betDetailsFull = parts[8];
+                
+                console.log(`Line ${index + 1}:`, {
+                    betType,
+                    betDetailsFull
+                });
+                
+                // Build the final bet description
+                let betDescription;
+                
+                // First remove any odds at the beginning of bet details
+                // The regex will match positive or negative numbers with optional decimals at the start
+                // of the string, followed by at least one space
+                const cleanBetDetails = betDetailsFull.replace(/^[-+]?\d+(\.\d+)?\s+/, '');
+                
+                console.log(`Line ${index + 1} cleaned:`, cleanBetDetails);
+                
+                // Now add the stat type to the end based on the bet type
+                if (betType === "Player Blocks") {
+                    betDescription = cleanBetDetails + " Blocks";
+                } 
+                else if (betType === "Player Points") {
+                    betDescription = cleanBetDetails + " Points";
+                }
+                else if (betType === "Player Points + Rebounds + Assists") {
+                    betDescription = cleanBetDetails + " PRAs";
+                }
+                else if (betType === "Player Strikeouts") {
+                    betDescription = cleanBetDetails + " Strikeouts";
+                }
+                else if (betType === "Player Earned Runs") {
+                    betDescription = cleanBetDetails + " Earned Runs";
+                }
+                else if (betType === "Player Runs") {
+                    betDescription = cleanBetDetails + " Runs";
+                }
+                else if (betType === "Player Steals + Blocks") {
+                    betDescription = cleanBetDetails + " Steals + Blocks";
+                }
+                else if (betType === "Player Singles") {
+                    betDescription = cleanBetDetails + " Singles";
+                }
+                else if (betType === "Player Steals") {
+                    betDescription = cleanBetDetails + " Steals";
+                }
+                else if (betType === "Player Rebounds") {
+                    betDescription = cleanBetDetails + " Rebounds";
+                }
+                else if (betType === "Player Assists") {
+                    betDescription = cleanBetDetails + " Assists";
+                }
+                else if (betType.startsWith("Player ")) {
+                    // For any other Player stats we didn't specifically listed
+                    const statType = betType.replace("Player ", "");
+                    betDescription = cleanBetDetails + " " + statType;
+                }
+                else {
+                    // Fallback - use complete bet type
+                    betDescription = cleanBetDetails;
+                }
+
+                const wager = parseFloat(parts[12]);
+                const result = parts[14]; // the result column
+                let totalReturn = 0;
+                
+                // Check if the bet was won by looking at the profit value
+                const profit = parseFloat(parts[16]) || 0;
+                if (profit > 0) {
+                    // For winning bets, return is wager + profit
+                    totalReturn = wager + profit;
+                }
+                // For losing bets, totalReturn remains 0
+                
+                console.log(`Line ${index + 1} result:`, {
+                    result,
+                    profit,
+                    totalReturn
+                });
+                
+                const outputLine = `${dateStr}\t${teams}\t${betDescription}\t${bookmaker}\t$${wager.toFixed(2)}\t$${totalReturn.toFixed(2)}`;
+                processedLines.push(outputLine);
+                
+                bets.push({
+                    date: dateStr,
+                    teams,
+                    description: betDescription,
+                    bookmaker,
+                    wager,
+                    totalReturn,
+                    result,
+                    profit
+                });
+            } catch (error) {
+                console.error(`Error processing line ${index + 1}:`, line, error);
+                console.error("Error details:", error);
+                console.error("Parts:", parts);
+            }
+        });
+        
+        console.log("Processed lines:", processedLines.length);
+        outputData.value = processedLines.join('\n');
+        generateSummary(bets);
+        generateTable(bets);
+    }
+    
+    function generateSummary(bets) {
+        const validBets = bets.filter(bet => !isNaN(bet.wager));
+        
+        const totalBets = validBets.length;
+        const totalWagered = validBets.reduce((sum, bet) => sum + bet.wager, 0);
+        const totalReturns = validBets.reduce((sum, bet) => sum + bet.totalReturn, 0);
+        const profit = totalReturns - totalWagered;
+        const wonBets = validBets.filter(bet => parseFloat(bet.profit) > 0).length;
+        const pendingBets = validBets.filter(bet => bet.result === 'pending').length;
+        const completedBets = totalBets - pendingBets;
+        const lostBets = completedBets - wonBets;  // Calculate lost bets
+        const winRate = completedBets > 0 ? ((wonBets / completedBets) * 100).toFixed(2) : 0;
+        const roi = totalWagered > 0 ? ((profit / totalWagered) * 100).toFixed(2) : 0;
+        
+        const bookmakers = {};
+        bets.forEach(bet => {
+            if (!bookmakers[bet.bookmaker]) {
+                bookmakers[bet.bookmaker] = {
+                    count: 0,
+                    wagered: 0,
+                    returns: 0,
+                    wonBets: 0,
+                    lostBets: 0  // Track lost bets per bookmaker
+                };
+            }
+            bookmakers[bet.bookmaker].count++;
+            bookmakers[bet.bookmaker].wagered += bet.wager;
+            bookmakers[bet.bookmaker].returns += bet.totalReturn;
+            if (parseFloat(bet.profit) > 0) {
+                bookmakers[bet.bookmaker].wonBets++;
+            } else if (bet.result !== 'pending') {
+                bookmakers[bet.bookmaker].lostBets++;  // Count lost bets
+            }
+        });
+        
+        let summaryHTML = `
+
+            <div class="summary-content">
+                <div class="summary-stats">
+                    <h4>Overall Stats</h4>
+                    <p><strong>Total Bets:</strong> ${totalBets}</p>
+                    <p><strong>Record:</strong> ${wonBets}-${lostBets}</p>
+                    <p><strong>Total Wagered:</strong> ${formatCurrency(totalWagered)}</p>
+                    <p><strong>Total Returns:</strong> ${formatCurrency(totalReturns)}</p>
+                    <p><strong>Profit/Loss:</strong> ${formatCurrency(profit)} (ROI: ${roi}%)</p>
+                    <p><strong>Win Rate:</strong> ${winRate}%</p>
+                    <p><strong>Pending Bets:</strong> ${pendingBets}</p>
+                </div>
+                
+                <div class="bookmaker-breakdown">
+                    <h4>Book Breakdown</h4>
+                    <ul>
+        `;
+        
+        for (const [bookmaker, data] of Object.entries(bookmakers)) {
+            const bookmakerProfit = data.returns - data.wagered;
+            summaryHTML += `
+                <li><strong>${bookmaker}:</strong> ${data.wonBets}-${data.lostBets}, ${formatCurrency(data.wagered)} wagered, ${formatCurrency(bookmakerProfit)} profit</li>
+            `;
+        }
+        
+        summaryHTML += `
+                    </ul>
+                </div>
+            </div>
+        `;
+        
+        summaryDiv.innerHTML = summaryHTML;
+    }
+    
+    function generateTable(bets) {
+        const tableHTML = `
+            <h3>Bet Details</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Teams</th>
+                        <th>Bet</th>
+                        <th>Bookmaker</th>
+                        <th>Wager</th>
+                        <th>Return</th>
+                        <th>Profit</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${bets.map(bet => {
+                        const profit = bet.totalReturn - bet.wager;
+                        const profitClass = profit > 0 ? 'positive' : profit < 0 ? 'negative' : '';
+                        return `
+                            <tr>
+                                <td>${bet.date}</td>
+                                <td>${bet.teams}</td>
+                                <td>${bet.description}</td>
+                                <td>${bet.bookmaker}</td>
+                                <td>${formatCurrency(bet.wager)}</td>
+                                <td>${formatCurrency(bet.totalReturn)}</td>
+                                <td class="${profitClass}">${formatCurrency(profit)}</td>
+                                <td>${bet.result}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+        
+        tableContainer.innerHTML = tableHTML;
+    }
+    
+    function copyToClipboard() {
+        outputData.select();
+        document.execCommand('copy');
+        alert('Copied to clipboard!');
+    }
+}
+
+// Initialize format tab when document is ready
+document.addEventListener('DOMContentLoaded', () => {
+    initializeFormatTab();
+});
