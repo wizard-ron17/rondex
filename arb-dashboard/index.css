@@ -670,3 +670,185 @@ tr.clickable:hover {
     height: 300px;
     margin-top: 1rem;
 }
+
+/* Format Tab Styles */
+#format-content .container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+#format-content .input-section,
+#format-content .output-section {
+    width: 100%;
+    background-color: var(--bg-dark);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 1rem;
+}
+
+#format-content h2 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+#format-content p {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+#format-content textarea {
+    width: 100%;
+    height: 150px;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    background: var(--bg-darker);
+    color: var(--text-primary);
+    resize: none;
+}
+
+#format-content textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+#format-content .button-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#format-content button {
+    padding: 0.5rem 1rem;
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    min-width: 120px;
+}
+
+#format-content button:hover {
+    background-color: #1976d2;
+    transform: translateY(-1px);
+}
+
+#format-content .copy-btn {
+    background-color: var(--success);
+}
+
+#format-content .copy-btn:hover {
+    background-color: #3d8b40;
+}
+
+#format-content #processBtn {
+    background-color: var(--accent);
+}
+
+#format-content #sampleDataBtn {
+    background-color: #616161;
+}
+
+#format-content #sampleDataBtn:hover {
+    background-color: #424242;
+}
+
+#format-content .data-results {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+#format-content .summary {
+    background-color: var(--bg-darker);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 1rem;
+    width: 100%;
+}
+
+#format-content .summary-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+#format-content .summary-stats,
+#format-content .bookmaker-breakdown {
+    min-width: 250px;
+}
+
+#format-content .summary h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+#format-content .summary h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+#format-content .summary p {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+#format-content .summary ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#format-content .summary li {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    border-radius: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#format-content .summary li:last-child {
+    border-bottom: none;
+}
+
+#format-content .summary li:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+    #format-content .data-results {
+        grid-template-columns: 1fr;
+    }
+    
+    #format-content textarea {
+        height: 120px;
+    }
+    
+    #format-content button {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        min-width: 100px;
+    }
+
+    #format-content .summary-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
