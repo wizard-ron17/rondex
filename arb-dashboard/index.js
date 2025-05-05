@@ -1040,21 +1040,60 @@ function initializeFormatTab() {
                 
                 // Filter out city names, keeping only the team name
                 const simplifyTeamName = (team) => {
-                    // Common team names to keep (without the city)
+                    // First approach: Check against known team names
                     const teamNames = [
                         'Yankees', 'Orioles', 'Cubs', 'Pirates', 'Braves', 'Rockies', 
                         'Twins', 'Guardians', 'Bucks', 'Pacers', 'Angels', 'Mariners',
-                        'Pistons', 'Knicks', 'Heat', 'Celtics', 'Lakers', 'Warriors'
+                        'Pistons', 'Knicks', 'Heat', 'Celtics', 'Lakers', 'Warriors',
+                        'Timberwolves', 'Clippers', 'Nuggets', 'Kings', 'Suns', 'Blazers', 
+                        'Spurs', 'Thunder', 'Mavericks', 'Grizzlies', 'Pelicans', 'Nets', 
+                        'Hornets', 'Bulls', 'Cavaliers', '76ers', 'Magic', 'Wizards', 'Hawks',
+                        'Raptors', 'Rockets', 'Royals', 'Nationals', 'Blue Jays', 'Rays', 
+                        'Red Sox', 'Phillies', 'Mets', 'Marlins', 'Brewers', 'Reds', 
+                        'Cardinals', 'White Sox', 'Tigers', 'Guardians', 'Astros', 'Dodgers', 
+                        'Padres', 'Giants', 'Mariners', 'Rangers', 'Athletics', 'Diamondbacks',
+                        'Oilers', 'Flames', 'Canucks', 'Sharks', 'Knights', 'Kraken', 'Ducks',
+                        'Kings', 'Maple Leafs', 'Senators', 'Canadiens', 'Bruins', 'Lightning',
+                        'Panthers', 'Red Wings', 'Sabres', 'Jets', 'Wild', 'Blues', 'Predators', 
+                        'Blackhawks', 'Avalanche', 'Stars', 'Coyotes', 'Hurricanes', 'Capitals',
+                        'Islanders', 'Flyers', 'Devils', 'Rangers', 'Blue Jackets', 'Penguins',
+                        'Raiders', 'Chiefs', 'Broncos', 'Chargers', 'Seahawks', '49ers', 'Rams',
+                        'Cardinals', 'Vikings', 'Packers', 'Bears', 'Lions', 'Saints', 'Buccaneers',
+                        'Falcons', 'Panthers', 'Cowboys', 'Eagles', 'Commanders', 'Giants', 'Bills',
+                        'Dolphins', 'Patriots', 'Jets', 'Bengals', 'Ravens', 'Browns', 'Steelers',
+                        'Colts', 'Texans', 'Titans', 'Jaguars'
                     ];
                     
-                    // Find the team name in the full city+team string
+                    // Try known team names first
                     for (const name of teamNames) {
                         if (team.includes(name)) {
                             return name;
                         }
                     }
                     
-                    // If no match found, return the original
+                    // Second approach: Handle the general case by splitting by spaces
+                    // Most city names are at the beginning (e.g., "New York Knicks", "Los Angeles Lakers")
+                    // Usually the last word is the team name
+                    const words = team.split(' ');
+                    
+                    // Some special cases - cities with two words
+                    const twoWordCities = ['New York', 'Los Angeles', 'San Francisco', 'San Diego', 'San Antonio', 
+                                         'New Orleans', 'New Jersey', 'Las Vegas', 'St. Louis', 'Kansas City', 
+                                         'Oklahoma City', 'Tampa Bay'];
+                    
+                    for (const city of twoWordCities) {
+                        if (team.startsWith(city)) {
+                            // Return everything after the city name
+                            return team.substring(city.length).trim();
+                        }
+                    }
+                    
+                    // If all else fails, just return the last word (usually the team name)
+                    if (words.length > 1) {
+                        return words[words.length - 1];
+                    }
+                    
+                    // If nothing else works, return the original
                     return team;
                 };
                 
