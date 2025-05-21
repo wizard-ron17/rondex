@@ -333,7 +333,8 @@ function updateBalances(values) {
         10: 'rebet',
         11: 'betonline',
         12: 'fliff',
-        13: 'mybookie'
+        13: 'mybookie',
+        14: 'bet105'
     };
 
     let total = 0;
@@ -375,7 +376,8 @@ function initializeChart(data) {
         { name: 'Rebet', index: 10, color: '#ff7c34' },
         { name: 'BetOnline', index: 11, color: '#ff3a3c' },
         { name: 'Fliff', index: 12, color: '#80cfda' },
-        { name: 'MyBookie', index: 13, color: '#f99b2e' }
+        { name: 'MyBookie', index: 13, color: '#f99b2e' },
+        { name: 'Bet105', index: 14, color: '#3083dc' }
     ];
 
     // Create datasets for each sportsbook and total
@@ -385,7 +387,7 @@ function initializeChart(data) {
             // Calculate total balance for each date
             data = chartData.map(row => {
                 let total = 0;
-                for (let i = 1; i <= 13; i++) {
+                for (let i = 1; i <= 14; i++) {
                     total += parseFloat(row[i].replace(/[$,]/g, '')) || 0;
                 }
                 return total;
