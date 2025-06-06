@@ -3,7 +3,8 @@ const API_KEY = 'AIzaSyAQiOsVDU8EPtSRTh2jioOOX1zymwt5UnI';
 const SPREADSHEET_ID = '10W6lR7yZNxwaZLaUOMnhP1FwFLN2i6z0FNV0ANBnG1M';
 const SHEETS = {
     BETS: 'Aaron!A1:Z1000',
-    BALANCES: 'Balances!A1:O1000'
+    BALANCES: 'Balances!A1:O1000',
+    EV: 'Non-Arb/Mistakes/EV+!A1:J1900'
 };
 // ------------------------------
 
@@ -547,6 +548,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             createProfitChart(data.values);
                         }
                     });
+            } else if (tabName === 'ev') {
+                const encodedRange = encodeURIComponent(SHEETS.EV);
+                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodedRange}?key=${API_KEY}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.values && data.values.length > 0) {
+                            renderEVTab(data.values);
+                        }
+                    });
             }
         }
     }
@@ -562,7 +572,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle initial load and hash changes
     function handleHashChange() {
-        const hash = window.location.hash.slice(1) || 'bets'; // Default to 'bets' if no hash
+        let hash = window.location.hash.slice(1);
+        if (!hash || hash === 'bets') hash = 'arbs'; // Default to 'arbs' if no hash or old 'bets'
         switchTab(hash);
     }
 
@@ -1013,6 +1024,14 @@ function initializeFormatTab() {
             return;
         }
         
+        // Helper to parse date+time like '04/28/2025, 16:12 EDT'
+        function parseDateTime(str) {
+            // Remove timezone if present
+            const cleaned = str.replace(/,?\s*[A-Z]{2,4}$/, '');
+            // e.g. '04/28/2025, 16:12'
+            return new Date(cleaned);
+        }
+
         const lines = input.split('\n');
         const processedLines = [];
         const bets = [];
@@ -1165,6 +1184,16 @@ function initializeFormatTab() {
                     // Fallback - use complete bet type
                     betDescription = cleanBetDetails;
                 }
+
+                // --- Live bet logic ---
+                const betPlacedStr = parts[0]; // e.g. '04/28/2025, 16:12 EDT'
+                const gameStartStr = parts[6]; // e.g. '04/28/2025, 22:00 EDT'
+                const betPlaced = parseDateTime(betPlacedStr);
+                const gameStart = parseDateTime(gameStartStr);
+                if (betPlaced > gameStart) {
+                    betDescription += " Live";
+                }
+                // --- End live bet logic ---
 
                 const wager = parseFloat(parts[12]);
                 const result = parts[14]; // the result column
@@ -1331,3 +1360,121 @@ function initializeFormatTab() {
 document.addEventListener('DOMContentLoaded', () => {
     initializeFormatTab();
 });
+
+function renderEVTab(values) {
+    // values[0] is header
+    const headers = values[0];
+    let rows = values.slice(1).filter(row => row[row.length-1] && row[row.length-1].toUpperCase().includes('EV'));
+
+    // Sort by date descending (most recent first)
+    rows.sort((a, b) => {
+        const dateA = parseDate(a[0]);
+        const dateB = parseDate(b[0]);
+        return dateB - dateA;
+    });
+
+    // Build summary
+    const totalBets = rows.length;
+    const totalWagered = rows.reduce((sum, row) => sum + parseFloat(row[4].replace(/[$,]/g, '')) || 0, 0);
+    const totalProfit = rows.reduce((sum, row) => sum + parseFloat(row[6].replace(/[$,]/g, '')) || 0, 0);
+    const avgRoi = rows.length ? (rows.reduce((sum, row) => sum + parseFloat(row[7].replace('%', '')) || 0, 0) / rows.length) : 0;
+    const wonBets = rows.filter(row => parseFloat(row[6].replace(/[$,]/g, '')) > 0).length;
+    const lostBets = rows.filter(row => parseFloat(row[6].replace(/[$,]/g, '')) < 0).length;
+    const winRate = totalBets ? ((wonBets / totalBets) * 100).toFixed(2) : 0;
+    const roi = totalWagered ? ((totalProfit / totalWagered) * 100).toFixed(2) : 0;
+
+    // Improved summary HTML
+    const summaryHTML = `
+        <div class="summary-content">
+            <div class="summary-stats">
+                <h4>Overall Stats</h4>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Total Bets</div><div class="stat-value">${totalBets}</div></div>
+                    <div class="stat-card"><div class="stat-label">Record</div><div class="stat-value">${wonBets}-${lostBets}</div></div>
+                    <div class="stat-card"><div class="stat-label">Total Wagered</div><div class="stat-value">${formatCurrency(totalWagered)}</div></div>
+                    <div class="stat-card"><div class="stat-label">Total Profit</div><div class="stat-value">${formatCurrency(totalProfit)} <span class="profit-percentage">(ROI: ${roi}%)</span></div></div>
+                    <div class="stat-card"><div class="stat-label">Average ROI</div><div class="stat-value">${avgRoi.toFixed(2)}%</div></div>
+                    <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value">${winRate}%</div></div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('ev-summary').innerHTML = summaryHTML;
+
+    // Table HTML with sortable headers and Bets-table style
+    const tableHTML = `
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-sort="date" class="bet-th">Date</th>
+                        <th class="bet-th">Event/Teams</th>
+                        <th class="bet-th">Bet Title</th>
+                        <th class="bet-th">Sportsbook</th>
+                        <th data-sort="wager" class="bet-th">Wager</th>
+                        <th data-sort="return" class="bet-th">Return</th>
+                        <th data-sort="profit" class="bet-th">Profit</th>
+                        <th data-sort="roi" class="bet-th">Profit %</th>
+                        <th data-sort="rolling" class="bet-th">Rolling Profit</th>
+                        <th class="bet-th">Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="ev-data">
+                    ${rows.map(row => {
+                        const profit = parseFloat(row[6].replace(/[$,]/g, ''));
+                        const profitClass = profit > 0 ? 'positive' : profit < 0 ? 'negative' : '';
+                        return `<tr>
+                            <td>${row[0]}</td>
+                            <td>${row[1]}</td>
+                            <td>${row[2]}</td>
+                            <td>${row[3]}</td>
+                            <td>${row[4]}</td>
+                            <td>${row[5]}</td>
+                            <td class="profit ${profitClass}">${row[6]}</td>
+                            <td>${row[7]}</td>
+                            <td>${row[8]}</td>
+                            <td>${row[9]}</td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+    document.getElementById('ev-tableContainer').innerHTML = tableHTML;
+
+    // Add sorting functionality for EV table
+    const evTbody = document.getElementById('ev-data');
+    const evHeaders = document.querySelectorAll('#ev-content th[data-sort]');
+    let evSortState = { key: 'date', asc: false };
+
+    function getEvColumnIndex(sortKey) {
+        const map = { date: 0, wager: 4, return: 5, profit: 6, roi: 7, rolling: 8 };
+        return map[sortKey];
+    }
+
+    function sortEvTable(sortKey, isAscending) {
+        const rowsArr = Array.from(evTbody.getElementsByTagName('tr'));
+        rowsArr.sort((a, b) => {
+            const aValue = a.cells[getEvColumnIndex(sortKey)].textContent.replace(/[$,%]/g, '');
+            const bValue = b.cells[getEvColumnIndex(sortKey)].textContent.replace(/[$,%]/g, '');
+            if (sortKey === 'date') {
+                return isAscending ? parseDate(aValue) - parseDate(bValue) : parseDate(bValue) - parseDate(aValue);
+            } else {
+                const numA = parseFloat(aValue) || 0;
+                const numB = parseFloat(bValue) || 0;
+                return isAscending ? numA - numB : numB - numA;
+            }
+        });
+        while (evTbody.firstChild) evTbody.removeChild(evTbody.firstChild);
+        rowsArr.forEach(row => evTbody.appendChild(row));
+    }
+
+    evHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+            const sortKey = header.getAttribute('data-sort');
+            const isAscending = header.classList.toggle('asc');
+            evHeaders.forEach(h => { if (h !== header) h.classList.remove('asc'); });
+            sortEvTable(sortKey, isAscending);
+        });
+    });
+}
