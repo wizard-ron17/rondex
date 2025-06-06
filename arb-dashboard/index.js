@@ -1410,12 +1410,11 @@ function renderEVTab(values) {
                         <th data-sort="date" class="bet-th">Date</th>
                         <th class="bet-th">Event/Teams</th>
                         <th class="bet-th">Bet Title</th>
-                        <th class="bet-th">Sportsbook</th>
+                        <th data-sort="sportsbook" class="bet-th">Sportsbook</th>
                         <th data-sort="wager" class="bet-th">Wager</th>
                         <th data-sort="return" class="bet-th">Return</th>
                         <th data-sort="profit" class="bet-th">Profit</th>
                         <th data-sort="roi" class="bet-th">Profit %</th>
-                        <th data-sort="rolling" class="bet-th">Rolling Profit</th>
                         <th class="bet-th">Notes</th>
                     </tr>
                 </thead>
@@ -1432,7 +1431,6 @@ function renderEVTab(values) {
                             <td>${row[5]}</td>
                             <td class="profit ${profitClass}">${row[6]}</td>
                             <td>${row[7]}</td>
-                            <td>${row[8]}</td>
                             <td>${row[9]}</td>
                         </tr>`;
                     }).join('')}
@@ -1448,7 +1446,7 @@ function renderEVTab(values) {
     let evSortState = { key: 'date', asc: false };
 
     function getEvColumnIndex(sortKey) {
-        const map = { date: 0, wager: 4, return: 5, profit: 6, roi: 7, rolling: 8 };
+        const map = { date: 0, sportsbook: 3, wager: 4, return: 5, profit: 6, roi: 7 };
         return map[sortKey];
     }
 
@@ -1459,6 +1457,8 @@ function renderEVTab(values) {
             const bValue = b.cells[getEvColumnIndex(sortKey)].textContent.replace(/[$,%]/g, '');
             if (sortKey === 'date') {
                 return isAscending ? parseDate(aValue) - parseDate(bValue) : parseDate(bValue) - parseDate(aValue);
+            } else if (sortKey === 'sportsbook') {
+                return isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
             } else {
                 const numA = parseFloat(aValue) || 0;
                 const numB = parseFloat(bValue) || 0;
