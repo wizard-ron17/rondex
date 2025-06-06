@@ -17,14 +17,15 @@
 
         <div class="tab-container">
             <div class="tabs">
-                <div class="tab active" data-tab="bets">Bets</div>
+                <div class="tab active" data-tab="arbs">Arbs</div>
                 <div class="tab" data-tab="balances">Balances</div>
                 <div class="tab" data-tab="stats">Stats</div>
                 <div class="tab" data-tab="calendar">Calendar</div>
                 <div class="tab" data-tab="format">Format</div>
+                <div class="tab" data-tab="ev">EV</div>
             </div>
 
-            <div class="tab-content active" id="bets-content">
+            <div class="tab-content active" id="arbs-content">
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-label">Total Wagers</div>
@@ -171,6 +172,16 @@
                         
                         <div id="tableContainer"></div>
                     </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="ev-content">
+                <div class="container">
+                    <div id="ev-summary" class="summary">
+                        <h3>Summary</h3>
+                        <p>Loading...</p>
+                    </div>
+                    <div id="ev-tableContainer"></div>
                 </div>
             </div>
         </div>
