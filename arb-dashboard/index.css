@@ -852,3 +852,29 @@ tr.clickable:hover {
         gap: 1rem;
     }
 }
+
+.calendar-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.calendar-controls label {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.calendar-controls select {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.calendar-controls select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
