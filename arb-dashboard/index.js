@@ -548,6 +548,142 @@ document.addEventListener('DOMContentLoaded', function() {
                             createProfitChart(data.values);
                         }
                     });
+                // Fetch and render EV profit chart and stats
+                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEETS.EV)}?key=${API_KEY}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.values && data.values.length > 1) {
+                            // Only use rows where last column includes 'Positive EV'
+                            const rows = data.values.slice(1).filter(row => row[row.length-1] && row[row.length-1].toUpperCase().includes('POSITIVE EV'));
+                            // --- EV Profit Chart ---
+                            // Remove old chart if present
+                            let oldEvChart = document.getElementById('ev-profit-chart-wrapper');
+                            if (oldEvChart) oldEvChart.remove();
+                            // Create wrapper and canvas
+                            let statsContent = document.getElementById('stats-content');
+                            let chartWrapper = document.createElement('div');
+                            chartWrapper.className = 'chart-wrapper';
+                            chartWrapper.id = 'ev-profit-chart-wrapper';
+                            chartWrapper.innerHTML = '<canvas id="evProfitChart"></canvas>';
+                            statsContent.appendChild(chartWrapper);
+                            // Prepare data for chart
+                            const dailyProfits = rows.reduce((acc, row) => {
+                                const date = row[0];
+                                const profit = parseFloat(row[6].replace(/[$,]/g, '')) || 0;
+                                if (!acc[date]) acc[date] = profit;
+                                else acc[date] += profit;
+                                return acc;
+                            }, {});
+                            const dates = Object.keys(dailyProfits).sort((a, b) => new Date(a) - new Date(b));
+                            const profits = dates.map(date => dailyProfits[date]);
+                            let runningTotal = 0;
+                            const cumulativeProfits = profits.map(profit => runningTotal += profit);
+                            // Draw chart
+                            const ctx = document.getElementById('evProfitChart').getContext('2d');
+                            if (window.evProfitChart && typeof window.evProfitChart.destroy === 'function') {
+                                window.evProfitChart.destroy();
+                            }
+                            window.evProfitChart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: dates,
+                                    datasets: [
+                                        {
+                                            label: 'EV Daily Profit',
+                                            data: profits,
+                                            borderColor: '#ff9800',
+                                            tension: 0.1,
+                                            fill: false,
+                                            order: 2
+                                        },
+                                        {
+                                            label: 'EV Cumulative Profit',
+                                            data: cumulativeProfits,
+                                            borderColor: '#4caf50',
+                                            tension: 0.1,
+                                            fill: false,
+                                            order: 1
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    interaction: { mode: 'index', intersect: false },
+                                    plugins: {
+                                        title: {
+                                            display: true,
+                                            text: 'EV Profit Over Time',
+                                            color: '#ffffff',
+                                            font: { size: 16 }
+                                        },
+                                        legend: {
+                                            position: 'bottom',
+                                            labels: {
+                                                color: '#ffffff',
+                                                padding: 10,
+                                                usePointStyle: true,
+                                                font: { size: 12 }
+                                            }
+                                        },
+                                        tooltip: {
+                                            mode: 'index',
+                                            intersect: false,
+                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                            titleColor: '#ffffff',
+                                            bodyColor: '#ffffff',
+                                            borderColor: '#333',
+                                            borderWidth: 1,
+                                            padding: 10,
+                                            callbacks: {
+                                                label: function(context) {
+                                                    let label = context.dataset.label || '';
+                                                    if (label) label += ': ';
+                                                    if (context.parsed.y !== null) label += formatCurrency(context.parsed.y);
+                                                    return label;
+                                                }
+                                            }
+                                        }
+                                    },
+                                    scales: {
+                                        x: {
+                                            ticks: { color: '#b3b3b3', maxRotation: 45, minRotation: 45, font: { size: 10 }, maxTicksLimit: 8 },
+                                            grid: { color: '#333' }
+                                        },
+                                        y: {
+                                            ticks: { color: '#b3b3b3', callback: value => formatCurrency(value), font: { size: 12 } },
+                                            grid: { color: '#333' }
+                                        }
+                                    }
+                                }
+                            });
+                            // --- EV Stats Grid ---
+                            let totalBets = rows.length;
+                            let totalWagered = rows.reduce((sum, row) => sum + parseFloat(row[4].replace(/[$,]/g, '')) || 0, 0);
+                            let totalProfit = rows.reduce((sum, row) => sum + parseFloat(row[6].replace(/[$,]/g, '')) || 0, 0);
+                            let avgRoi = rows.length ? (rows.reduce((sum, row) => sum + parseFloat(row[7].replace('%', '')) || 0, 0) / rows.length) : 0;
+                            let wonBets = rows.filter(row => parseFloat(row[6].replace(/[$,]/g, '')) > 0).length;
+                            let lostBets = rows.filter(row => parseFloat(row[6].replace(/[$,]/g, '')) < 0).length;
+                            let winRate = totalBets ? ((wonBets / totalBets) * 100).toFixed(2) : 0;
+                            let roi = totalWagered ? ((totalProfit / totalWagered) * 100).toFixed(2) : 0;
+                            let evStatsHTML = `
+                                <div class=\"stats-grid\" style=\"margin-top:2rem;\">
+                                    <div class=\"stat-card\"><div class=\"stat-label\">EV Bets</div><div class=\"stat-value\">${totalBets}</div></div>
+                                    <div class=\"stat-card\"><div class=\"stat-label\">Record</div><div class=\"stat-value\">${wonBets}-${lostBets}</div></div>
+                                    <div class=\"stat-card\"><div class=\"stat-label\">Total Wagered</div><div class=\"stat-value\">${formatCurrency(totalWagered)}</div></div>
+                                    <div class=\"stat-card\"><div class=\"stat-label\">Total Profit</div><div class=\"stat-value\">${formatCurrency(totalProfit)} <span class=\"profit-percentage\">(ROI: ${roi}%)</span></div></div>
+                                    <div class=\"stat-card\"><div class=\"stat-label\">Average ROI</div><div class=\"stat-value\">${avgRoi.toFixed(2)}%</div></div>
+                                    <div class=\"stat-card\"><div class=\"stat-label\">Win Rate</div><div class=\"stat-value\">${winRate}%</div></div>
+                                </div>
+                            `;
+                            let oldEvStats = document.getElementById('ev-stats-grid');
+                            if (oldEvStats) oldEvStats.remove();
+                            let wrapper = document.createElement('div');
+                            wrapper.id = 'ev-stats-grid';
+                            wrapper.innerHTML = evStatsHTML;
+                            statsContent.appendChild(wrapper);
+                        }
+                    });
             } else if (tabName === 'ev') {
                 const encodedRange = encodeURIComponent(SHEETS.EV);
                 fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodedRange}?key=${API_KEY}`)
@@ -722,8 +858,31 @@ fetchBalances();
 
 function createCalendar() {
     const container = document.querySelector('.calendar-container');
+    const dataSourceSelect = document.getElementById('calendar-data-source');
     const currentDate = new Date();
-    
+
+    // Store both datasets
+    let arbsData = null;
+    let evData = null;
+    let combinedData = null;
+
+    // Helper to process rows for calendar
+    function processDataForCalendar(rows) {
+        const dailyData = {};
+        rows.forEach(row => {
+            const [m, d, y] = row[0].split('/');
+            const date = `${parseInt(m)}/${parseInt(d)}/${y.length === 4 ? y.slice(2) : y}`;
+            const profit = parseFloat(row[6].replace(/[$,]/g, ''));
+            if (!dailyData[date]) {
+                dailyData[date] = { profit: 0, bets: 0 };
+            }
+            dailyData[date].profit += profit;
+            dailyData[date].bets += 1;
+        });
+        return dailyData;
+    }
+
+    // Render calendar for selected data
     function renderCalendarMonth(date, data) {
         const year = date.getFullYear();
         const month = date.getMonth();
@@ -822,34 +981,61 @@ function createCalendar() {
         });
     }
 
-    // Process the bet data for calendar display
-    function processDataForCalendar(rows) {
-        const dailyData = {};
-        
-        rows.forEach(row => {
-            const date = row[0];  // Date is in column 0
-            const profit = parseFloat(row[6].replace(/[$,]/g, '')); // Profit is in column 6
-            
-            if (!dailyData[date]) {
-                dailyData[date] = { profit: 0, bets: 0 };
-            }
-            
-            dailyData[date].profit += profit;
-            dailyData[date].bets += 1;
-        });
-        
-        return dailyData;
+    // Update calendar based on selector
+    function updateCalendar() {
+        const source = dataSourceSelect.value;
+        let data = {};
+        if (source === 'arbs') {
+            data = arbsData || {};
+        } else if (source === 'ev') {
+            data = evData || {};
+        } else if (source === 'both') {
+            // Merge arbsData and evData
+            data = {};
+            const allDates = new Set([
+                ...Object.keys(arbsData || {}),
+                ...Object.keys(evData || {})
+            ]);
+            allDates.forEach(date => {
+                data[date] = { profit: 0, bets: 0 };
+                if (arbsData && arbsData[date]) {
+                    data[date].profit += arbsData[date].profit;
+                    data[date].bets += arbsData[date].bets;
+                }
+                if (evData && evData[date]) {
+                    data[date].profit += evData[date].profit;
+                    data[date].bets += evData[date].bets;
+                }
+            });
+        }
+        renderCalendarMonth(currentDate, data);
     }
 
-    // Update the fetch call to include calendar rendering
-    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.values && data.values.length > 0) {
-                const calendarData = processDataForCalendar(data.values.slice(1));
-                renderCalendarMonth(currentDate, calendarData);
-            }
-        });
+    // Listen for selector changes
+    dataSourceSelect.addEventListener('change', updateCalendar);
+
+    // Fetch both Arbs and EV data
+    Promise.all([
+        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
+            .then(response => response.json()),
+        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEETS.EV)}?key=${API_KEY}`)
+            .then(response => response.json())
+    ]).then(([arbs, ev]) => {
+        // Process Arbs data
+        if (arbs.values && arbs.values.length > 1) {
+            arbsData = processDataForCalendar(arbs.values.slice(1));
+        } else {
+            arbsData = {};
+        }
+        // Process EV data (filter for EV rows only)
+        if (ev.values && ev.values.length > 1) {
+            const evRows = ev.values.slice(1).filter(row => row[row.length-1] && row[row.length-1].toUpperCase().includes('EV'));
+            evData = processDataForCalendar(evRows);
+        } else {
+            evData = {};
+        }
+        updateCalendar();
+    });
 }
 
 let wagerChart = null;
