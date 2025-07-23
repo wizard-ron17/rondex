@@ -4,7 +4,7 @@ const SPREADSHEET_ID = '10W6lR7yZNxwaZLaUOMnhP1FwFLN2i6z0FNV0ANBnG1M';
 const SHEETS = {
     BETS: 'Aaron!A1:Z1000',
     BALANCES: 'Balances!A1:O1000',
-    EV: 'Non-Arb/Mistakes/EV+!A1:J1900'
+    EV: 'Non-Arb/Mistakes/EV+!A1:J3000'
 };
 // ------------------------------
 
