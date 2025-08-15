@@ -3,7 +3,7 @@ const API_KEY = 'AIzaSyAQiOsVDU8EPtSRTh2jioOOX1zymwt5UnI';
 const SPREADSHEET_ID = '10W6lR7yZNxwaZLaUOMnhP1FwFLN2i6z0FNV0ANBnG1M';
 const SHEETS = {
     BETS: 'Aaron!A1:Z1000',
-    BALANCES: 'Balances!A1:O1000',
+    BALANCES: 'Balances!A1:Q1000',
     EV: 'Non-Arb/Mistakes/EV+!A1:J3000'
 };
 // ------------------------------
@@ -335,7 +335,9 @@ function updateBalances(values) {
         11: 'betonline',
         12: 'fliff',
         13: 'mybookie',
-        14: 'bet105'
+        14: 'bet105',
+        15: 'thrillzz',
+        16: 'sportzino'
     };
 
     let total = 0;
@@ -378,7 +380,9 @@ function initializeChart(data) {
         { name: 'BetOnline', index: 11, color: '#ff3a3c' },
         { name: 'Fliff', index: 12, color: '#80cfda' },
         { name: 'MyBookie', index: 13, color: '#f99b2e' },
-        { name: 'Bet105', index: 14, color: '#3083dc' }
+        { name: 'Bet105', index: 14, color: '#3083dc' },
+        { name: 'Thrillzz', index: 15, color: '#d5ff10' },
+        { name: 'Sportzino', index: 16, color: '#05033d' }
     ];
 
     // Create datasets for each sportsbook and total
@@ -388,7 +392,7 @@ function initializeChart(data) {
             // Calculate total balance for each date
             data = chartData.map(row => {
                 let total = 0;
-                for (let i = 1; i <= 14; i++) {
+                for (let i = 1; i <= 16; i++) {
                     total += parseFloat(row[i].replace(/[$,]/g, '')) || 0;
                 }
                 return total;
@@ -481,12 +485,25 @@ function initializeChart(data) {
                     reverse: true,
                     ticks: { 
                         color: '#b3b3b3',
-                        maxRotation: 45,
-                        minRotation: 45,
+                        maxRotation: 0,
+                        minRotation: 0,
                         font: {
-                            size: 8
+                            size: 10
                         },
-                        maxTicksLimit: 6
+                        maxTicksLimit: 8,
+                        callback: function(value, index, values) {
+                            // Format date to be more readable
+                            const dateStr = this.getLabelForValue(value);
+                            if (dateStr) {
+                                const date = new Date(dateStr);
+                                return date.toLocaleDateString('en-US', { 
+                                    month: 'short', 
+                                    day: 'numeric',
+                                    year: '2-digit'
+                                });
+                            }
+                            return '';
+                        }
                     },
                     grid: { color: '#333' }
                 },
@@ -495,7 +512,7 @@ function initializeChart(data) {
                         color: '#b3b3b3',
                         callback: value => '$' + value.toLocaleString(),
                         font: {
-                            size: 10
+                            size: 12
                         }
                     },
                     grid: { color: '#333' },
@@ -1029,7 +1046,7 @@ function createCalendar() {
         }
         // Process EV data (filter for EV rows only)
         if (ev.values && ev.values.length > 1) {
-            const evRows = ev.values.slice(1).filter(row => row[row.length-1] && row[row.length-1].toUpperCase().includes('EV'));
+            const evRows = ev.values.slice(1).filter(row => row[row.length-1] && row[row.length-1].toUpperCase().includes('Positive EV'));
             evData = processDataForCalendar(evRows);
         } else {
             evData = {};
@@ -1550,7 +1567,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function renderEVTab(values) {
     // values[0] is header
     const headers = values[0];
-    let rows = values.slice(1).filter(row => row[row.length-1] && row[row.length-1].toUpperCase().includes('EV'));
+    let rows = values.slice(1).filter(row => row[9] && row[9].toUpperCase().includes('EV'));
 
     // Sort by date descending (most recent first)
     rows.sort((a, b) => {
