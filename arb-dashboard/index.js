@@ -1046,7 +1046,7 @@ function createCalendar() {
         }
         // Process EV data (filter for EV rows only)
         if (ev.values && ev.values.length > 1) {
-            const evRows = ev.values.slice(1).filter(row => row[row.length-1] && row[row.length-1].toUpperCase().includes('Positive EV'));
+            const evRows = ev.values.slice(1).filter(row => row[9] && row[9].toUpperCase().includes('EV'));
             evData = processDataForCalendar(evRows);
         } else {
             evData = {};
