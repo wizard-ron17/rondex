@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pactus Team</title>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #0d0f1a;
+      color: #fff;
+    }
+
+    section.team {
+      padding: 60px 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    section.team h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    section.team h3.section-title {
+      font-size: 1.8rem;
+      margin: 40px 0 20px;
+      border-left: 4px solid #1dd1a1;
+      padding-left: 10px;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .team-card {
+      background-color: #1a1c2b;
+      border-radius: 16px;
+      padding: 20px;
+      transition: box-shadow 0.3s ease;
+      text-align: center;
+      max-width: 280px;
+    }
+
+    .team-card:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .team-card img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      border: 3px solid #1dd1a1;
+    }
+
+    .team-card h4 {
+      font-size: 1.3rem;
+      margin-bottom: 5px;
+    }
+
+    .team-card p.role {
+      color: #1dd1a1;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .team-card p {
+      font-size: 0.9rem;
+      color: #ccc;
+      line-height: 1.4;
+    }
+
+    .team-card .links {
+      margin-top: 15px;
+    }
+
+    .team-card .links a {
+      margin: 0 8px;
+      text-decoration: none;
+      color: #aaa;
+      font-size: 1.2rem;
+      transition: color 0.3s ease;
+    }
+
+    .team-card .links a:hover {
+      color: #1dd1a1;
+    }
+  </style>
+</head>
+<body>
+
+<section class="team">
+  <h2>Meet the Team</h2>
+
+  <!-- Development Section -->
+  <h3 class="section-title">Development</h3>
+  <div class="team-grid">
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Mostafa">
+      <h4>Mostafa S. Joo</h4>
+      <p class="role">Lead of Development (Core)</p>
+      <p>15+ years of software development experience.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/mostafasedaghat/" target="_blank"><i class="fab fa-linkedin"></i></a>
+        <a href="https://x.com/mos_joo" target="_blank"><i class="fab fa-x-twitter"></i></a>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Henry">
+      <h4>Henry Nguyen</h4>
+      <p class="role">Pactus Wallet Manager</p>
+      <p>Full Stack Developer, 10+ years in blockchain. Passionate about scalability & open-source.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/hoang-nguyen-aa791b30/" target="_blank"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Thinh">
+      <h4>Thinh Tran</h4>
+      <p class="role">Pactus Wallet Dev</p>
+      <p>Frontend-focused Fullstack Developer — Next.js, React, Spring Boot.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/quocthinhred/" target="_blank"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Javad">
+      <h4>Javad Rajabzadeh</h4>
+      <p class="role">Core Developer</p>
+      <p>10+ years engineering experience.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/ja7ad/" target="_blank"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Esmaeil">
+      <h4>Esmaeil Ahmadipour</h4>
+      <p class="role">Pactus GUI Manager</p>
+      <p>8+ years in fintech & blockchain cross-platform development.</p>
+    </div>
+
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Iman">
+      <h4>Iman Yarahmadi</h4>
+      <p class="role">Flutter Developer</p>
+      <p>Cross-platform developer with fintech & retail experience.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/iman-yarahmadi/" target="_blank"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marketing Section -->
+  <h3 class="section-title">Marketing</h3>
+  <div class="team-grid">
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Kristian">
+      <h4>Kristian Klein</h4>
+      <p class="role">Lead of Marketing</p>
+      <p>IT system electronics engineer + 5 years in Web3. Passionate about gaming & football.</p>
+      <div class="links">
+        <a href="https://x.com/Kristian_Pactus" target="_blank"><i class="fab fa-x-twitter"></i></a>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Ron">
+      <h4>Ron Aleshire</h4>
+      <p class="role">Co-Lead of Marketing</p>
+      <p>Web3 Project Development & Management — Master of Economics.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/aaron-aleshire-204922134/" target="_blank"><i class="fab fa-linkedin"></i></a>
+        <a href="https://x.com/ron_alph" target="_blank"><i class="fab fa-x-twitter"></i></a>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Mehrdad">
+      <h4>Mehrdad Kashi</h4>
+      <p class="role">Marketing Team</p>
+      <p>5+ years as finance manager in a software company.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/mehrdad-kashi-42965a1b1" target="_blank"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Community Section -->
+  <h3 class="section-title">Community & Business</h3>
+  <div class="team-grid">
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Favor">
+      <h4>Favor Olapade</h4>
+      <p class="role">Business Development</p>
+      <p>Experienced in Web3 integrations and partnerships.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/favor-olapade-53747a260" target="_blank"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Edward">
+      <h4>Edward Gbagi</h4>
+      <p class="role">Community Growth Specialist</p>
+      <p>CS background, Networking & Cloud. 3+ years in community management.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/edward-gbagi-22b58023a/" target="_blank"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Shedrach">
+      <h4>Shedrach Akong</h4>
+      <p class="role">Community Manager</p>
+      <p>Growth marketer & Web3 enthusiast.</p>
+    </div>
+  </div>
+
+  <!-- Design Section -->
+  <h3 class="section-title">Design</h3>
+  <div class="team-grid">
+    <div class="team-card">
+      <img src="https://via.placeholder.com/90" alt="Mohyeddin">
+      <h4>Mohyeddin Saffar</h4>
+      <p class="role">Product Designer</p>
+      <p>10+ years in design.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/mohyeddinsaffar" target="_blank"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</body>
+</html>
