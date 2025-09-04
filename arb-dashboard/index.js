@@ -1420,18 +1420,26 @@ function initializeFormatTab() {
                     totalReturn
                 });
                 
-                const outputLine = `${dateStr}\t${teams}\t${betDescription}\t${bookmaker}\t$${wager.toFixed(2)}\t$${totalReturn.toFixed(2)}`;
+                // Extract league from column 4 (index 3)
+                const league = parts[3] || 'N/A';
+                
+                // Extract odds from column 8 (index 7) - American odds
+                const odds = parts[9] || 'N/A';
+                
+                const outputLine = `${dateStr}\t${league}\t${teams}\t${betDescription}\t${bookmaker}\t$${wager.toFixed(2)}\t$${totalReturn.toFixed(2)}\t${odds}`;
                 processedLines.push(outputLine);
                 
                 bets.push({
                     date: dateStr,
+                    league,
                     teams,
                     description: betDescription,
                     bookmaker,
                     wager,
                     totalReturn,
                     result,
-                    profit
+                    profit,
+                    odds
                 });
             } catch (error) {
                 console.error(`Error processing line ${index + 1}:`, line, error);
@@ -1523,6 +1531,7 @@ function initializeFormatTab() {
                 <thead>
                     <tr>
                         <th>Date</th>
+                        <th>League</th>
                         <th>Teams</th>
                         <th>Bet</th>
                         <th>Bookmaker</th>
@@ -1530,6 +1539,7 @@ function initializeFormatTab() {
                         <th>Return</th>
                         <th>Profit</th>
                         <th>Status</th>
+                        <th>Odds</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1539,6 +1549,7 @@ function initializeFormatTab() {
                         return `
                             <tr>
                                 <td>${bet.date}</td>
+                                <td>${bet.league}</td>
                                 <td>${bet.teams}</td>
                                 <td>${bet.description}</td>
                                 <td>${bet.bookmaker}</td>
@@ -1546,6 +1557,7 @@ function initializeFormatTab() {
                                 <td>${formatCurrency(bet.totalReturn)}</td>
                                 <td class="${profitClass}">${formatCurrency(profit)}</td>
                                 <td>${bet.result}</td>
+                                <td>${bet.odds}</td>
                             </tr>
                         `;
                     }).join('')}
