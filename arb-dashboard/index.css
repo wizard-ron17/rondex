@@ -160,8 +160,56 @@ tr.clickable:hover {
 
 .tab-container {
     margin-bottom: 2rem;
+    position: relative;
 }
 
+/* Mobile menu toggle */
+.mobile-menu-toggle {
+    display: none;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+}
+
+.hamburger-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.3s ease;
+}
+
+.hamburger-line {
+    width: 25px;
+    height: 3px;
+    background-color: var(--text-primary);
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+.current-tab-name {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Desktop tabs */
 .tabs {
     display: flex;
     gap: 1rem;
@@ -175,12 +223,81 @@ tr.clickable:hover {
     border-radius: 4px;
     cursor: pointer;
     color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.tab:hover {
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .tab.active {
     background-color: var(--accent);
     color: var(--text-primary);
     border-color: var(--accent);
+}
+
+/* Mobile slide-out menu */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100vh;
+    background-color: var(--bg-darker);
+    border-right: 1px solid var(--border);
+    z-index: 1000;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+}
+
+.mobile-menu.open {
+    left: 0;
+}
+
+.mobile-menu-content {
+    padding: 2rem 1rem;
+    padding-top: 4rem;
+}
+
+.mobile-tab {
+    padding: 1rem 1.5rem;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+}
+
+.mobile-tab:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.mobile-tab.active {
+    background-color: var(--accent);
+    color: var(--text-primary);
+    border-color: var(--accent);
+}
+
+/* Mobile menu overlay */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-overlay.open {
+    opacity: 1;
+    visibility: visible;
 }
 
 .tab-content {
@@ -217,9 +334,23 @@ tr.clickable:hover {
         min-height: 250px;
     }
 
-    .tab {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
+    /* Show mobile menu toggle, hide desktop tabs */
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
+    .desktop-tabs {
+        display: none;
+    }
+    
+    /* Improve mobile menu toggle spacing */
+    .mobile-menu-toggle {
+        padding: 0.75rem 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .current-tab-name {
+        font-size: 1.2rem;
     }
 }
 
@@ -488,6 +619,32 @@ tr.clickable:hover {
     margin-left: 0.5rem; /* Space between profit and percentage */
 }
 
+/* League and Team Logos */
+.logo.league {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    margin-right: 6px;
+    vertical-align: -2px;
+}
+
+.logo.team {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+}
+
+.teams-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.league-cell {
+    display: inline-flex;
+    align-items: center;
+}
+
 .calendar-container {
     background-color: var(--bg-dark);
     border-radius: 8px;
@@ -495,33 +652,30 @@ tr.clickable:hover {
     padding: 1rem;
     margin: 0;
     width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 .calendar-header {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    width: 100%;
-    padding: 0 1rem;
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
 }
 
-.month-total {
+.calendar-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.calendar-total {
     color: var(--success);
-    font-size: 1rem;
-    font-weight: bold;
-}
-
-.calendar-navigation {
-    display: flex;
-    align-items: center;
-    gap: 1rem; /* Adjust this from 300% */
-    width: 100%; /* Add this */
-    justify-content: space-between; /* Add this */
-}
-
-/* Add these new styles */
-.calendar-nav-btn {
-    z-index: 1; /* Ensure buttons are clickable */
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1rem;
 }
 
 .calendar-nav-btn {
@@ -529,96 +683,316 @@ tr.clickable:hover {
     border: none;
     color: var(--text-primary);
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 0.4rem 0.6rem;
     border-radius: 4px;
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    font-size: 0.9rem;
 }
 
 .calendar-nav-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.calendar-table {
+.calendar-nav-btn:active {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
     width: 100%;
-    border-collapse: collapse;
 }
 
-.calendar-table th {
-    padding: 0.5rem;
+.calendar-day-header {
     text-align: center;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 600;
     color: var(--text-secondary);
-    font-weight: normal;
-    font-size: 0.9rem;
-}
-
-.calendar-th.asc::after,
-.calendar-th.desc::after {
-    content: none !important; /* Hides the sort arrows only in the calendar */
+    background-color: var(--bg-darker);
+    border-radius: 4px;
 }
 
 .calendar-day {
-    border: 1px solid var(--border);
-    height: 100px;
-    width: 30px;
+    aspect-ratio: 1;
+    min-height: 50px;
     padding: 0.25rem;
-    vertical-align: top;
+    border-radius: 4px;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+/* Desktop calendar sizing */
+@media (min-width: 769px) {
+    .calendar-day {
+        aspect-ratio: 2;
+        min-height: 25px;
+        padding: 0.1rem;
+    }
+    
+    .day-number {
+        font-size: 0.55rem;
+        margin-bottom: 0.1rem;
+    }
+    
+    .profit-amount {
+        font-size: 1rem;
+    }
+    
+    .bet-count {
+        font-size: 0.7rem;
+    }
+}
+
+.calendar-day:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: scale(1.02);
+}
+
+.calendar-day.empty {
+    background-color: transparent;
+    cursor: default;
+}
+
+.calendar-day.empty:hover {
+    background-color: transparent;
+    transform: none;
 }
 
 .day-number {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: var(--text-secondary);
-    position: absolute;
-    top: 0.25rem;
-    left: 0.25rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
 }
 
-.profit-cell {
+.day-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    gap: 0.25rem;
-    padding-top: 1.5rem;
+    flex: 1;
+    width: 100%;
+    gap: 0.1rem;
 }
 
 .profit-amount {
-    font-weight: bold;
-    font-size: 0.9rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    line-height: 1;
+    text-align: center;
 }
 
 .bet-count {
-    font-size: 0.75rem;
+    font-size: 0.6rem;
     color: var(--text-secondary);
+    line-height: 1;
 }
 
-.profit-positive {
+/* Color-coded profit cells */
+.calendar-day.profit-positive {
+    background-color: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.4);
+}
+
+.calendar-day.profit-negative {
+    background-color: rgba(255, 68, 68, 0.2);
+    border: 1px solid rgba(255, 68, 68, 0.4);
+}
+
+.calendar-day.profit-neutral {
+    background-color: rgba(33, 150, 243, 0.2);
+    border: 1px solid rgba(33, 150, 243, 0.4);
+}
+
+.profit-positive .profit-amount {
     color: var(--success);
 }
 
-.profit-negative {
+.profit-negative .profit-amount {
     color: #ff4444;
 }
 
+.profit-neutral .profit-amount {
+    color: var(--accent);
+}
+
 @media (max-width: 768px) {
-    .calendar-day {
-        height: 70px;
-        width: 20px;
-        padding: 0.15rem;
+    .tab-content { overflow-x: hidden; }
+    .calendar-container { 
+        overflow-x: hidden; 
+        padding: 0.5rem; 
+        margin: 0;
     }
     
-    .profit-amount {
-        font-size: 0.7rem;
+    .calendar-header {
+        padding: 0.25rem;
+        margin-bottom: 0.75rem;
     }
     
-    .bet-count {
+    .calendar-title {
+        font-size: 1rem;
+    }
+    
+    .calendar-total {
+        font-size: 0.8rem;
+    }
+    
+    .calendar-nav-btn {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.8rem;
+        min-width: 35px;
+        min-height: 35px;
+    }
+    
+    .calendar-grid {
+        gap: 1px;
+    }
+    
+    .calendar-day-header {
+        padding: 0.3rem 0.1rem;
         font-size: 0.6rem;
     }
     
+    .calendar-day {
+        min-height: 40px;
+        padding: 0.15rem;
+    }
+    
     .day-number {
+        font-size: 0.6rem;
+        margin-bottom: 0.15rem;
+    }
+    
+    .profit-amount {
         font-size: 0.65rem;
-        top: 0.15rem;
-        left: 0.15rem;
+    }
+    
+    .bet-count {
+        font-size: 0.55rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-container { 
+        padding: 0.25rem; 
+        overflow-x: hidden; 
+    }
+    
+    .calendar-header {
+        padding: 0.15rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .calendar-title {
+        font-size: 0.9rem;
+    }
+    
+    .calendar-total {
+        font-size: 0.75rem;
+    }
+    
+    .calendar-nav-btn {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.75rem;
+        min-width: 30px;
+        min-height: 30px;
+    }
+    
+    .calendar-day-header {
+        padding: 0.25rem 0.05rem;
+        font-size: 0.55rem;
+    }
+    
+    .calendar-day {
+        min-height: 35px;
+        padding: 0.1rem;
+    }
+    
+    .day-number {
+        font-size: 0.55rem;
+        margin-bottom: 0.1rem;
+    }
+    
+    .profit-amount {
+        font-size: 0.6rem;
+    }
+    
+    .bet-count {
+        font-size: 0.5rem;
+    }
+}
+
+/* Additional mobile optimizations for very small screens */
+@media (max-width: 360px) {
+    .calendar-container {
+        padding: 0.1rem;
+    }
+    
+    .calendar-header {
+        padding: 0.1rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .calendar-title {
+        font-size: 0.85rem;
+    }
+    
+    .calendar-total {
+        font-size: 0.7rem;
+    }
+    
+    .calendar-nav-btn {
+        padding: 0.2rem 0.3rem;
+        font-size: 0.7rem;
+        min-width: 25px;
+        min-height: 25px;
+    }
+    
+    .calendar-day-header {
+        padding: 0.2rem 0.02rem;
+        font-size: 0.5rem;
+    }
+    
+    .calendar-day {
+        min-height: 30px;
+        padding: 0.05rem;
+    }
+    
+    .day-number {
+        font-size: 0.5rem;
+        margin-bottom: 0.05rem;
+    }
+    
+    .profit-amount {
+        font-size: 0.55rem;
+    }
+    
+    .bet-count {
+        font-size: 0.45rem;
+    }
+    
+    .calendar-controls {
+        margin-bottom: 0.25rem;
+    }
+    
+    .calendar-controls label {
+        font-size: 0.8rem;
+    }
+    
+    .calendar-controls select {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+        min-width: 80px;
     }
 }
 
@@ -856,13 +1230,16 @@ tr.clickable:hover {
 .calendar-controls {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
 }
 
 .calendar-controls label {
     color: var(--text-secondary);
     font-size: 1rem;
+    white-space: nowrap;
 }
 
 .calendar-controls select {
@@ -872,9 +1249,196 @@ tr.clickable:hover {
     background: var(--bg-dark);
     color: var(--text-primary);
     font-size: 1rem;
+    min-width: 120px;
 }
 
 .calendar-controls select:focus {
     outline: none;
     border-color: var(--accent);
+}
+
+@media (max-width: 768px) {
+    .calendar-controls {
+        justify-content: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .calendar-controls label {
+        font-size: 0.9rem;
+    }
+    
+    .calendar-controls select {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+        min-width: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .calendar-controls label {
+        font-size: 0.85rem;
+    }
+    
+    .calendar-controls select {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.85rem;
+        min-width: 90px;
+        width: auto;
+    }
+}
+
+/* --- Mobile responsiveness improvements across tabs --- */
+@media (max-width: 1024px) {
+    .stats-grid,
+    .balances-grid,
+    .summary .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .chart-wrapper {
+        max-height: 360px;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        padding: 0.75rem;
+    }
+
+    .header h1 {
+        font-size: 1.25rem;
+        line-height: 1.4;
+    }
+
+    /* Mobile navigation is now handled by hamburger menu */
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 720px;
+    }
+
+    .stat-card .stat-label { font-size: 0.8rem; }
+    .stat-card .stat-value { font-size: 1.05rem; }
+
+    .logo.league { width: 18px; height: 18px; }
+    .logo.team { width: 22px; height: 22px; }
+
+    .teams-cell span { font-size: 0.95rem; }
+
+    .chart-wrapper { max-height: 320px; }
+
+    .modal .modal-content {
+        width: 96vw;
+        max-width: 96vw;
+        margin: 2vh auto;
+        padding: 12px;
+    }
+
+    .modal .bet-header .bet-title { font-size: 1.05rem; }
+    .modal .bet-subtitle-row { flex-direction: column; gap: 4px; }
+    .modal .summary-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid,
+    .balances-grid,
+    .summary .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Mobile navigation handled by hamburger menu */
+    .mobile-menu-toggle {
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .current-tab-name {
+        font-size: 1.1rem;
+    }
+    
+    .hamburger-btn {
+        padding: 0.4rem;
+    }
+    
+    .hamburger-line {
+        width: 22px;
+        height: 2px;
+    }
+
+    table { min-width: 640px; }
+
+    .logo.league { width: 16px; height: 16px; }
+    .logo.team { width: 20px; height: 20px; }
+
+    .league-cell { display: inline-flex; align-items: center; }
+    .teams-cell { gap: 6px; }
+}
+
+/* Segmented control for calendar */
+.segmented-control {
+    display: inline-flex;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-segment {
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    padding: 0.5rem 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.calendar-segment + .calendar-segment {
+    border-left: 1px solid var(--border);
+}
+
+.calendar-segment.active {
+    background: var(--accent);
+    color: var(--text-primary);
+}
+
+.calendar-select-fallback {
+    display: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: 1px solid #333;
+    background: #222;
+    color: #fff;
+}
+
+.visually-hidden {
+    position: absolute !important;
+    height: 1px; width: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .segmented-control {
+        width: 100%;
+    }
+    .calendar-segment {
+        flex: 1 1 0;
+        padding: 0.5rem 0.6rem;
+        font-size: 0.9rem;
+    }
 }
