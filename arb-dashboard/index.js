@@ -4,7 +4,7 @@ const SPREADSHEET_ID = '10W6lR7yZNxwaZLaUOMnhP1FwFLN2i6z0FNV0ANBnG1M';
 const SHEETS = {
     BETS: 'Aaron!A1:Z1000',
     BALANCES: 'Balances!A1:r1000',
-    EV: 'Non-Arb/Mistakes/EV+!A1:J3000'
+    EV: 'EV!A1:Z5000'
 };
 // ------------------------------
 
@@ -114,20 +114,87 @@ function displayData(values) {
     
     let tableContent = '';
     rows.forEach((row, index) => {
+        const league = row[1];
+        const leagueKey = getLeagueKey(league);
+        const [teamA, teamB] = splitTeams(row[2]);
+        const teamAKey = getTeamKey(leagueKey, teamA);
+        const teamBKey = getTeamKey(leagueKey, teamB);
+
+        const leagueCell = (league === 'NFL')
+            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg" alt="NFL" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'MLB')
+            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Major_League_Baseball_logo.svg/640px-Major_League_Baseball_logo.svg.png" alt="MLB" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'NBA')
+            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/thumb/0/03/National_Basketball_Association_logo.svg/800px-National_Basketball_Association_logo.svg.png" alt="NBA" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'NCAAF')
+            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/c/cf/NCAA_football_icon_logo.svg" alt="NCAAF" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'NPB')
+            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/NPB_logo.svg/1200px-NPB_logo.svg.png" alt="NPB" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'WNBA')
+            ? `<span class="league-cell"><img class="logo league" src="https://content.sportslogos.net/logos/16/1152/full/6613__wnba-alternate-2020.png" alt="WNBA" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'KBO')
+            ? `<span class="league-cell"><img class="logo league" src="https://1000logos.net/wp-content/uploads/2021/05/KBO-League-Logo.png" alt="KBO" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'NCAAM')
+            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/basketball-men.svg" alt="NCAAM" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'NCAAB')
+            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/baseball.svg" alt="NCAAB" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : league;
+
+        const hasTeams = teamA && teamB;
+        const teamsCell = !hasTeams ? `<span>${row[2] || ''}</span>`
+            : (league === 'NFL')
+            ? `
+                <div class="teams-cell">
+                    <img class="logo team" data-league="NFL" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                    <span>${row[2]}</span>
+                    <img class="logo team" data-league="NFL" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                </div>`
+            : (league === 'MLB')
+            ? `
+                <div class="teams-cell">
+                    <img class="logo team" data-league="MLB" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                    <span>${row[2]}</span>
+                    <img class="logo team" data-league="MLB" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                </div>`
+            : (league === 'NBA')
+            ? `
+                <div class="teams-cell">
+                    <img class="logo team" data-league="NBA" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                    <span>${row[2]}</span>
+                    <img class="logo team" data-league="NBA" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                </div>`
+            : (league === 'NCAAF')
+            ? `
+                <div class="teams-cell">
+                    <img class="logo team" data-league="NCAAF" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                    <span>${row[2]}</span>
+                    <img class="logo team" data-league="NCAAF" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                </div>`
+            : (league === 'WNBA')
+            ? `
+                <div class="teams-cell">
+                    <img class="logo team" data-league="WNBA" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                    <span>${row[2]}</span>
+                    <img class="logo team" data-league="WNBA" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                </div>`
+            : `<span>${row[2]}</span>`;
+
         tableContent += `
             <tr class="clickable" onclick="showBetModal(${JSON.stringify(row).replace(/"/g, '&quot;')})">
                 <td>${row[0]}</td>
                 <td>${row[4]}</td>
                 <td>${row[6]}</td>
                 <td class="profit ${parseFloat(row[7].replace(/[$,]/g, '')) > 0 ? 'positive' : ''}">${row[7]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
+                <td>${leagueCell}</td>
+                <td>${teamsCell}</td>
                 <td>${row[3]}</td>
             </tr>
         `;
     });
     
     document.getElementById('data').innerHTML = tableContent;
+    const arbTbody = document.getElementById('data');
+    if (arbTbody) hydrateLogosInContainer(arbTbody);
     calculateStats(rows);
     document.querySelector('.loading').style.display = 'none';
     
@@ -545,178 +612,245 @@ function fetchBalances() {
 // Add tab functionality
 document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.tab');
+    const mobileTabs = document.querySelectorAll('.mobile-tab');
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const currentTabName = document.getElementById('current-tab-name');
     
     // Function to switch tabs
     function switchTab(tabName) {
         // Remove active class from all tabs and content
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         
         // Add active class to selected tab and content
         const selectedTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+        const selectedMobileTab = document.querySelector(`.mobile-tab[data-tab="${tabName}"]`);
         if (selectedTab) {
             selectedTab.classList.add('active');
-            document.getElementById(`${tabName}-content`).classList.add('active');
-            
-            // Initialize specific tab content
-            if (tabName === 'calendar') {
-                createCalendar();
-            } else if (tabName === 'stats') {
-                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.values && data.values.length > 0) {
-                            createProfitChart(data.values);
+        }
+        if (selectedMobileTab) {
+            selectedMobileTab.classList.add('active');
+        }
+        document.getElementById(`${tabName}-content`).classList.add('active');
+        
+        // Update current tab name for mobile
+        const tabNames = {
+            'arbs': 'Arbs',
+            'ev': 'EV',
+            'balances': 'Balances',
+            'stats': 'Stats',
+            'calendar': 'Calendar',
+            'format': 'Format'
+        };
+        currentTabName.textContent = tabNames[tabName] || tabName;
+        
+        // Close mobile menu if open
+        closeMobileMenu();
+        
+        // Initialize specific tab content
+        if (tabName === 'calendar') {
+            createCalendar();
+        } else if (tabName === 'stats') {
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.values && data.values.length > 0) {
+                        createProfitChart(data.values);
+                    }
+                });
+            // Fetch and render EV profit chart and stats
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEETS.EV)}?key=${API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.values && data.values.length > 1) {
+                        // Use all EV rows (entire sheet is EV now)
+                        const rows = data.values.slice(1);
+                        // --- EV Profit Chart ---
+                        // Remove old chart if present
+                        let oldEvChart = document.getElementById('ev-profit-chart-wrapper');
+                        if (oldEvChart) oldEvChart.remove();
+                        // Create wrapper and canvas
+                        let statsContent = document.getElementById('stats-content');
+                        let chartWrapper = document.createElement('div');
+                        chartWrapper.className = 'chart-wrapper';
+                        chartWrapper.id = 'ev-profit-chart-wrapper';
+                        chartWrapper.innerHTML = '<canvas id="evProfitChart"></canvas>';
+                        statsContent.appendChild(chartWrapper);
+                        // Prepare data for chart
+                        const dailyProfits = rows.reduce((acc, row) => {
+                            const date = row[0];
+                            const profit = parseFloat((row[8] || '').toString().replace(/[$,]/g, '')) || 0;
+                            if (!acc[date]) acc[date] = profit;
+                            else acc[date] += profit;
+                            return acc;
+                        }, {});
+                        const dates = Object.keys(dailyProfits).sort((a, b) => new Date(a) - new Date(b));
+                        const profits = dates.map(date => dailyProfits[date]);
+                        let runningTotal = 0;
+                        const cumulativeProfits = profits.map(profit => runningTotal += profit);
+                        // Draw chart
+                        const ctx = document.getElementById('evProfitChart').getContext('2d');
+                        if (window.evProfitChart && typeof window.evProfitChart.destroy === 'function') {
+                            window.evProfitChart.destroy();
                         }
-                    });
-                // Fetch and render EV profit chart and stats
-                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEETS.EV)}?key=${API_KEY}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.values && data.values.length > 1) {
-                            // Only use rows where last column includes 'Positive EV'
-                            const rows = data.values.slice(1).filter(row => row[row.length-1] && row[row.length-1].toUpperCase().includes('POSITIVE EV'));
-                            // --- EV Profit Chart ---
-                            // Remove old chart if present
-                            let oldEvChart = document.getElementById('ev-profit-chart-wrapper');
-                            if (oldEvChart) oldEvChart.remove();
-                            // Create wrapper and canvas
-                            let statsContent = document.getElementById('stats-content');
-                            let chartWrapper = document.createElement('div');
-                            chartWrapper.className = 'chart-wrapper';
-                            chartWrapper.id = 'ev-profit-chart-wrapper';
-                            chartWrapper.innerHTML = '<canvas id="evProfitChart"></canvas>';
-                            statsContent.appendChild(chartWrapper);
-                            // Prepare data for chart
-                            const dailyProfits = rows.reduce((acc, row) => {
-                                const date = row[0];
-                                const profit = parseFloat(row[6].replace(/[$,]/g, '')) || 0;
-                                if (!acc[date]) acc[date] = profit;
-                                else acc[date] += profit;
-                                return acc;
-                            }, {});
-                            const dates = Object.keys(dailyProfits).sort((a, b) => new Date(a) - new Date(b));
-                            const profits = dates.map(date => dailyProfits[date]);
-                            let runningTotal = 0;
-                            const cumulativeProfits = profits.map(profit => runningTotal += profit);
-                            // Draw chart
-                            const ctx = document.getElementById('evProfitChart').getContext('2d');
-                            if (window.evProfitChart && typeof window.evProfitChart.destroy === 'function') {
-                                window.evProfitChart.destroy();
-                            }
-                            window.evProfitChart = new Chart(ctx, {
-                                type: 'line',
-                                data: {
-                                    labels: dates,
-                                    datasets: [
-                                        {
-                                            label: 'EV Daily Profit',
-                                            data: profits,
-                                            borderColor: '#ff9800',
-                                            tension: 0.1,
-                                            fill: false,
-                                            order: 2
-                                        },
-                                        {
-                                            label: 'EV Cumulative Profit',
-                                            data: cumulativeProfits,
-                                            borderColor: '#4caf50',
-                                            tension: 0.1,
-                                            fill: false,
-                                            order: 1
-                                        }
-                                    ]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    interaction: { mode: 'index', intersect: false },
-                                    plugins: {
-                                        title: {
-                                            display: true,
-                                            text: 'EV Profit Over Time',
+                        window.evProfitChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: dates,
+                                datasets: [
+                                    {
+                                        label: 'EV Daily Profit',
+                                        data: profits,
+                                        borderColor: '#ff9800',
+                                        tension: 0.1,
+                                        fill: false,
+                                        order: 2
+                                    },
+                                    {
+                                        label: 'EV Cumulative Profit',
+                                        data: cumulativeProfits,
+                                        borderColor: '#4caf50',
+                                        tension: 0.1,
+                                        fill: false,
+                                        order: 1
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                interaction: { mode: 'index', intersect: false },
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'EV Profit Over Time',
+                                        color: '#ffffff',
+                                        font: { size: 16 }
+                                    },
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
                                             color: '#ffffff',
-                                            font: { size: 16 }
-                                        },
-                                        legend: {
-                                            position: 'bottom',
-                                            labels: {
-                                                color: '#ffffff',
-                                                padding: 10,
-                                                usePointStyle: true,
-                                                font: { size: 12 }
-                                            }
-                                        },
-                                        tooltip: {
-                                            mode: 'index',
-                                            intersect: false,
-                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                            titleColor: '#ffffff',
-                                            bodyColor: '#ffffff',
-                                            borderColor: '#333',
-                                            borderWidth: 1,
                                             padding: 10,
-                                            callbacks: {
-                                                label: function(context) {
-                                                    let label = context.dataset.label || '';
-                                                    if (label) label += ': ';
-                                                    if (context.parsed.y !== null) label += formatCurrency(context.parsed.y);
-                                                    return label;
-                                                }
-                                            }
+                                            usePointStyle: true,
+                                            font: { size: 12 }
                                         }
                                     },
-                                    scales: {
-                                        x: {
-                                            ticks: { color: '#b3b3b3', maxRotation: 45, minRotation: 45, font: { size: 10 }, maxTicksLimit: 8 },
-                                            grid: { color: '#333' }
-                                        },
-                                        y: {
-                                            ticks: { color: '#b3b3b3', callback: value => formatCurrency(value), font: { size: 12 } },
-                                            grid: { color: '#333' }
+                                    tooltip: {
+                                        mode: 'index',
+                                        intersect: false,
+                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                        titleColor: '#ffffff',
+                                        bodyColor: '#ffffff',
+                                        borderColor: '#333',
+                                        borderWidth: 1,
+                                        padding: 10,
+                                        callbacks: {
+                                            label: function(context) {
+                                                let label = context.dataset.label || '';
+                                                if (label) label += ': ';
+                                                if (context.parsed.y !== null) label += formatCurrency(context.parsed.y);
+                                                return label;
+                                            }
                                         }
                                     }
+                                },
+                                scales: {
+                                    x: {
+                                        ticks: { color: '#b3b3b3', maxRotation: 45, minRotation: 45, font: { size: 10 }, maxTicksLimit: 8 },
+                                        grid: { color: '#333' }
+                                    },
+                                    y: {
+                                        ticks: { color: '#b3b3b3', callback: value => formatCurrency(value), font: { size: 12 } },
+                                        grid: { color: '#333' }
+                                    }
                                 }
-                            });
-                            // --- EV Stats Grid ---
-                            let totalBets = rows.length;
-                            let totalWagered = rows.reduce((sum, row) => sum + parseFloat(row[4].replace(/[$,]/g, '')) || 0, 0);
-                            let totalProfit = rows.reduce((sum, row) => sum + parseFloat(row[6].replace(/[$,]/g, '')) || 0, 0);
-                            let avgRoi = rows.length ? (rows.reduce((sum, row) => sum + parseFloat(row[7].replace('%', '')) || 0, 0) / rows.length) : 0;
-                            let wonBets = rows.filter(row => parseFloat(row[6].replace(/[$,]/g, '')) > 0).length;
-                            let lostBets = rows.filter(row => parseFloat(row[6].replace(/[$,]/g, '')) < 0).length;
-                            let winRate = totalBets ? ((wonBets / totalBets) * 100).toFixed(2) : 0;
-                            let roi = totalWagered ? ((totalProfit / totalWagered) * 100).toFixed(2) : 0;
-                            let evStatsHTML = `
-                                <div class=\"stats-grid\" style=\"margin-top:2rem;\">
-                                    <div class=\"stat-card\"><div class=\"stat-label\">EV Bets</div><div class=\"stat-value\">${totalBets}</div></div>
-                                    <div class=\"stat-card\"><div class=\"stat-label\">Record</div><div class=\"stat-value\">${wonBets}-${lostBets}</div></div>
-                                    <div class=\"stat-card\"><div class=\"stat-label\">Total Wagered</div><div class=\"stat-value\">${formatCurrency(totalWagered)}</div></div>
-                                    <div class=\"stat-card\"><div class=\"stat-label\">Total Profit</div><div class=\"stat-value\">${formatCurrency(totalProfit)} <span class=\"profit-percentage\">(ROI: ${roi}%)</span></div></div>
-                                    <div class=\"stat-card\"><div class=\"stat-label\">Average ROI</div><div class=\"stat-value\">${avgRoi.toFixed(2)}%</div></div>
-                                    <div class=\"stat-card\"><div class=\"stat-label\">Win Rate</div><div class=\"stat-value\">${winRate}%</div></div>
-                                </div>
-                            `;
-                            let oldEvStats = document.getElementById('ev-stats-grid');
-                            if (oldEvStats) oldEvStats.remove();
-                            let wrapper = document.createElement('div');
-                            wrapper.id = 'ev-stats-grid';
-                            wrapper.innerHTML = evStatsHTML;
-                            statsContent.appendChild(wrapper);
-                        }
-                    });
-            } else if (tabName === 'ev') {
-                const encodedRange = encodeURIComponent(SHEETS.EV);
-                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodedRange}?key=${API_KEY}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.values && data.values.length > 0) {
-                            renderEVTab(data.values);
-                        }
-                    });
-            }
+                            }
+                        });
+                        // --- EV Stats Grid ---
+                        let totalBets = rows.length;
+                        let totalWagered = rows.reduce((sum, row) => sum + (parseFloat((row[5] || '').toString().replace(/[$,]/g, '')) || 0), 0);
+                        let totalProfit = rows.reduce((sum, row) => sum + (parseFloat((row[8] || '').toString().replace(/[$,]/g, '')) || 0), 0);
+                        let avgRoi = rows.length ? (rows.reduce((sum, row) => sum + (parseFloat((row[9] || '').toString().replace('%', '')) || 0), 0) / rows.length) : 0;
+                        let wonBets = rows.filter(row => parseFloat((row[8] || '').toString().replace(/[$,]/g, '')) > 0).length;
+                        let lostBets = rows.filter(row => parseFloat((row[8] || '').toString().replace(/[$,]/g, '')) < 0).length;
+                        let winRate = totalBets ? ((wonBets / totalBets) * 100).toFixed(2) : 0;
+                        let roi = totalWagered ? ((totalProfit / totalWagered) * 100).toFixed(2) : 0;
+                        let evStatsHTML = `
+                            <div class=\"stats-grid\" style=\"margin-top:2rem;\">
+                                <div class=\"stat-card\"><div class=\"stat-label\">EV Bets</div><div class=\"stat-value\">${totalBets}</div></div>
+                                <div class=\"stat-card\"><div class=\"stat-label\">Record</div><div class=\"stat-value\">${wonBets}-${lostBets}</div></div>
+                                <div class=\"stat-card\"><div class=\"stat-label\">Total Wagered</div><div class=\"stat-value\">${formatCurrency(totalWagered)}</div></div>
+                                <div class=\"stat-card\"><div class=\"stat-label\">Total Profit</div><div class=\"stat-value\">${formatCurrency(totalProfit)} <span class=\"profit-percentage\">(ROI: ${roi}%)</span></div></div>
+                                <div class=\"stat-card\"><div class=\"stat-label\">Average ROI</div><div class=\"stat-value\">${avgRoi.toFixed(2)}%</div></div>
+                                <div class=\"stat-card\"><div class=\"stat-label\">Win Rate</div><div class=\"stat-value\">${winRate}%</div></div>
+                            </div>
+                        `;
+                        let oldEvStats = document.getElementById('ev-stats-grid');
+                        if (oldEvStats) oldEvStats.remove();
+                        let wrapper = document.createElement('div');
+                        wrapper.id = 'ev-stats-grid';
+                        wrapper.innerHTML = evStatsHTML;
+                        statsContent.appendChild(wrapper);
+                    }
+                });
+        } else if (tabName === 'ev') {
+            const encodedRange = encodeURIComponent(SHEETS.EV);
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodedRange}?key=${API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.values && data.values.length > 0) {
+                        renderEVTab(data.values);
+                    }
+                });
         }
     }
+    
+    // Mobile menu functions
+    function openMobileMenu() {
+        mobileMenu.classList.add('open');
+        mobileMenuOverlay.classList.add('open');
+        hamburgerBtn.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    function closeMobileMenu() {
+        mobileMenu.classList.remove('open');
+        mobileMenuOverlay.classList.remove('open');
+        hamburgerBtn.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+    
+    // Hamburger button click handler
+    hamburgerBtn.addEventListener('click', function() {
+        if (mobileMenu.classList.contains('open')) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
+    });
+    
+    // Mobile tab click handlers
+    mobileTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+            window.location.hash = tabName;
+            switchTab(tabName);
+        });
+    });
+    
+    // Overlay click handler to close menu
+    mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+    
+    // Keyboard escape handler to close menu
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && mobileMenu.classList.contains('open')) {
+            closeMobileMenu();
+        }
+    });
 
     // Handle tab clicks
     tabs.forEach(tab => {
@@ -729,9 +863,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle initial load and hash changes
     function handleHashChange() {
-        let hash = window.location.hash.slice(1);
-        if (!hash || hash === 'bets') hash = 'arbs'; // Default to 'arbs' if no hash or old 'bets'
-        switchTab(hash);
+        let raw = window.location.hash.slice(1);
+        if (!raw) raw = 'arbs';
+        // Support compound hash like "calendar&data=ev&month=2025-09"
+        const [tabPart, ...params] = raw.split('&');
+        const tabName = tabPart || 'arbs';
+        const dataParam = params.find(p => /^data=/.test(p));
+        const monthParam = params.find(p => /^month=/.test(p));
+        
+        if (dataParam) {
+            const value = dataParam.split('=')[1];
+            // pass desired source to calendar via global hint
+            window.__calendarDesiredSource = (value || '').toLowerCase();
+        }
+        
+        if (monthParam) {
+            const monthValue = monthParam.split('=')[1];
+            // pass desired month to calendar via global hint
+            window.__calendarDesiredMonth = monthValue;
+        }
+        
+        // Back-compat for old 'bets'
+        const finalTab = (tabName === 'bets') ? 'arbs' : tabName;
+        switchTab(finalTab);
     }
 
     // Listen for hash changes
@@ -880,12 +1034,37 @@ fetchBalances();
 function createCalendar() {
     const container = document.querySelector('.calendar-container');
     const dataSourceSelect = document.getElementById('calendar-data-source');
-    const currentDate = new Date();
+    const segmented = document.getElementById('calendar-segmented');
+    const segmentButtons = segmented ? segmented.querySelectorAll('.calendar-segment') : [];
+    
+    // Initialize currentDate based on URL parameter or current date
+    let currentDate = new Date();
+    if (window.__calendarDesiredMonth) {
+        const [year, month] = window.__calendarDesiredMonth.split('-');
+        if (year && month) {
+            currentDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+        }
+    }
 
     // Store both datasets
     let arbsData = null;
     let evData = null;
     let combinedData = null;
+
+    // Helper function to update URL with current month
+    function updateCalendarURL(date, dataSource) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const monthStr = `${year}-${month}`;
+        
+        const parts = (window.location.hash.slice(1) || '').split('&');
+        const tab = parts[0] || 'calendar';
+        const dataParam = dataSource ? `&data=${dataSource}` : '';
+        const monthParam = `&month=${monthStr}`;
+        
+        const newHash = `${tab}${dataParam}${monthParam}`;
+        window.location.hash = newHash;
+    }
 
     // Helper to process rows for calendar
     function processDataForCalendar(rows) {
@@ -893,7 +1072,9 @@ function createCalendar() {
         rows.forEach(row => {
             const [m, d, y] = row[0].split('/');
             const date = `${parseInt(m)}/${parseInt(d)}/${y.length === 4 ? y.slice(2) : y}`;
-            const profit = parseFloat(row[6].replace(/[$,]/g, ''));
+            // Support both legacy (profit at index 6) and new EV (profit at index 8)
+            const profitStr = (row[8] && /[-$\d]/.test(row[8])) ? row[8] : row[6];
+            const profit = parseFloat((profitStr || '0').toString().replace(/[$,]/g, '')) || 0;
             if (!dailyData[date]) {
                 dailyData[date] = { profit: 0, bets: 0 };
             }
@@ -924,87 +1105,112 @@ function createCalendar() {
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                            'July', 'August', 'September', 'October', 'November', 'December'];
         
+        // Create header with navigation and total
         let calendarHTML = `
             <div class="calendar-header">
-                <div class="calendar-navigation">
-                    <button class="calendar-nav-btn prev-month">←</button>
-                    <h2>${monthNames[month]} ${year}</h2>
-                    <button class="calendar-nav-btn next-month">→</button>
-                </div>
-                <div class="month-total">Monthly Profit: ${formatCurrency(monthlyTotal)}</div>
+                <button class="calendar-nav-btn prev-month">←</button>
+                <div class="calendar-title">${monthNames[month]} ${year}</div>
+                <button class="calendar-nav-btn next-month">→</button>
             </div>
-            <table class="calendar-table">
-                <thead>
-                    <tr>
-                        <th class="calendar-th">Sun</th>
-                        <th class="calendar-th">Mon</th>
-                        <th class="calendar-th">Tue</th>
-                        <th class="calendar-th">Wed</th>
-                        <th class="calendar-th">Thu</th>
-                        <th class="calendar-th">Fri</th>
-                        <th class="calendar-th">Sat</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="calendar-total">Total profit: ${formatCurrency(monthlyTotal)}</div>
+            <div class="calendar-grid">
         `;
         
-        let day = 1;
-        let calendarDays = '';
+        // Add day headers
+        const dayHeaders = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+        dayHeaders.forEach(day => {
+            calendarHTML += `<div class="calendar-day-header">${day}</div>`;
+        });
         
-        for (let i = 0; i < 6; i++) {
-            let row = '<tr>';
-            for (let j = 0; j < 7; j++) {
-                if (i === 0 && j < firstDay) {
-                    row += '<td class="calendar-day"></td>';
-                } else if (day > daysInMonth) {
-                    row += '<td class="calendar-day"></td>';
-                } else {
-                    const dateStr = `${month + 1}/${day}/${year.toString().slice(-2)}`;
-                    const dayData = data[dateStr] || { profit: 0, bets: 0 };
-                    const profitClass = dayData.profit > 0 ? 'profit-positive' : 
-                                      dayData.profit < 0 ? 'profit-negative' : '';
-                    
-                    row += `
-                        <td class="calendar-day">
-                            <span class="day-number">${day}</span>
-                            ${dayData.bets > 0 ? `
-                                <div class="profit-cell">
-                                    <span class="profit-amount ${profitClass}">
-                                        ${formatCurrency(Math.round(dayData.profit)).split('.')[0]}
-                                    </span>
-                                    <span class="bet-count">
-                                        ${dayData.bets} bet${dayData.bets !== 1 ? 's' : ''}
-                                    </span>
-                                </div>
-                            ` : ''}
-                        </td>
-                    `;
-                    day++;
-                }
-            }
-            row += '</tr>';
-            calendarDays += row;
-            if (day > daysInMonth) break;
+        // Add empty cells for days before the first day of the month
+        for (let i = 0; i < firstDay; i++) {
+            calendarHTML += '<div class="calendar-day empty"></div>';
         }
         
-        calendarHTML += calendarDays + '</tbody></table>';
+        // Add days of the month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${month + 1}/${day}/${year.toString().slice(-2)}`;
+            const dayData = data[dateStr] || { profit: 0, bets: 0 };
+            
+            // Determine profit class and styling
+            let profitClass = '';
+            let profitDisplay = '';
+            let betCountDisplay = '';
+            
+            if (dayData.bets > 0) {
+                if (dayData.profit > 0) {
+                    profitClass = 'profit-positive';
+                    profitDisplay = formatCurrency(Math.round(dayData.profit)).split('.')[0];
+                } else if (dayData.profit < 0) {
+                    profitClass = 'profit-negative';
+                    profitDisplay = formatCurrency(Math.round(dayData.profit)).split('.')[0];
+                } else {
+                    profitClass = 'profit-neutral';
+                    profitDisplay = formatCurrency(Math.round(dayData.profit)).split('.')[0];
+                }
+                betCountDisplay = `${dayData.bets} bet${dayData.bets !== 1 ? 's' : ''}`;
+            }
+            
+            calendarHTML += `
+                <div class="calendar-day ${profitClass}">
+                    <div class="day-number">${day}</div>
+                    ${dayData.bets > 0 ? `
+                        <div class="day-content">
+                            <div class="profit-amount">${profitDisplay}</div>
+                            <div class="bet-count">${betCountDisplay}</div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        // Add empty cells to fill the remaining grid spaces
+        const totalCells = 7 * 6; // 7 days × 6 weeks
+        const usedCells = firstDay + daysInMonth;
+        for (let i = usedCells; i < totalCells; i++) {
+            calendarHTML += '<div class="calendar-day empty"></div>';
+        }
+        
+        calendarHTML += '</div>';
         container.innerHTML = calendarHTML;
         
         // Add event listeners for navigation
         container.querySelector('.prev-month').addEventListener('click', () => {
             currentDate.setMonth(currentDate.getMonth() - 1);
             renderCalendarMonth(currentDate, data);
+            // Get current data source for URL
+            const currentSource = (dataSourceSelect && dataSourceSelect.value) || 'both';
+            updateCalendarURL(currentDate, currentSource);
         });
         
         container.querySelector('.next-month').addEventListener('click', () => {
             currentDate.setMonth(currentDate.getMonth() + 1);
             renderCalendarMonth(currentDate, data);
+            // Get current data source for URL
+            const currentSource = (dataSourceSelect && dataSourceSelect.value) || 'both';
+            updateCalendarURL(currentDate, currentSource);
         });
     }
 
     // Update calendar based on selector
+    function setActiveSource(source) {
+        // Normalize
+        const src = (source || 'both').toLowerCase();
+        // Update select fallback
+        if (dataSourceSelect && dataSourceSelect.value !== src) dataSourceSelect.value = src;
+        // Update segmented control
+        segmentButtons.forEach(btn => {
+            if (btn.getAttribute('data-source') === src) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+        return src;
+    }
+
     function updateCalendar() {
-        const source = dataSourceSelect.value;
+        // Source priority: hash param -> UI value -> default 'both'
+        const desired = window.__calendarDesiredSource;
+        const uiValue = (dataSourceSelect && dataSourceSelect.value) || 'both';
+        const source = setActiveSource(desired || uiValue || 'both');
         let data = {};
         if (source === 'arbs') {
             data = arbsData || {};
@@ -1033,7 +1239,20 @@ function createCalendar() {
     }
 
     // Listen for selector changes
-    dataSourceSelect.addEventListener('change', updateCalendar);
+    if (dataSourceSelect) dataSourceSelect.addEventListener('change', () => {
+        updateCalendarURL(currentDate, dataSourceSelect.value);
+        updateCalendar();
+    });
+
+    // Segmented control handlers
+    segmentButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const value = btn.getAttribute('data-source');
+            setActiveSource(value);
+            updateCalendarURL(currentDate, value);
+            updateCalendar();
+        });
+    });
 
     // Fetch both Arbs and EV data
     Promise.all([
@@ -1048,14 +1267,32 @@ function createCalendar() {
         } else {
             arbsData = {};
         }
-        // Process EV data (filter for EV rows only)
+        // Process EV data (entire sheet is EV now)
         if (ev.values && ev.values.length > 1) {
-            const evRows = ev.values.slice(1).filter(row => row[9] && row[9].toUpperCase().includes('EV'));
+            const evRows = ev.values.slice(1);
             evData = processDataForCalendar(evRows);
         } else {
             evData = {};
         }
+        // Default to 'both' unless a hash requested otherwise
+        if (!window.__calendarDesiredSource) {
+            setActiveSource('both');
+        }
+        
+        // Set initial URL if not already set
+        if (!window.__calendarDesiredMonth) {
+            updateCalendarURL(currentDate, window.__calendarDesiredSource || 'both');
+        }
+        
         updateCalendar();
+    });
+    
+    // Handle window resize for mobile responsiveness
+    window.addEventListener('resize', () => {
+        if (document.getElementById('calendar-content').classList.contains('active')) {
+            // Small delay to ensure layout has settled
+            setTimeout(updateCalendar, 100);
+        }
     });
 }
 
@@ -1580,10 +1817,431 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeFormatTab();
 });
 
+// --- League & Team Logo Helpers ---
+const LEAGUE_KEYS = { 'NFL': 'nfl', 'NBA': 'nba', 'NHL': 'nhl', 'MLB': 'mlb', 'NCAAF': 'ncaaf', 'CBB': 'cbb', 'CBB ': 'cbb', "CBB Men's": 'cbb', 'NPB': 'npb', 'WNBA': 'wnba', 'KBO': 'kbo', 'NCAAM': 'ncaam', 'NCAAB': 'ncaab' };
+
+// Start with NFL mapping; extend over time
+const TEAM_KEYS = {
+    nfl: {
+        'Steelers': 'pit', 'Jets': 'nyj', 'Giants': 'nyg', 'Commanders': 'was', 'Broncos': 'den', 'Titans': 'ten',
+        'Buccaneers': 'tb', 'Falcons': 'atl', 'Packers': 'gb', 'Bears': 'chi', 'Lions': 'det', 'Vikings': 'min',
+        'Patriots': 'ne', 'Dolphins': 'mia', 'Bills': 'buf', 'Cowboys': 'dal', 'Eagles': 'phi', '49ers': 'sf',
+        'Seahawks': 'sea', 'Rams': 'lar', 'Chargers': 'lac', 'Chiefs': 'kc', 'Raiders': 'lv', 'Ravens': 'bal',
+        'Bengals': 'cin', 'Browns': 'cle', 'Steelers ': 'pit', 'Saints': 'no', 'Panthers': 'car', 'Jaguars': 'jax',
+        'Texans': 'hou', 'Colts': 'ind', 'Cardinals': 'ari', 'Jets ': 'nyj'
+    },
+    mlb: {
+        'Diamondbacks': 'ARI', 'Braves': 'ATL', 'Orioles': 'BAL', 'Red Sox': 'BOS', 'Cubs': 'CHC', 'White Sox': 'CWS',
+        'Reds': 'CIN', 'Guardians': 'CLE', 'Rockies': 'COL', 'Tigers': 'DET', 'Astros': 'HOU', 'Royals': 'KC',
+        'Angels': 'ANA', 'Dodgers': 'LA', 'Marlins': 'MIA', 'Brewers': 'MIL', 'Twins': 'MIN', 'Mets': 'NYM',
+        'Yankees': 'NYY', 'Athletics': 'OAK', 'Phillies': 'PHI', 'Pirates': 'PIT', 'Padres': 'SD', 'Giants': 'SF',
+        'Mariners': 'SEA', 'Cardinals': 'STL', 'Rays': 'TB', 'Rangers': 'TEX', 'Blue Jays': 'TOR', 'Nationals': 'WAS'
+    }
+};
+
+// NFL team abbreviation map for React-NFL-Logos (uppercase official abbreviations)
+const NFL_ABBREV = {
+    'Cardinals': 'ARI', 'Falcons': 'ATL', 'Ravens': 'BAL', 'Bills': 'BUF', 'Panthers': 'CAR', 'Bears': 'CHI', 'Bengals': 'CIN', 'Browns': 'CLE',
+    'Cowboys': 'DAL', 'Broncos': 'DEN', 'Lions': 'DET', 'Packers': 'GB', 'Texans': 'HOU', 'Colts': 'IND', 'Jaguars': 'JAX', 'Chiefs': 'KC',
+    'Chargers': 'LAC', 'Rams': 'LAR', 'Raiders': 'LV', 'Dolphins': 'MIA', 'Vikings': 'MIN', 'Patriots': 'NE', 'Saints': 'NO', 'Giants': 'NYG',
+    'Jets': 'NYJ', 'Eagles': 'PHI', 'Steelers': 'PIT', 'Seahawks': 'SEA', '49ers': 'SF', 'Buccaneers': 'TB', 'Titans': 'TEN', 'Commanders': 'WAS'
+};
+
+function getNflAbbrev(teamName) {
+    const words = (teamName || '').trim().split(' ');
+    const last = words[words.length - 1];
+    return NFL_ABBREV[teamName] || NFL_ABBREV[last] || null;
+}
+
+// MLB team abbreviations for FantasyNerds image API
+const MLB_ABBREV = {
+    'Arizona Diamondbacks': 'ARI', 'Atlanta Braves': 'ATL', 'Baltimore Orioles': 'BAL', 'Boston Red Sox': 'BOS',
+    'Chicago Cubs': 'CHC', 'Chicago White Sox': 'CHW', 'Cincinnati Reds': 'CIN', 'Cleveland Guardians': 'CLE',
+    'Colorado Rockies': 'COL', 'Detroit Tigers': 'DET', 'Houston Astros': 'HOU', 'Kansas City Royals': 'KC',
+    'Los Angeles Angels': 'ANA', 'Los Angeles Dodgers': 'LA', 'Miami Marlins': 'MIA', 'Milwaukee Brewers': 'MIL',
+    'Minnesota Twins': 'MIN', 'New York Mets': 'NYM', 'New York Yankees': 'NYY', 'Oakland Athletics': 'OAK',
+    'Philadelphia Phillies': 'PHI', 'Pittsburgh Pirates': 'PIT', 'San Diego Padres': 'SD', 'San Francisco Giants': 'SF',
+    'Seattle Mariners': 'SEA', 'St Louis Cardinals': 'STL', 'Tampa Bay Rays': 'TB', 'Texas Rangers': 'TEX',
+    'Toronto Blue Jays': 'TOR', 'Washington Nationals': 'WAS',
+    // Single-word fallbacks
+    'Diamondbacks': 'ARI', 'Braves': 'ATL', 'Orioles': 'BAL', 'Red Sox': 'BOS', 'Cubs': 'CHC', 'White Sox': 'CHW',
+    'Reds': 'CIN', 'Guardians': 'CLE', 'Rockies': 'COL', 'Tigers': 'DET', 'Astros': 'HOU', 'Royals': 'KC',
+    'Angels': 'ANA', 'Dodgers': 'LA', 'Marlins': 'MIA', 'Brewers': 'MIL', 'Twins': 'MIN', 'Mets': 'NYM',
+    'Yankees': 'NYY', 'Athletics': 'OAK', 'Phillies': 'PHI', 'Pirates': 'PIT', 'Padres': 'SD', 'Giants': 'SF',
+    'Mariners': 'SEA', 'Cardinals': 'STL', 'Rays': 'TB', 'Rangers': 'TEX', 'Blue Jays': 'TOR', 'Nationals': 'WAS'
+};
+
+function getMlbAbbrev(teamName) {
+    const words = (teamName || '').trim().split(' ');
+    const last = words[words.length - 1];
+    return MLB_ABBREV[teamName] || MLB_ABBREV[last] || null;
+}
+
+function mlbPrimaryLogoUrl(abbrev) {
+    // FantasyNerds MLB logos (medium size)
+    return `https://www.fantasynerds.com/images/mlb/teams/large/${abbrev}.png`;
+}
+
+// NBA team abbreviations (FantasyNerds uses these codes)
+const NBA_ABBREV = {
+    'Atlanta Hawks': 'ATL', 'Boston Celtics': 'BOS', 'Brooklyn Nets': 'BKN', 'Charlotte Hornets': 'CHA',
+    'Chicago Bulls': 'CHI', 'Cleveland Cavaliers': 'CLE', 'Dallas Mavericks': 'DAL', 'Denver Nuggets': 'DEN',
+    'Detroit Pistons': 'DET', 'Golden State Warriors': 'GS', 'Houston Rockets': 'HOU', 'Indiana Pacers': 'IND',
+    'Los Angeles Clippers': 'LAC', 'Los Angeles Lakers': 'LAL', 'Memphis Grizzlies': 'MEM', 'Miami Heat': 'MIA',
+    'Milwaukee Bucks': 'MIL', 'Minnesota Timberwolves': 'MIN', 'New Orleans Pelicans': 'NO', 'New York Knicks': 'NY',
+    'Oklahoma City Thunder': 'OKC', 'Orlando Magic': 'ORL', 'Philadelphia 76ers': 'PHI', 'Phoenix Suns': 'PHO',
+    'Portland Trail Blazers': 'POR', 'Sacramento Kings': 'SAC', 'San Antonio Spurs': 'SA', 'Toronto Raptors': 'TOR',
+    'Utah Jazz': 'UTA', 'Washington Wizards': 'WAS',
+    // Single-word fallbacks
+    'Hawks': 'ATL', 'Celtics': 'BOS', 'Nets': 'BKN', 'Hornets': 'CHA', 'Bulls': 'CHI', 'Cavaliers': 'CLE',
+    'Mavericks': 'DAL', 'Nuggets': 'DEN', 'Pistons': 'DET', 'Warriors': 'GS', 'Rockets': 'HOU', 'Pacers': 'IND',
+    'Clippers': 'LAC', 'Lakers': 'LAL', 'Grizzlies': 'MEM', 'Heat': 'MIA', 'Bucks': 'MIL', 'Timberwolves': 'MIN',
+    'Pelicans': 'NO', 'Knicks': 'NY', 'Thunder': 'OKC', 'Magic': 'ORL', '76ers': 'PHI', 'Suns': 'PHO',
+    'Trail Blazers': 'POR', 'Blazers': 'POR', 'Kings': 'SAC', 'Spurs': 'SA', 'Raptors': 'TOR', 'Jazz': 'UTA',
+    'Wizards': 'WAS'
+};
+
+// WNBA team abbreviations (ESPN format)
+const WNBA_ABBREV = {
+    'Atlanta Dream': 'atl', 'Chicago Sky': 'chi', 'Connecticut Sun': 'conn', 'Dallas Wings': 'dal',
+    'Golden State Valkyries': 'gs', 'Indiana Fever': 'ind', 'Las Vegas Aces': 'lv', 'Los Angeles Sparks': 'la', 
+    'Minnesota Lynx': 'min', 'New York Liberty': 'ny', 'Phoenix Mercury': 'phx', 'Seattle Storm': 'sea', 
+    'Washington Mystics': 'was',
+    // Single-word fallbacks
+    'Dream': 'atl', 'Sky': 'chi', 'Sun': 'conn', 'Wings': 'dal', 'Valkyries': 'gs', 'Fever': 'ind', 'Aces': 'lv',
+    'Sparks': 'la', 'Lynx': 'min', 'Liberty': 'ny', 'Mercury': 'phx', 'Storm': 'sea', 'Mystics': 'was'
+};
+
+function getNbaAbbrev(teamName) {
+    const words = (teamName || '').trim().split(' ');
+    const last = words[words.length - 1];
+    return NBA_ABBREV[teamName] || NBA_ABBREV[last] || null;
+}
+
+function nbaPrimaryLogoUrl(abbrev) {
+    return `https://www.fantasynerds.com/images/nba/teams_large/${abbrev}.png`;
+}
+
+function getWnbaAbbrev(teamName) {
+    const words = (teamName || '').trim().split(' ');
+    const last = words[words.length - 1];
+    return WNBA_ABBREV[teamName] || WNBA_ABBREV[last] || null;
+}
+
+function wnbaPrimaryLogoUrl(abbrev) {
+    return `https://a.espncdn.com/combiner/i?img=/i/teamlogos/wnba/500/${abbrev}.png`;
+}
+
+// NCAAF team mapping to ESPN IDs (based on GitHub gist data)
+const NCAAF_TEAM_IDS = {
+    // Major Power 5 teams
+    'Alabama': '333', 'Auburn': '2', 'LSU': '99', 'Georgia': '61', 'Florida': '57', 'Tennessee': '2633',
+    'Texas A&M': '245', 'Ole Miss': '145', 'Mississippi State': '344', 'Arkansas': '8', 'Missouri': '142',
+    'Kentucky': '96', 'South Carolina': '2579', 'Vanderbilt': '238',
+    
+    'Ohio State': '194', 'Michigan': '130', 'Penn State': '213', 'Michigan State': '127', 'Iowa': '2294',
+    'Wisconsin': '275', 'Nebraska': '158', 'Minnesota': '135', 'Illinois': '356', 'Northwestern': '77',
+    'Purdue': '2509', 'Indiana': '84', 'Maryland': '120', 'Rutgers': '164',
+    
+    'Oklahoma': '201', 'Texas': '251', 'Oklahoma State': '197', 'TCU': '2628', 'Baylor': '239',
+    'Texas Tech': '2641', 'Kansas State': '2306', 'Iowa State': '66', 'Kansas': '2305', 'West Virginia': '277',
+    'BYU': '252', 'Cincinnati': '2132', 'Houston': '248', 'UCF': '2116',
+    
+    'USC': '30', 'UCLA': '26', 'Oregon': '2483', 'Washington': '264', 'Utah': '254',
+    'Stanford': '24', 'California': '25', 'Arizona State': '9', 'Arizona': '12',
+    'Colorado': '38', 'Oregon State': '204', 'Washington State': '265',
+    
+    'Clemson': '228', 'Florida State': '52', 'Miami': '2390', 'North Carolina': '153',
+    'Virginia Tech': '259', 'Pittsburgh': '221', 'Louisville': '97', 'NC State': '152',
+    'Wake Forest': '154', 'Duke': '150', 'Virginia': '258', 'Georgia Tech': '59',
+    'Boston College': '103', 'Syracuse': '183',
+    
+    // Other notable teams
+    'Notre Dame': '87', 'Army': '349', 'Navy': '2426', 'Air Force': '2005',
+    'Boise State': '68', 'San Diego State': '21', 'Fresno State': '278',
+    'Utah State': '328', 'Wyoming': '2751', 'Colorado State': '36',
+    'Memphis': '235', 'SMU': '2567', 'Tulane': '2655', 'Tulsa': '202',
+    'Appalachian State': '2026', 'Coastal Carolina': '324', 'Georgia Southern': '290',
+    'Marshall': '276', 'Old Dominion': '295', 'James Madison': '256',
+    'Liberty': '2335', 'Western Kentucky': '98', 'Middle Tennessee': '2393',
+    'Florida Atlantic': '2226', 'Florida International': '2229', 'Charlotte': '2429',
+    'UAB': '5', 'UTSA': '2636', 'North Texas': '249', 'Rice': '242',
+    'Troy': '2653', 'South Alabama': '6', 'Georgia State': '2247',
+    'Louisiana': '309', 'Louisiana-Monroe': '2433', 'Arkansas State': '2032',
+    'Texas State': '326', 'Southern Miss': '2572'
+};
+
+function getNcaafTeamId(teamName) {
+    // Try exact match first, then last word heuristic
+    const words = (teamName || '').trim().split(' ');
+    const last = words[words.length - 1];
+    return NCAAF_TEAM_IDS[teamName] || NCAAF_TEAM_IDS[last] || null;
+}
+
+function ncaafPrimaryLogoUrl(teamId) {
+    // ESPN CDN format from the GitHub gist (use HTTPS to avoid mixed content)
+    return `https://a.espncdn.com/i/teamlogos/ncaa/500/${teamId}.png`;
+}
+
+function nflPrimaryLogoUrl(abbrev) {
+    // FantasyNerds PNG (fast, no key)
+    return `https://www.fantasynerds.com/images/nfl/team_logos/${abbrev}.png`;
+}
+
+// --- Dynamic NCAAF resolver using GitHub gist CSV (improves coverage beyond hardcoded map) ---
+const NCAAF_GIST_CSV_URL = 'https://gist.githubusercontent.com/saiemgilani/c6596f0e1c8b148daabc2b7f1e6f6add/raw';
+let ncaafIndex = null; // { bySchool, byAbbrev, byAlt, byMascot }
+// Explicit overrides for tricky names
+const NCAAF_OVERRIDES = {
+    'st thomas': '2900',
+    'saint thomas': '2900'
+};
+
+function normalizeSchoolName(value) {
+    return (value || '')
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/\s+university$/i, '')
+        .replace(/^university\s+of\s+/i, '')
+        .replace(/\s*\(.*?\)\s*/g, '') // remove parentheticals e.g., Miami (FL)
+        .replace(/\./g, '')
+        .replace(/\s+/g, ' ');
+}
+
+async function loadNcaafIndex() {
+    if (ncaafIndex) return ncaafIndex;
+    try {
+        const resp = await fetch(NCAAF_GIST_CSV_URL, { cache: 'no-store' });
+        if (!resp.ok) throw new Error('Failed to fetch NCAAF gist CSV');
+        const text = await resp.text();
+        const lines = text.split(/\r?\n/);
+        // Header line example: id,school,mascot,abbreviation,alt_name1,alt_name2,alt_name3,conference,division,color,alt_color,logo,logos[1]
+        const bySchool = {}; // normalized school -> id
+        const byAbbrev = {}; // abbreviation -> id
+        const byAlt = {};    // normalized alt -> id
+        const byMascot = {}; // normalized mascot -> id
+        for (let i = 1; i < lines.length; i++) {
+            let row = lines[i];
+            if (!row || !row.includes(',')) continue;
+            // Strip markdown table pipes if present
+            row = row.replace(/^\s*\|\s*/, '').replace(/\s*\|\s*$/, '');
+            // Split on commas, then trim
+            const cols = row.split(',').map(s => s.trim());
+            if (cols.length < 12) continue;
+            let id = cols[0];
+            const school = cols[1];
+            const mascot = cols[2];
+            const abbreviation = cols[3];
+            const alt1 = cols[4];
+            const alt2 = cols[5];
+            const alt3 = cols[6];
+            const logoUrl = cols[11] || '';
+            // Prefer extracting numeric ID from logo URL for correctness
+            const m = logoUrl.match(/\/ncaa\/500\/(\d+)\.png/i);
+            if (m) id = m[1];
+            const normSchool = normalizeSchoolName(school);
+            if (id && normSchool) bySchool[normSchool] = id;
+            if (abbreviation) byAbbrev[abbreviation.trim().toUpperCase()] = id;
+            if (alt1) byAlt[normalizeSchoolName(alt1)] = id;
+            if (alt2) byAlt[normalizeSchoolName(alt2)] = id;
+            if (alt3) byAlt[normalizeSchoolName(alt3)] = id;
+            if (mascot) byMascot[normalizeSchoolName(mascot)] = id;
+        }
+        ncaafIndex = { bySchool, byAbbrev, byAlt, byMascot };
+        return ncaafIndex;
+    } catch (e) {
+        // If fetch fails, leave index null; we'll fall back to hardcoded map
+        return null;
+    }
+}
+
+async function getNcaafTeamIdAsync(teamName) {
+    // Try dynamic index first, then fallback to hardcoded IDs
+    const name = (teamName || '').toString().trim();
+    const norm = normalizeSchoolName(name);
+    if (NCAAF_OVERRIDES[norm]) return NCAAF_OVERRIDES[norm];
+    // Handle common suffixes
+    const lastWord = norm.split(' ').pop();
+    const idx = await loadNcaafIndex();
+    if (idx) {
+        // Exact by school
+        if (idx.bySchool[norm]) return idx.bySchool[norm];
+        // By alt name
+        if (idx.byAlt[norm]) return idx.byAlt[norm];
+        // Heuristic: last word (e.g., Tigers, Gators)
+        if (idx.byMascot[lastWord]) return idx.byMascot[lastWord];
+        // If teamName provided as abbreviation directly
+        const upper = name.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (idx.byAbbrev[upper]) return idx.byAbbrev[upper];
+        // Try removing trailing state words ("state")
+        if (norm.endsWith(' state')) {
+            const base = norm.replace(/\s+state$/, '');
+            if (idx.bySchool[base]) return idx.bySchool[base];
+        }
+    }
+    // Fallback to partial hardcoded map
+    const fallback = getNcaafTeamId(name) || getNcaafTeamId(lastWord);
+    return fallback || null;
+}
+
+function nflSecondaryLogoUrl(abbrev) {
+    // React-NFL-Logos SVGs via jsDelivr CDN as fallback
+    return `https://cdn.jsdelivr.net/npm/react-nfl-logos@latest/src/svg/${abbrev}.svg`;
+}
+
+function getLeagueKey(leagueCell) {
+    const raw = (leagueCell || '').toString().trim().toUpperCase();
+    // Keep canonical like NFL, NBA, etc. Return lowercase key for paths
+    const key = LEAGUE_KEYS[raw] ? LEAGUE_KEYS[raw] : raw.toLowerCase();
+    return key;
+}
+
+function splitTeams(eventCell) {
+    const parts = (eventCell || '').split(' vs ').map(s => s.trim());
+    if (parts.length === 2) return parts;
+    // Handle 'Team at Team' format as fallback
+    const atParts = (eventCell || '').split(' at ').map(s => s.trim());
+    if (atParts.length === 2) return atParts;
+    return [parts[0] || '', ''];
+}
+
+function getTeamKey(leagueKey, teamName) {
+    const map = TEAM_KEYS[leagueKey] || {};
+    // Try exact, then last word heurstic (to handle city prefixes)
+    if (map[teamName]) return map[teamName];
+    const words = (teamName || '').split(' ');
+    const last = words[words.length - 1];
+    if (map[last]) return map[last];
+    return null;
+}
+
+function leagueLogoUrl(leagueKey) {
+    return `assets/leagues/${leagueKey}.png`;
+}
+
+function teamLogoUrl(leagueKey, teamKey) {
+    return `assets/teams/${leagueKey}/${teamKey}.png`;
+}
+
+// Zero-maintenance logo lookup via Wikipedia thumbnails (focus NFL)
+const LOGO_CACHE_KEY = 'logoCacheV1';
+let logoCache = {};
+try {
+    logoCache = JSON.parse(localStorage.getItem(LOGO_CACHE_KEY) || '{}');
+} catch (e) { logoCache = {}; }
+
+function saveLogoCache() {
+    try { localStorage.setItem(LOGO_CACHE_KEY, JSON.stringify(logoCache)); } catch (e) {}
+}
+
+async function fetchWikipediaThumb(query) {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=pageimages&piprop=thumbnail&pithumbsize=64&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=1`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data || !data.query || !data.query.pages) return null;
+    const pages = Object.values(data.query.pages);
+    if (pages.length && pages[0].thumbnail && pages[0].thumbnail.source) {
+        return pages[0].thumbnail.source;
+    }
+    return null;
+}
+
+async function resolveNflTeamLogo(teamName) {
+    const key = `nfl:${teamName}`;
+    if (logoCache[key]) return logoCache[key];
+    // Try a few query patterns
+    const queries = [
+        `${teamName} NFL logo`,
+        `${teamName} (NFL) logo`,
+        `${teamName} football logo`
+    ];
+    for (const q of queries) {
+        try {
+            const url = await fetchWikipediaThumb(q);
+            if (url) { logoCache[key] = url; saveLogoCache(); return url; }
+        } catch (e) { /* ignore and try next */ }
+    }
+    // No result; remember miss to avoid repeated fetches
+    logoCache[key] = null; saveLogoCache();
+    return null;
+}
+
+async function resolveNflLeagueLogo() {
+    const key = 'league:nfl';
+    if (logoCache[key]) return logoCache[key];
+    // Provided NFL shield SVG on Wikimedia
+    const url = 'https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg';
+    logoCache[key] = url; saveLogoCache();
+    return url;
+}
+
+function hydrateLogosInContainer(container) {
+    // League logos - no hydration needed when src is already set inline
+    // NFL Team logos (FantasyNerds only; no fallbacks)
+    container.querySelectorAll('img.logo.team[data-league="NFL"][data-team]').forEach(async img => {
+        if (img.getAttribute('src')) return;
+        const team = img.getAttribute('data-team');
+        const abbr = getNflAbbrev(team);
+        if (abbr) {
+            img.onerror = function() { this.style.display = 'none'; };
+            img.setAttribute('src', nflPrimaryLogoUrl(abbr));
+        } else {
+            img.style.display = 'none';
+        }
+    });
+
+    // MLB team logos via FantasyNerds
+    container.querySelectorAll('img.logo.team[data-league="MLB"][data-team]').forEach(async img => {
+        if (img.getAttribute('src')) return;
+        const team = img.getAttribute('data-team');
+        const abbr = getMlbAbbrev(team);
+        if (abbr) {
+            img.setAttribute('src', mlbPrimaryLogoUrl(abbr));
+        }
+    });
+
+    // NBA team logos via FantasyNerds
+    container.querySelectorAll('img.logo.team[data-league="NBA"][data-team]').forEach(async img => {
+        if (img.getAttribute('src')) return;
+        const team = img.getAttribute('data-team');
+        const abbr = getNbaAbbrev(team);
+        if (abbr) {
+            img.setAttribute('src', nbaPrimaryLogoUrl(abbr));
+        }
+    });
+
+    // NCAAF team logos via ESPN CDN (async index-backed)
+    container.querySelectorAll('img.logo.team[data-league="NCAAF"][data-team]').forEach(async img => {
+        if (img.getAttribute('src')) return;
+        const team = img.getAttribute('data-team');
+        const teamId = await getNcaafTeamIdAsync(team);
+        if (teamId) {
+            img.onerror = function() { this.style.display = 'none'; };
+            img.setAttribute('src', ncaafPrimaryLogoUrl(teamId));
+        } else {
+            img.style.display = 'none';
+        }
+    });
+
+    // WNBA team logos via ESPN CDN
+    container.querySelectorAll('img.logo.team[data-league="WNBA"][data-team]').forEach(img => {
+        if (img.getAttribute('src')) return;
+        const team = img.getAttribute('data-team');
+        const abbr = getWnbaAbbrev(team);
+        if (abbr) {
+            img.onerror = function() { this.style.display = 'none'; };
+            img.setAttribute('src', wnbaPrimaryLogoUrl(abbr));
+        } else {
+            img.style.display = 'none';
+        }
+    });
+}
+
 function renderEVTab(values) {
     // values[0] is header
     const headers = values[0];
-    let rows = values.slice(1).filter(row => row[9] && row[9].toUpperCase().includes('EV'));
+    let rows = values.slice(1);
 
     // Sort by date descending (most recent first)
     rows.sort((a, b) => {
@@ -1594,11 +2252,10 @@ function renderEVTab(values) {
 
     // Build summary
     const totalBets = rows.length;
-    const totalWagered = rows.reduce((sum, row) => sum + parseFloat(row[4].replace(/[$,]/g, '')) || 0, 0);
-    const totalProfit = rows.reduce((sum, row) => sum + parseFloat(row[6].replace(/[$,]/g, '')) || 0, 0);
-    const avgRoi = rows.length ? (rows.reduce((sum, row) => sum + parseFloat(row[7].replace('%', '')) || 0, 0) / rows.length) : 0;
-    const wonBets = rows.filter(row => parseFloat(row[6].replace(/[$,]/g, '')) > 0).length;
-    const lostBets = rows.filter(row => parseFloat(row[6].replace(/[$,]/g, '')) < 0).length;
+    const totalWagered = rows.reduce((sum, row) => sum + (parseFloat((row[5] || '').toString().replace(/[$,]/g, '')) || 0), 0);
+    const totalProfit = rows.reduce((sum, row) => sum + (parseFloat((row[8] || '').toString().replace(/[$,]/g, '')) || 0), 0);
+    const wonBets = rows.filter(row => parseFloat((row[8] || '').toString().replace(/[$,]/g, '')) > 0).length;
+    const lostBets = rows.filter(row => parseFloat((row[8] || '').toString().replace(/[$,]/g, '')) < 0).length;
     const winRate = totalBets ? ((wonBets / totalBets) * 100).toFixed(2) : 0;
     const roi = totalWagered ? ((totalProfit / totalWagered) * 100).toFixed(2) : 0;
 
@@ -1611,14 +2268,32 @@ function renderEVTab(values) {
                     <div class="stat-card"><div class="stat-label">Total Bets</div><div class="stat-value">${totalBets}</div></div>
                     <div class="stat-card"><div class="stat-label">Record</div><div class="stat-value">${wonBets}-${lostBets}</div></div>
                     <div class="stat-card"><div class="stat-label">Total Wagered</div><div class="stat-value">${formatCurrency(totalWagered)}</div></div>
-                    <div class="stat-card"><div class="stat-label">Total Profit</div><div class="stat-value">${formatCurrency(totalProfit)} <span class="profit-percentage">(ROI: ${roi}%)</span></div></div>
-                    <div class="stat-card"><div class="stat-label">Average ROI</div><div class="stat-value">${avgRoi.toFixed(2)}%</div></div>
+                    <div class="stat-card"><div class="stat-label">Total Profit</div><div class="stat-value">${formatCurrency(totalProfit)}</div></div>
+                    <div class="stat-card"><div class="stat-label">ROI</div><div class="stat-value">${roi}%</div></div>
                     <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value">${winRate}%</div></div>
                 </div>
             </div>
         </div>
     `;
     document.getElementById('ev-summary').innerHTML = summaryHTML;
+
+    // Prepare helpers for profit color scaling (red for losses, green for wins)
+    const maxAbsProfit = rows.reduce((max, row) => {
+        const p = Math.abs(parseFloat((row[8] || '0').toString().replace(/[$,]/g, '')) || 0);
+        return Math.max(max, p);
+    }, 0) || 1;
+
+    function getProfitColor(amount) {
+        const val = parseFloat((amount || '0').toString().replace(/[$,]/g, '')) || 0;
+        const ratio = Math.min(1, Math.abs(val) / maxAbsProfit);
+        // Interpolate lightness/saturation with ratio for visual intensity
+        const saturation = 40 + Math.round(40 * ratio); // 40% -> 80%
+        const lightness = 60 - Math.round(25 * ratio);  // 60% -> 35%
+        // Hue: red 0 for negatives, green 120 for positives, neutral gray for 0
+        if (val > 0) return `hsl(120, ${saturation}%, ${lightness}%)`;
+        if (val < 0) return `hsl(0, ${saturation}%, ${lightness}%)`;
+        return '#b3b3b3';
+    }
 
     // Table HTML with sortable headers and Bets-table style
     const tableHTML = `
@@ -1627,30 +2302,95 @@ function renderEVTab(values) {
                 <thead>
                     <tr>
                         <th data-sort="date" class="bet-th">Date</th>
+                        <th data-sort="league" class="bet-th">Sport/League</th>
                         <th class="bet-th">Event/Teams</th>
                         <th class="bet-th">Bet Title</th>
                         <th data-sort="sportsbook" class="bet-th">Sportsbook</th>
                         <th data-sort="wager" class="bet-th">Wager</th>
                         <th data-sort="return" class="bet-th">Return</th>
+                        <th data-sort="odds" class="bet-th">Odds</th>
                         <th data-sort="profit" class="bet-th">Profit</th>
-                        <th data-sort="roi" class="bet-th">Profit %</th>
-                        <th class="bet-th">Notes</th>
                     </tr>
                 </thead>
                 <tbody id="ev-data">
                     ${rows.map(row => {
-                        const profit = parseFloat(row[6].replace(/[$,]/g, ''));
+                        const profit = parseFloat((row[8] || '').toString().replace(/[$,]/g, ''));
                         const profitClass = profit > 0 ? 'positive' : profit < 0 ? 'negative' : '';
+                        // Build cells with logos
+                        const leagueKey = getLeagueKey(row[1]);
+                        const [teamA, teamB] = splitTeams(row[2]);
+                        const teamAKey = getTeamKey(leagueKey, teamA);
+                        const teamBKey = getTeamKey(leagueKey, teamB);
+
+                        const leagueCell = (row[1] === 'NFL')
+                            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg" alt="NFL" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'MLB')
+                            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Major_League_Baseball_logo.svg/640px-Major_League_Baseball_logo.svg.png" alt="MLB" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'NBA')
+                            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/thumb/0/03/National_Basketball_Association_logo.svg/800px-National_Basketball_Association_logo.svg.png" alt="NBA" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'NCAAF')
+                            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/c/cf/NCAA_football_icon_logo.svg" alt="NCAAF" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'NPB')
+                            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/NPB_logo.svg/1200px-NPB_logo.svg.png" alt="NPB" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'WNBA')
+                            ? `<span class="league-cell"><img class="logo league" src="https://content.sportslogos.net/logos/16/1152/full/6613__wnba-alternate-2020.png" alt="WNBA" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'KBO')
+                            ? `<span class="league-cell"><img class="logo league" src="https://r2.thesportsdb.com/images/media/league/badge/qfr1hx1589707979.png" alt="KBO" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'NCAAM')
+                            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/basketball-men.svg" alt="NCAAM" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'NCAAB')
+                            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/baseball.svg" alt="NCAAB" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : row[1];
+
+                        const hasTeams = teamA && teamB;
+                        const teamsCell = !hasTeams ? `<span>${row[2] || ''}</span>`
+                            : (row[1] === 'NFL')
+                            ? `
+                            <div class="teams-cell">
+                                <img class="logo team" data-league="NFL" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                                <span>${row[2]}</span>
+                                <img class="logo team" data-league="NFL" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                            </div>`
+                            : (row[1] === 'MLB')
+                            ? `
+                            <div class="teams-cell">
+                                <img class="logo team" data-league="MLB" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                                <span>${row[2]}</span>
+                                <img class="logo team" data-league="MLB" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                            </div>`
+                            : (row[1] === 'NBA')
+                            ? `
+                            <div class="teams-cell">
+                                <img class="logo team" data-league="NBA" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                                <span>${row[2]}</span>
+                                <img class="logo team" data-league="NBA" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                            </div>`
+                            : (row[1] === 'NCAAF')
+                            ? `
+                            <div class="teams-cell">
+                                <img class="logo team" data-league="NCAAF" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                                <span>${row[2]}</span>
+                                <img class="logo team" data-league="NCAAF" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                            </div>`
+                            : (row[1] === 'WNBA')
+                            ? `
+                            <div class="teams-cell">
+                                <img class="logo team" data-league="WNBA" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                                <span>${row[2]}</span>
+                                <img class="logo team" data-league="WNBA" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                            </div>`
+                            : `<span>${row[2]}</span>`;
+
                         return `<tr>
                             <td>${row[0]}</td>
-                            <td>${row[1]}</td>
-                            <td>${row[2]}</td>
+                            <td>${leagueCell}</td>
+                            <td>${teamsCell}</td>
                             <td>${row[3]}</td>
                             <td>${row[4]}</td>
                             <td>${row[5]}</td>
-                            <td class="profit ${profitClass}">${row[6]}</td>
-                            <td>${row[7]}</td>
-                            <td>${row[9]}</td>
+                            <td>${row[6]}</td>
+                            <td>${row[7] || ''}</td>
+                            <td class="profit ${profitClass}" style="color: ${getProfitColor(row[8])}">${row[8]}</td>
                         </tr>`;
                     }).join('')}
                 </tbody>
@@ -1658,6 +2398,9 @@ function renderEVTab(values) {
         </div>
     `;
     document.getElementById('ev-tableContainer').innerHTML = tableHTML;
+    // Hydrate external logos (NFL via Wikipedia) asynchronously
+    const tableContainerEl = document.getElementById('ev-tableContainer');
+    if (tableContainerEl) hydrateLogosInContainer(tableContainerEl);
 
     // Add sorting functionality for EV table
     const evTbody = document.getElementById('ev-data');
@@ -1665,7 +2408,8 @@ function renderEVTab(values) {
     let evSortState = { key: 'date', asc: false };
 
     function getEvColumnIndex(sortKey) {
-        const map = { date: 0, sportsbook: 3, wager: 4, return: 5, profit: 6, roi: 7 };
+        // Indices are table column positions, not sheet indices
+        const map = { date: 0, league: 1, sportsbook: 4, wager: 5, return: 6, odds: 7, profit: 8 };
         return map[sortKey];
     }
 
@@ -1676,7 +2420,7 @@ function renderEVTab(values) {
             const bValue = b.cells[getEvColumnIndex(sortKey)].textContent.replace(/[$,%]/g, '');
             if (sortKey === 'date') {
                 return isAscending ? parseDate(aValue) - parseDate(bValue) : parseDate(bValue) - parseDate(aValue);
-            } else if (sortKey === 'sportsbook') {
+            } else if (sortKey === 'sportsbook' || sortKey === 'league') {
                 return isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
             } else {
                 const numA = parseFloat(aValue) || 0;
