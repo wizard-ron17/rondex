@@ -212,6 +212,21 @@
                         </div>
                     </div>
                     
+                    <div class="filter-section" id="filterSection" style="display: none;">
+                        <h3>Filter by Event Date</h3>
+                        <div class="filter-controls">
+                            <label for="eventDateFilter">Select Event Date:</label>
+                            <select id="eventDateFilter">
+                                <option value="">All Dates</option>
+                            </select>
+                            <button id="applyFilterBtn">Apply Filter</button>
+                            <button id="clearFilterBtn">Clear Filter</button>
+                        </div>
+                        <div class="filter-info">
+                            <p id="filterInfo">No filter applied</p>
+                        </div>
+                    </div>
+                    
                     <div class="output-section">
                         <h2>Formatted Output</h2>
                         <textarea id="outputData" readonly></textarea>
