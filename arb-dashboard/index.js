@@ -1452,28 +1452,40 @@ function initializeFormatTab() {
     const copyBtn = document.getElementById('copyBtn');
     const summaryDiv = document.getElementById('summary');
     const tableContainer = document.getElementById('tableContainer');
+    const filterSection = document.getElementById('filterSection');
+    const eventDateFilter = document.getElementById('eventDateFilter');
+    const applyFilterBtn = document.getElementById('applyFilterBtn');
+    const clearFilterBtn = document.getElementById('clearFilterBtn');
+    const filterInfo = document.getElementById('filterInfo');
     
     if (!inputData || !outputData || !processBtn || !copyBtn) {
         console.error('Format tab elements not found');
         return;
     }
 
+    // Store all processed bets and current filter state
+    let allBets = [];
+    let currentFilter = '';
+    let eventDates = [];
+
     processBtn.addEventListener('click', processData);
     copyBtn.addEventListener('click', copyToClipboard);
+    applyFilterBtn.addEventListener('click', applyFilter);
+    clearFilterBtn.addEventListener('click', clearFilter);
     
+    // Helper to parse date+time like '04/28/2025, 16:12 EDT'
+    function parseDateTime(str) {
+        // Remove timezone if present
+        const cleaned = str.replace(/,?\s*[A-Z]{2,4}$/, '');
+        // e.g. '04/28/2025, 16:12'
+        return new Date(cleaned);
+    }
+
     function processData() {
         const input = inputData.value.trim();
         if (!input) {
             alert('Please paste some data first!');
             return;
-        }
-        
-        // Helper to parse date+time like '04/28/2025, 16:12 EDT'
-        function parseDateTime(str) {
-            // Remove timezone if present
-            const cleaned = str.replace(/,?\s*[A-Z]{2,4}$/, '');
-            // e.g. '04/28/2025, 16:12'
-            return new Date(cleaned);
         }
 
         const lines = input.split('\n');
@@ -1481,6 +1493,10 @@ function initializeFormatTab() {
         const bets = [];
         
         console.log("Total lines to process:", lines.length);
+        
+        // First pass: Group parlay legs by parlay ID
+        const parlayGroups = {};
+        const individualBets = [];
         
         lines.forEach((line, index) => {
             if (!line.trim()) return;
@@ -1491,204 +1507,386 @@ function initializeFormatTab() {
                 return;
             }
             
-            try {
-                // Format date as MM/DD/YY instead of MM/DD/YYYY
-                const fullDateStr = parts[0].split(',')[0];
-                const dateComponents = fullDateStr.split('/');
-                const dateStr = `${dateComponents[0]}/${dateComponents[1]}/${dateComponents[2].substring(2)}`;
-                
-                const bookmaker = parts[1];
-                
-                // Remove city names from team names
-                const fullTeams = parts[4];
-                const teamsArray = fullTeams.split(' vs ');
-                
-                // Filter out city names, keeping only the team name
-                const simplifyTeamName = (team) => {
-                    // First approach: Check against known team names
-                    const teamNames = [
-                        'Yankees', 'Orioles', 'Cubs', 'Pirates', 'Braves', 'Rockies', 
-                        'Twins', 'Guardians', 'Bucks', 'Pacers', 'Angels', 'Mariners',
-                        'Pistons', 'Knicks', 'Heat', 'Celtics', 'Lakers', 'Warriors',
-                        'Timberwolves', 'Clippers', 'Nuggets', 'Kings', 'Suns', 'Blazers', 
-                        'Spurs', 'Thunder', 'Mavericks', 'Grizzlies', 'Pelicans', 'Nets', 
-                        'Hornets', 'Bulls', 'Cavaliers', '76ers', 'Magic', 'Wizards', 'Hawks',
-                        'Raptors', 'Rockets', 'Royals', 'Nationals', 'Blue Jays', 'Rays', 
-                        'Red Sox', 'Phillies', 'Mets', 'Marlins', 'Brewers', 'Reds', 
-                        'Cardinals', 'White Sox', 'Tigers', 'Guardians', 'Astros', 'Dodgers', 
-                        'Padres', 'Giants', 'Mariners', 'Rangers', 'Athletics', 'Diamondbacks',
-                        'Oilers', 'Flames', 'Canucks', 'Sharks', 'Knights', 'Kraken', 'Ducks',
-                        'Kings', 'Maple Leafs', 'Senators', 'Canadiens', 'Bruins', 'Lightning',
-                        'Panthers', 'Red Wings', 'Sabres', 'Jets', 'Wild', 'Blues', 'Predators', 
-                        'Blackhawks', 'Avalanche', 'Stars', 'Coyotes', 'Hurricanes', 'Capitals',
-                        'Islanders', 'Flyers', 'Devils', 'Rangers', 'Blue Jackets', 'Penguins',
-                        'Raiders', 'Chiefs', 'Broncos', 'Chargers', 'Seahawks', '49ers', 'Rams',
-                        'Cardinals', 'Vikings', 'Packers', 'Bears', 'Lions', 'Saints', 'Buccaneers',
-                        'Falcons', 'Panthers', 'Cowboys', 'Eagles', 'Commanders', 'Giants', 'Bills',
-                        'Dolphins', 'Patriots', 'Jets', 'Bengals', 'Ravens', 'Browns', 'Steelers',
-                        'Colts', 'Texans', 'Titans', 'Jaguars'
-                    ];
-                    
-                    // Try known team names first
-                    for (const name of teamNames) {
-                        if (team.includes(name)) {
-                            return name;
-                        }
-                    }
-                    
-                    // Second approach: Handle the general case by splitting by spaces
-                    // Most city names are at the beginning (e.g., "New York Knicks", "Los Angeles Lakers")
-                    // Usually the last word is the team name
-                    const words = team.split(' ');
-                    
-                    // Some special cases - cities with two words
-                    const twoWordCities = ['New York', 'Los Angeles', 'San Francisco', 'San Diego', 'San Antonio', 
-                                         'New Orleans', 'New Jersey', 'Las Vegas', 'St. Louis', 'Kansas City', 
-                                         'Oklahoma City', 'Tampa Bay'];
-                    
-                    for (const city of twoWordCities) {
-                        if (team.startsWith(city)) {
-                            // Return everything after the city name
-                            return team.substring(city.length).trim();
-                        }
-                    }
-                    
-                    // If all else fails, just return the last word (usually the team name)
-                    if (words.length > 1) {
-                        return words[words.length - 1];
-                    }
-                    
-                    // If nothing else works, return the original
-                    return team;
-                };
-                
-                const team1 = simplifyTeamName(teamsArray[0]);
-                const team2 = simplifyTeamName(teamsArray[1]);
-                const teams = `${team1} vs ${team2}`;
-                
-                // Get bet type and details
-                const betType = parts[7];
-                const betDetailsFull = parts[8];
-                
-                console.log(`Line ${index + 1}:`, {
-                    betType,
-                    betDetailsFull
-                });
-                
-                // Build the final bet description
-                let betDescription;
-                
-                // First remove any odds at the beginning of bet details
-                // The regex will match positive or negative numbers with optional decimals at the start
-                // of the string, followed by at least one space
-                const cleanBetDetails = betDetailsFull.replace(/^[-+]?\d+(\.\d+)?\s+/, '');
-                
-                console.log(`Line ${index + 1} cleaned:`, cleanBetDetails);
-                
-                // Now add the stat type to the end based on the bet type
-                if (betType === "Player Blocks") {
-                    betDescription = cleanBetDetails + " Blocks";
-                } 
-                else if (betType === "Player Points") {
-                    betDescription = cleanBetDetails + " Points";
+            const parlayId = parts[24] ? parts[24].trim() : ''; // Column 25 (0-indexed) is the parlay ID
+            const betType = parts[15]; // Column 16 (0-indexed) is the bet type
+            
+            
+            if (betType === 'parlay' && parlayId) {
+                // This is a parlay leg
+                if (!parlayGroups[parlayId]) {
+                    parlayGroups[parlayId] = [];
                 }
-                else if (betType === "Player Points + Rebounds + Assists") {
-                    betDescription = cleanBetDetails + " PRAs";
-                }
-                else if (betType === "Player Strikeouts") {
-                    betDescription = cleanBetDetails + " Strikeouts";
-                }
-                else if (betType === "Player Earned Runs") {
-                    betDescription = cleanBetDetails + " Earned Runs";
-                }
-                else if (betType === "Player Runs") {
-                    betDescription = cleanBetDetails + " Runs";
-                }
-                else if (betType === "Player Steals + Blocks") {
-                    betDescription = cleanBetDetails + " Steals + Blocks";
-                }
-                else if (betType === "Player Singles") {
-                    betDescription = cleanBetDetails + " Singles";
-                }
-                else if (betType === "Player Steals") {
-                    betDescription = cleanBetDetails + " Steals";
-                }
-                else if (betType === "Player Rebounds") {
-                    betDescription = cleanBetDetails + " Rebounds";
-                }
-                else if (betType === "Player Assists") {
-                    betDescription = cleanBetDetails + " Assists";
-                }
-                else if (betType.startsWith("Player ")) {
-                    // For any other Player stats we didn't specifically listed
-                    const statType = betType.replace("Player ", "");
-                    betDescription = cleanBetDetails + " " + statType;
-                }
-                else {
-                    // Fallback - use complete bet type
-                    betDescription = cleanBetDetails;
-                }
-
-                // --- Live bet logic ---
-                const betPlacedStr = parts[0]; // e.g. '04/28/2025, 16:12 EDT'
-                const gameStartStr = parts[6]; // e.g. '04/28/2025, 22:00 EDT'
-                const betPlaced = parseDateTime(betPlacedStr);
-                const gameStart = parseDateTime(gameStartStr);
-                if (betPlaced > gameStart) {
-                    betDescription += " Live";
-                }
-                // --- End live bet logic ---
-
-                const wager = parseFloat(parts[12]);
-                const result = parts[14]; // the result column
-                let totalReturn = 0;
-                
-                // Check if the bet was won by looking at the profit value
-                const profit = parseFloat(parts[16]) || 0;
-                if (profit > 0) {
-                    // For winning bets, return is wager + profit
-                    totalReturn = wager + profit;
-                }
-                // For losing bets, totalReturn remains 0
-                
-                console.log(`Line ${index + 1} result:`, {
-                    result,
-                    profit,
-                    totalReturn
-                });
-                
-                // Extract league from column 4 (index 3)
-                const league = parts[3] || 'N/A';
-                
-                // Extract odds from column 8 (index 7) - American odds
-                const odds = parts[9] || 'N/A';
-                
-                const outputLine = `${dateStr}\t${league}\t${teams}\t${betDescription}\t${bookmaker}\t$${wager.toFixed(2)}\t$${totalReturn.toFixed(2)}\t${odds}`;
-                processedLines.push(outputLine);
-                
-                bets.push({
-                    date: dateStr,
-                    league,
-                    teams,
-                    description: betDescription,
-                    bookmaker,
-                    wager,
-                    totalReturn,
-                    result,
-                    profit,
-                    odds
-                });
-            } catch (error) {
-                console.error(`Error processing line ${index + 1}:`, line, error);
-                console.error("Error details:", error);
-                console.error("Parts:", parts);
+                parlayGroups[parlayId].push({ line, parts, index });
+            } else {
+                // This is an individual bet
+                individualBets.push({ line, parts, index });
             }
         });
         
-        console.log("Processed lines:", processedLines.length);
-        outputData.value = processedLines.join('\n');
-        generateSummary(bets);
-        generateTable(bets);
+        // Process individual bets
+        individualBets.forEach(({ line, parts, index }) => {
+            try {
+                const bet = processIndividualBet(parts, index);
+                if (bet) {
+                    bets.push(bet);
+                }
+            } catch (error) {
+                console.error(`Error processing individual bet line ${index + 1}:`, line, error);
+            }
+        });
+        
+        // Process parlay groups
+        Object.values(parlayGroups).forEach(parlayLegs => {
+            try {
+                const parlay = processParlay(parlayLegs);
+                if (parlay) {
+                    bets.push(parlay);
+                }
+            } catch (error) {
+                console.error(`Error processing parlay:`, parlayLegs, error);
+            }
+        });
+        
+        console.log("Processed bets:", bets.length);
+        console.log("Individual bets:", individualBets.length);
+        console.log("Parlay groups:", Object.keys(parlayGroups).length);
+        
+        // Store all bets and extract unique event dates
+        allBets = bets;
+        eventDates = [...new Set(bets.map(bet => bet.eventDate))].sort();
+        
+        // Populate the filter dropdown
+        populateEventDateFilter();
+        
+        // Show filter section
+        filterSection.style.display = 'block';
+        
+        // Apply current filter or show all data
+        applyCurrentFilter();
+    }
+    
+    function processIndividualBet(parts, index) {
+        // Format date as MM/DD/YY instead of MM/DD/YYYY
+        const fullDateStr = parts[0].split(',')[0];
+        const dateComponents = fullDateStr.split('/');
+        const dateStr = `${dateComponents[0]}/${dateComponents[1]}/${dateComponents[2].substring(2)}`;
+        
+        const bookmaker = parts[1];
+        
+        // Remove city names from team names
+        const fullTeams = parts[4] || '';
+        const teamsArray = fullTeams ? fullTeams.split(' vs ') : ['', ''];
+        
+        // Filter out city names, keeping only the team name
+        const simplifyTeamName = (team) => {
+            if (!team || team.trim() === '') {
+                return '';
+            }
+            
+            // First approach: Check against known team names
+            const teamNames = [
+                'Yankees', 'Orioles', 'Cubs', 'Pirates', 'Braves', 'Rockies', 
+                'Twins', 'Guardians', 'Bucks', 'Pacers', 'Angels', 'Mariners',
+                'Pistons', 'Knicks', 'Heat', 'Celtics', 'Lakers', 'Warriors',
+                'Timberwolves', 'Clippers', 'Nuggets', 'Kings', 'Suns', 'Blazers', 
+                'Spurs', 'Thunder', 'Mavericks', 'Grizzlies', 'Pelicans', 'Nets', 
+                'Hornets', 'Bulls', 'Cavaliers', '76ers', 'Magic', 'Wizards', 'Hawks',
+                'Raptors', 'Rockets', 'Royals', 'Nationals', 'Blue Jays', 'Rays', 
+                'Red Sox', 'Phillies', 'Mets', 'Marlins', 'Brewers', 'Reds', 
+                'Cardinals', 'White Sox', 'Tigers', 'Guardians', 'Astros', 'Dodgers', 
+                'Padres', 'Giants', 'Mariners', 'Rangers', 'Athletics', 'Diamondbacks',
+                'Oilers', 'Flames', 'Canucks', 'Sharks', 'Knights', 'Kraken', 'Ducks',
+                'Kings', 'Maple Leafs', 'Senators', 'Canadiens', 'Bruins', 'Lightning',
+                'Panthers', 'Red Wings', 'Sabres', 'Jets', 'Wild', 'Blues', 'Predators', 
+                'Blackhawks', 'Avalanche', 'Stars', 'Coyotes', 'Hurricanes', 'Capitals',
+                'Islanders', 'Flyers', 'Devils', 'Rangers', 'Blue Jackets', 'Penguins',
+                'Raiders', 'Chiefs', 'Broncos', 'Chargers', 'Seahawks', '49ers', 'Rams',
+                'Cardinals', 'Vikings', 'Packers', 'Bears', 'Lions', 'Saints', 'Buccaneers',
+                'Falcons', 'Panthers', 'Cowboys', 'Eagles', 'Commanders', 'Giants', 'Bills',
+                'Dolphins', 'Patriots', 'Jets', 'Bengals', 'Ravens', 'Browns', 'Steelers',
+                'Colts', 'Texans', 'Titans', 'Jaguars'
+            ];
+            
+            // Try known team names first
+            for (const name of teamNames) {
+                if (team.includes(name)) {
+                    return name;
+                }
+            }
+            
+            // Second approach: Handle the general case by splitting by spaces
+            // Most city names are at the beginning (e.g., "New York Knicks", "Los Angeles Lakers")
+            // Usually the last word is the team name
+            const words = team.split(' ');
+            
+            // Some special cases - cities with two words
+            const twoWordCities = ['New York', 'Los Angeles', 'San Francisco', 'San Diego', 'San Antonio', 
+                                 'New Orleans', 'New Jersey', 'Las Vegas', 'St. Louis', 'Kansas City', 
+                                 'Oklahoma City', 'Tampa Bay'];
+            
+            for (const city of twoWordCities) {
+                if (team.startsWith(city)) {
+                    // Return everything after the city name
+                    return team.substring(city.length).trim();
+                }
+            }
+            
+            // If all else fails, just return the last word (usually the team name)
+            if (words.length > 1) {
+                return words[words.length - 1];
+            }
+            
+            // If nothing else works, return the original
+            return team;
+        };
+        
+        const team1 = simplifyTeamName(teamsArray[0]);
+        const team2 = simplifyTeamName(teamsArray[1]);
+        const teams = (team1 && team2) ? `${team1} vs ${team2}` : (team1 || team2 || 'N/A');
+        
+        // Get bet type and details
+        const betType = parts[7];
+        const betDetailsFull = parts[8];
+        
+        // Build the final bet description
+        let betDescription;
+        
+        // First remove any odds at the beginning of bet details
+        const cleanBetDetails = betDetailsFull.replace(/^[-+]?\d+(\.\d+)?\s+/, '');
+        
+        // Now add the stat type to the end based on the bet type
+        if (betType === "Player Blocks") {
+            betDescription = cleanBetDetails + " Blocks";
+        } 
+        else if (betType === "Player Points") {
+            betDescription = cleanBetDetails + " Points";
+        }
+        else if (betType === "Player Points + Rebounds + Assists") {
+            betDescription = cleanBetDetails + " PRAs";
+        }
+        else if (betType === "Player Strikeouts") {
+            betDescription = cleanBetDetails + " Strikeouts";
+        }
+        else if (betType === "Player Earned Runs") {
+            betDescription = cleanBetDetails + " Earned Runs";
+        }
+        else if (betType === "Player Runs") {
+            betDescription = cleanBetDetails + " Runs";
+        }
+        else if (betType === "Player Steals + Blocks") {
+            betDescription = cleanBetDetails + " Steals + Blocks";
+        }
+        else if (betType === "Player Singles") {
+            betDescription = cleanBetDetails + " Singles";
+        }
+        else if (betType === "Player Steals") {
+            betDescription = cleanBetDetails + " Steals";
+        }
+        else if (betType === "Player Rebounds") {
+            betDescription = cleanBetDetails + " Rebounds";
+        }
+        else if (betType === "Player Assists") {
+            betDescription = cleanBetDetails + " Assists";
+        }
+        else if (betType.startsWith("Player ")) {
+            // For any other Player stats we didn't specifically listed
+            const statType = betType.replace("Player ", "");
+            betDescription = cleanBetDetails + " " + statType;
+        }
+        else {
+            // Fallback - use complete bet type
+            betDescription = cleanBetDetails;
+        }
+
+        // --- Live bet logic ---
+        const betPlacedStr = parts[0]; // e.g. '04/28/2025, 16:12 EDT'
+        const gameStartStr = parts[6]; // e.g. '04/28/2025, 22:00 EDT'
+        const betPlaced = parseDateTime(betPlacedStr);
+        const gameStart = parseDateTime(gameStartStr);
+        if (betPlaced > gameStart) {
+            betDescription += " Live";
+        }
+        // --- End live bet logic ---
+
+        const wager = parseFloat(parts[12]);
+        const result = parts[14]; // the result column
+        let totalReturn = 0;
+        
+        // Check if the bet was won by looking at the profit value
+        const profit = parseFloat(parts[16]) || 0;
+        if (profit > 0) {
+            // For winning bets, return is wager + profit
+            totalReturn = wager + profit;
+        }
+        // For losing bets, totalReturn remains 0
+        
+        // Extract league from column 4 (index 3)
+        const league = parts[3] || 'N/A';
+        
+        // Extract odds from column 8 (index 7) - American odds
+        const odds = parts[9] || 'N/A';
+        
+        // Extract event date from the second date/time (column 6)
+        const eventDateStr = parts[6].split(',')[0]; // Get just the date part
+        const eventDateComponents = eventDateStr.split('/');
+        const eventDateFormatted = `${eventDateComponents[0]}/${eventDateComponents[1]}/${eventDateComponents[2].substring(2)}`;
+        
+        return {
+            date: dateStr,
+            eventDate: eventDateFormatted,
+            league,
+            teams,
+            description: betDescription,
+            bookmaker,
+            wager,
+            totalReturn,
+            result,
+            profit,
+            odds,
+            isParlay: false
+        };
+    }
+    
+    function processParlay(parlayLegs) {
+        if (parlayLegs.length === 0) return null;
+        
+        // Use the first leg for common data
+        const firstLeg = parlayLegs[0];
+        const parts = firstLeg.parts;
+        
+        // Format date as MM/DD/YY instead of MM/DD/YYYY
+        const fullDateStr = parts[0].split(',')[0];
+        const dateComponents = fullDateStr.split('/');
+        const dateStr = `${dateComponents[0]}/${dateComponents[1]}/${dateComponents[2].substring(2)}`;
+        
+        const bookmaker = parts[1];
+        
+        // Extract event date from the second date/time (column 6)
+        const eventDateStr = parts[6].split(',')[0];
+        const eventDateComponents = eventDateStr.split('/');
+        const eventDateFormatted = `${eventDateComponents[0]}/${eventDateComponents[1]}/${eventDateComponents[2].substring(2)}`;
+        
+        // Get unique leagues from all legs
+        const leagues = [...new Set(parlayLegs.map(leg => leg.parts[3]).filter(league => league && league.trim()))];
+        const leagueCount = leagues.length;
+        
+        // Determine league display
+        let leagueDisplay;
+        if (leagueCount > 1) {
+            leagueDisplay = "Multiple";
+        } else if (leagueCount === 1) {
+            leagueDisplay = leagues[0];
+        } else {
+            leagueDisplay = "N/A";
+        }
+        
+        // Process each leg to get descriptions
+        const legDescriptions = parlayLegs.map(leg => {
+            const legParts = leg.parts;
+            const betType = legParts[7];
+            const betDetailsFull = legParts[8];
+            
+            // Clean bet details
+            const cleanBetDetails = betDetailsFull.replace(/^[-+]?\d+(\.\d+)?\s+/, '');
+            
+            // Build description based on bet type
+            let description;
+            if (betType === "Player Blocks") {
+                description = cleanBetDetails + " Blocks";
+            } 
+            else if (betType === "Player Points") {
+                description = cleanBetDetails + " Points";
+            }
+            else if (betType === "Player Points + Rebounds + Assists") {
+                description = cleanBetDetails + " PRAs";
+            }
+            else if (betType === "Player Strikeouts") {
+                description = cleanBetDetails + " Strikeouts";
+            }
+            else if (betType === "Player Earned Runs") {
+                description = cleanBetDetails + " Earned Runs";
+            }
+            else if (betType === "Player Runs") {
+                description = cleanBetDetails + " Runs";
+            }
+            else if (betType === "Player Steals + Blocks") {
+                description = cleanBetDetails + " Steals + Blocks";
+            }
+            else if (betType === "Player Singles") {
+                description = cleanBetDetails + " Singles";
+            }
+            else if (betType === "Player Steals") {
+                description = cleanBetDetails + " Steals";
+            }
+            else if (betType === "Player Rebounds") {
+                description = cleanBetDetails + " Rebounds";
+            }
+            else if (betType === "Player Assists") {
+                description = cleanBetDetails + " Assists";
+            }
+            else if (betType.startsWith("Player ")) {
+                const statType = betType.replace("Player ", "");
+                description = cleanBetDetails + " " + statType;
+            }
+            else {
+                description = cleanBetDetails;
+            }
+            
+            // Check for live bet
+            const betPlacedStr = legParts[0];
+            const gameStartStr = legParts[6];
+            const betPlaced = parseDateTime(betPlacedStr);
+            const gameStart = parseDateTime(gameStartStr);
+            if (betPlaced > gameStart) {
+                description += " Live";
+            }
+            
+            return description;
+        });
+        
+        // Create combined description with commas
+        const combinedDescription = legDescriptions.join(', ');
+        
+        // Create teams display in the format "X Leg [Sports] Parlay"
+        const legCount = parlayLegs.length;
+        let teamsDisplay;
+        if (leagueCount > 1) {
+            const sportsList = leagues.join(' & ');
+            teamsDisplay = `${legCount} Leg ${sportsList} Parlay`;
+        } else if (leagueCount === 1) {
+            teamsDisplay = `${legCount} Leg ${leagues[0]} Parlay`;
+        } else {
+            teamsDisplay = `${legCount} Leg Parlay`;
+        }
+        
+        // Get parlay totals from first leg
+        const wager = parseFloat(parts[12]);
+        const result = parts[14];
+        const profit = parseFloat(parts[16]) || 0;
+        let totalReturn = 0;
+        
+        if (profit > 0) {
+            totalReturn = wager + profit;
+        }
+        
+        // Get the combined odds from the first leg (this should be the parlay odds)
+        const combinedOdds = parts[9] || 'N/A';
+        
+        return {
+            date: dateStr,
+            eventDate: eventDateFormatted,
+            league: leagueDisplay,
+            teams: teamsDisplay,
+            description: combinedDescription,
+            bookmaker,
+            wager,
+            totalReturn,
+            result,
+            profit,
+            odds: combinedOdds,
+            isParlay: true,
+            parlayLegs: parlayLegs.length
+        };
     }
     
     function generateSummary(bets) {
@@ -1777,14 +1975,18 @@ function initializeFormatTab() {
                         <th>Profit</th>
                         <th>Status</th>
                         <th>Odds</th>
+                        <th>Type</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${bets.map(bet => {
+                    ${bets.map((bet, index) => {
                         const profit = bet.totalReturn - bet.wager;
                         const profitClass = profit > 0 ? 'positive' : profit < 0 ? 'negative' : '';
+                        const typeDisplay = bet.isParlay ? `Parlay (${bet.parlayLegs} legs)` : 'Single';
+                        const typeClass = bet.isParlay ? 'parlay-type' : 'single-type';
                         return `
-                            <tr>
+                            <tr data-bet-index="${index}">
                                 <td>${bet.date}</td>
                                 <td>${bet.league}</td>
                                 <td>${bet.teams}</td>
@@ -1795,6 +1997,12 @@ function initializeFormatTab() {
                                 <td class="${profitClass}">${formatCurrency(profit)}</td>
                                 <td>${bet.result}</td>
                                 <td>${bet.odds}</td>
+                                <td class="${typeClass}">${typeDisplay}</td>
+                                <td>
+                                    <button class="delete-bet-btn" data-bet-index="${index}" title="Delete this bet">
+                                        ×
+                                    </button>
+                                </td>
                             </tr>
                         `;
                     }).join('')}
@@ -1803,12 +2011,117 @@ function initializeFormatTab() {
         `;
         
         tableContainer.innerHTML = tableHTML;
+        
+        // Add event listeners to delete buttons
+        addDeleteButtonListeners(bets);
     }
     
     function copyToClipboard() {
         outputData.select();
         document.execCommand('copy');
         alert('Copied to clipboard!');
+    }
+    
+    function populateEventDateFilter() {
+        eventDateFilter.innerHTML = '<option value="">All Dates</option>';
+        eventDates.forEach(date => {
+            const option = document.createElement('option');
+            option.value = date;
+            option.textContent = date;
+            eventDateFilter.appendChild(option);
+        });
+    }
+    
+    function applyFilter() {
+        currentFilter = eventDateFilter.value;
+        applyCurrentFilter();
+    }
+    
+    function clearFilter() {
+        currentFilter = '';
+        eventDateFilter.value = '';
+        applyCurrentFilter();
+    }
+    
+    function applyCurrentFilter() {
+        let filteredBets = allBets;
+        
+        if (currentFilter) {
+            filteredBets = allBets.filter(bet => bet.eventDate === currentFilter);
+        }
+        
+        // Generate output for filtered bets
+        const processedLines = filteredBets.map(bet => {
+            if (bet.isParlay) {
+                return `${bet.date}\t${bet.league}\t${bet.teams}\t${bet.description}\t${bet.bookmaker}\t$${bet.wager.toFixed(2)}\t$${bet.totalReturn.toFixed(2)}\t${bet.odds}`;
+            } else {
+                return `${bet.date}\t${bet.league}\t${bet.teams}\t${bet.description}\t${bet.bookmaker}\t$${bet.wager.toFixed(2)}\t$${bet.totalReturn.toFixed(2)}\t${bet.odds}`;
+            }
+        });
+        
+        outputData.value = processedLines.join('\n');
+        generateSummary(filteredBets);
+        generateTable(filteredBets);
+        
+        // Update filter info
+        updateFilterInfo(filteredBets);
+    }
+    
+    function updateFilterInfo(filteredBets) {
+        const totalBets = allBets.length;
+        const filteredCount = filteredBets.length;
+        
+        if (currentFilter) {
+            filterInfo.textContent = `Showing ${filteredCount} of ${totalBets} bets for event date: ${currentFilter}`;
+        } else {
+            filterInfo.textContent = `Showing all ${totalBets} bets`;
+        }
+    }
+    
+    function addDeleteButtonListeners(bets) {
+        const deleteButtons = document.querySelectorAll('.delete-bet-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const betIndex = parseInt(button.getAttribute('data-bet-index'));
+                const bet = bets[betIndex];
+                
+                // Show confirmation dialog
+                const confirmMessage = `Are you sure you want to delete this bet?\n\n${bet.teams} - ${bet.description}\n${bet.bookmaker} - $${bet.wager.toFixed(2)}`;
+                
+                if (confirm(confirmMessage)) {
+                    deleteBet(betIndex, bet);
+                }
+            });
+        });
+    }
+    
+    function deleteBet(betIndex, bet) {
+        // Find the actual index in allBets array
+        const actualIndex = allBets.findIndex(b => 
+            b.date === bet.date && 
+            b.teams === bet.teams && 
+            b.description === bet.description && 
+            b.bookmaker === bet.bookmaker && 
+            b.wager === bet.wager
+        );
+        
+        if (actualIndex !== -1) {
+            // Remove from allBets array
+            allBets.splice(actualIndex, 1);
+            
+            // Update event dates if this was the last bet for that date
+            const remainingEventDates = [...new Set(allBets.map(bet => bet.eventDate))].sort();
+            if (JSON.stringify(remainingEventDates) !== JSON.stringify(eventDates)) {
+                eventDates = remainingEventDates;
+                populateEventDateFilter();
+            }
+            
+            // Reapply current filter to update display
+            applyCurrentFilter();
+            
+            console.log(`Deleted bet: ${bet.teams} - ${bet.description}`);
+        }
     }
 }
 
@@ -1827,7 +2140,7 @@ const TEAM_KEYS = {
         'Buccaneers': 'tb', 'Falcons': 'atl', 'Packers': 'gb', 'Bears': 'chi', 'Lions': 'det', 'Vikings': 'min',
         'Patriots': 'ne', 'Dolphins': 'mia', 'Bills': 'buf', 'Cowboys': 'dal', 'Eagles': 'phi', '49ers': 'sf',
         'Seahawks': 'sea', 'Rams': 'lar', 'Chargers': 'lac', 'Chiefs': 'kc', 'Raiders': 'lv', 'Ravens': 'bal',
-        'Bengals': 'cin', 'Browns': 'cle', 'Steelers ': 'pit', 'Saints': 'no', 'Panthers': 'car', 'Jaguars': 'jac',
+        'Bengals': 'cin', 'Browns': 'cle', 'Steelers ': 'pit', 'Saints': 'no', 'Panthers': 'car', 'Jaguars': 'jax',
         'Texans': 'hou', 'Colts': 'ind', 'Cardinals': 'ari', 'Jets ': 'nyj'
     },
     mlb: {
@@ -1842,7 +2155,7 @@ const TEAM_KEYS = {
 // NFL team abbreviation map for React-NFL-Logos (uppercase official abbreviations)
 const NFL_ABBREV = {
     'Cardinals': 'ARI', 'Falcons': 'ATL', 'Ravens': 'BAL', 'Bills': 'BUF', 'Panthers': 'CAR', 'Bears': 'CHI', 'Bengals': 'CIN', 'Browns': 'CLE',
-    'Cowboys': 'DAL', 'Broncos': 'DEN', 'Lions': 'DET', 'Packers': 'GB', 'Texans': 'HOU', 'Colts': 'IND', 'Jaguars': 'JAC', 'Chiefs': 'KC',
+    'Cowboys': 'DAL', 'Broncos': 'DEN', 'Lions': 'DET', 'Packers': 'GB', 'Texans': 'HOU', 'Colts': 'IND', 'Jaguars': 'JAX', 'Chiefs': 'KC',
     'Chargers': 'LAC', 'Rams': 'LAR', 'Raiders': 'LV', 'Dolphins': 'MIA', 'Vikings': 'MIN', 'Patriots': 'NE', 'Saints': 'NO', 'Giants': 'NYG',
     'Jets': 'NYJ', 'Eagles': 'PHI', 'Steelers': 'PIT', 'Seahawks': 'SEA', '49ers': 'SF', 'Buccaneers': 'TB', 'Titans': 'TEN', 'Commanders': 'WAS'
 };
