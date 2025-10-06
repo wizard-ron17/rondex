@@ -150,10 +150,21 @@
 
         .source-header {
             display: grid;
-            grid-template-columns: 2fr 1fr auto;
+            grid-template-columns: 2fr 80px 1fr auto;
             gap: 8px;
             margin-bottom: 8px;
             align-items: end;
+        }
+
+        .vig-display {
+            font-size: 11px;
+            color: #e53e3e;
+            font-weight: 600;
+            text-align: center;
+            padding: 10px 4px;
+            background: #fff5f5;
+            border-radius: 4px;
+            border: 1px solid #feb2b2;
         }
 
         .weight-wrapper {
@@ -256,7 +267,7 @@
                 grid-template-columns: 1fr;
             }
             .source-header {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 60px 80px auto;
             }
         }
     </style>
@@ -312,166 +323,163 @@
     </div>
 
     <script>
-        let selectedSide = 'side1';
-        let sourceId = 0;
+    let selectedSide = 'side1';
+    let sourceId = 0;
 
-        function selectSide(side) {
-            selectedSide = side;
-            document.getElementById('side1Btn').classList.toggle('active', side === 'side1');
-            document.getElementById('side2Btn').classList.toggle('active', side === 'side2');
-            calculate();
-        }
+    function selectSide(side) {
+        selectedSide = side;
+        document.getElementById('side1Btn').classList.toggle('active', side === 'side1');
+        document.getElementById('side2Btn').classList.toggle('active', side === 'side2');
+        calculate();
+    }
 
-        function addSource() {
-            sourceId++;
-            
-            // Auto-adjust weights
-            const existingSources = document.querySelectorAll('.sharp-source');
-            const numSources = existingSources.length + 1;
+    function addSource() {
+        sourceId++;
+        const existingSources = document.querySelectorAll('.sharp-source');
+        const numSources = existingSources.length + 1;
+        const equalWeight = Math.floor(100 / numSources);
+        const remainder = 100 - (equalWeight * numSources);
+        existingSources.forEach((src, idx) => {
+            const weightInput = src.querySelector('.weight-input');
+            weightInput.value = equalWeight + (idx === 0 ? remainder : 0);
+        });
+        
+        const div = document.createElement('div');
+        div.className = 'sharp-source';
+        div.id = 'src-' + sourceId;
+        const books = ['Pinnacle', 'Circa', 'Bookmaker', 'BetOnline', 'Fanduel', 'ProphetX', 'Novig', '4Cx', 'Other'];
+        
+        div.innerHTML = `
+            <div class="source-header">
+                <select class="book-select" onchange="calculate()">${books.map(b => `<option>${b}</option>`).join('')}</select>
+                <div class="vig-display">-</div>
+                <div class="weight-wrapper">
+                    <input type="number" class="weight-input" value="${equalWeight}" min="0" max="100" oninput="calculate()">
+                    <span style="font-size: 13px; color: #718096;">%</span>
+                </div>
+                ${sourceId > 1 ? `<button class="remove-btn" onclick="removeSource(${sourceId})">×</button>` : ''}
+            </div>
+            <div class="grid-2">
+                <div>
+                    <label>Side 1</label>
+                    <input type="number" class="side1-odds" placeholder="-110" oninput="calculate()">
+                </div>
+                <div>
+                    <label>Side 2</label>
+                    <input type="number" class="side2-odds" placeholder="-110" oninput="calculate()">
+                </div>
+            </div>
+        `;
+        document.getElementById('sources').appendChild(div);
+        calculate();
+    }
+
+    function removeSource(id) {
+        document.getElementById('src-' + id).remove();
+        const existingSources = document.querySelectorAll('.sharp-source');
+        const numSources = existingSources.length;
+        if (numSources > 0) {
             const equalWeight = Math.floor(100 / numSources);
             const remainder = 100 - (equalWeight * numSources);
-            
-            // Update existing weights
             existingSources.forEach((src, idx) => {
                 const weightInput = src.querySelector('.weight-input');
                 weightInput.value = equalWeight + (idx === 0 ? remainder : 0);
             });
-            
-            const div = document.createElement('div');
-            div.className = 'sharp-source';
-            div.id = 'src-' + sourceId;
-            
-            const books = ['Pinnacle', 'Circa', 'Bookmaker', 'BetOnline', 'ProphetX', 'Novig', '4Cx', 'Other'];
-            
-            div.innerHTML = `
-                <div class="source-header">
-                    <select class="book-select" onchange="calculate()">${books.map(b => `<option>${b}</option>`).join('')}</select>
-                    <div class="weight-wrapper">
-                        <input type="number" class="weight-input" value="${equalWeight}" min="0" max="100" oninput="calculate()">
-                        <span style="font-size: 13px; color: #718096;">%</span>
-                    </div>
-                    ${sourceId > 1 ? `<button class="remove-btn" onclick="removeSource(${sourceId})">×</button>` : ''}
-                </div>
-                <div class="grid-2">
-                    <div>
-                        <label>Side 1</label>
-                        <input type="number" class="side1-odds" placeholder="-110" oninput="calculate()">
-                    </div>
-                    <div>
-                        <label>Side 2</label>
-                        <input type="number" class="side2-odds" placeholder="-110" oninput="calculate()">
-                    </div>
-                </div>
-            `;
-            document.getElementById('sources').appendChild(div);
-            calculate();
         }
+        calculate();
+    }
 
-        function removeSource(id) {
-            document.getElementById('src-' + id).remove();
-            
-            // Auto-adjust remaining weights
-            const existingSources = document.querySelectorAll('.sharp-source');
-            const numSources = existingSources.length;
-            if (numSources > 0) {
-                const equalWeight = Math.floor(100 / numSources);
-                const remainder = 100 - (equalWeight * numSources);
-                
-                existingSources.forEach((src, idx) => {
-                    const weightInput = src.querySelector('.weight-input');
-                    weightInput.value = equalWeight + (idx === 0 ? remainder : 0);
-                });
-            }
-            
-            calculate();
-        }
+    function toDecimal(american) {
+        return american > 0 ? (american / 100) + 1 : (100 / Math.abs(american)) + 1;
+    }
 
-        function toDecimal(american) {
-            return american > 0 ? (american / 100) + 1 : (100 / Math.abs(american)) + 1;
-        }
+    function toAmerican(decimal) {
+        if (decimal >= 2) return '+' + ((decimal - 1) * 100).toFixed(2);
+        else return (-100 / (decimal - 1)).toFixed(2);
+    }
 
-        function toAmerican(decimal) {
-            if (decimal >= 2) {
-                return '+' + ((decimal - 1) * 100).toFixed(2);
-            } else {
-                return (-100 / (decimal - 1)).toFixed(2);
-            }
-        }
+    function calculate() {
+        const bankroll = parseFloat(document.getElementById('bankroll').value);
+        const betOdds = parseFloat(document.getElementById('betOdds').value);
+        document.getElementById('fairOdds1').textContent = '-';
+        document.getElementById('fairOdds2').textContent = '-';
+        document.getElementById('kellyDisplay').style.display = 'none';
+        document.getElementById('edgeAlert').innerHTML = '';
+        if (!bankroll || !betOdds) return;
 
-        function calculate() {
-            const bankroll = parseFloat(document.getElementById('bankroll').value);
-            const betOdds = parseFloat(document.getElementById('betOdds').value);
-            
-            document.getElementById('fairOdds1').textContent = '-';
-            document.getElementById('fairOdds2').textContent = '-';
-            document.getElementById('kellyDisplay').style.display = 'none';
-            document.getElementById('edgeAlert').innerHTML = '';
+        const sources = document.querySelectorAll('.sharp-source');
+        const data = [];
+        let totalWeight = 0;
 
-            if (!bankroll || !betOdds) return;
+        sources.forEach(src => {
+            const book = src.querySelector('.book-select').value;
+            const s1 = parseFloat(src.querySelector('.side1-odds').value);
+            const s2 = parseFloat(src.querySelector('.side2-odds').value);
+            const w = parseFloat(src.querySelector('.weight-input').value);
+            const vigDiv = src.querySelector('.vig-display');
 
-            const sources = document.querySelectorAll('.sharp-source');
-            const data = [];
-            let totalWeight = 0;
-
-            sources.forEach(src => {
-                const book = src.querySelector('.book-select').value;
-                const s1 = parseFloat(src.querySelector('.side1-odds').value);
-                const s2 = parseFloat(src.querySelector('.side2-odds').value);
-                const w = parseFloat(src.querySelector('.weight-input').value);
-
-                if (!isNaN(s1) && !isNaN(s2) && w > 0) {
-                    data.push({ book, s1, s2, w });
-                    totalWeight += w;
-                }
-            });
-
-            if (data.length === 0) return;
-
-            if (Math.abs(totalWeight - 100) > 0.01) {
-                document.getElementById('edgeAlert').innerHTML = `<div class="alert alert-warning">Weights must = 100% (${totalWeight.toFixed(1)}%)</div>`;
-                return;
-            }
-
-            let fairProb1 = 0;
-            data.forEach(d => {
-                const dec1 = toDecimal(d.s1);
-                const dec2 = toDecimal(d.s2);
+            if (!isNaN(s1) && !isNaN(s2) && w > 0) {
+                const dec1 = toDecimal(s1);
+                const dec2 = toDecimal(s2);
                 const imp1 = 1 / dec1;
                 const imp2 = 1 / dec2;
-                const total = imp1 + imp2;
-                fairProb1 += (imp1 / total) * (d.w / 100);
-            });
+                const vig = (imp1 + imp2 - 1) * 100; // percentage overround
+                vigDiv.textContent = vig > 0 ? vig.toFixed(2) + '%' : '0.00%';
 
-            const fairProb2 = 1 - fairProb1;
-            const fairOdds1 = toAmerican(1 / fairProb1);
-            const fairOdds2 = toAmerican(1 / fairProb2);
-
-            document.getElementById('fairOdds1').textContent = fairOdds1;
-            document.getElementById('fairOdds2').textContent = fairOdds2;
-
-            const fairProb = selectedSide === 'side1' ? fairProb1 : fairProb2;
-            const betDec = toDecimal(betOdds);
-            const betProb = 1 / betDec;
-            const edge = fairProb - betProb;
-            const kelly = Math.max(0, ((betDec - 1) * fairProb - (1 - fairProb)) / (betDec - 1));
-            const qKelly = kelly * 0.25;
-            const qBet = bankroll * qKelly;
-
-            if (edge > 0 && kelly > 0) {
-                document.getElementById('kellyDisplay').style.display = 'block';
-                const roundedBet = Math.round(qBet / 5) * 5;
-                document.getElementById('kellyAmount').textContent = `${roundedBet.toFixed(2)}`;
-                document.getElementById('edgeAlert').innerHTML = `<div class="alert alert-success">✓ Edge: ${(edge * 100).toFixed(2)}%</div>`;
+                data.push({ book, s1, s2, w });
+                totalWeight += w;
             } else {
-                document.getElementById('edgeAlert').innerHTML = `<div class="alert alert-warning">❌ No edge</div>`;
+                vigDiv.textContent = '-';
             }
+        });
+
+        if (data.length === 0) return;
+        if (Math.abs(totalWeight - 100) > 0.01) {
+            document.getElementById('edgeAlert').innerHTML = `<div class="alert alert-warning">Weights must = 100% (${totalWeight.toFixed(1)}%)</div>`;
+            return;
         }
 
-        // Auto-calculate on input changes
-        document.getElementById('bankroll').addEventListener('input', calculate);
-        document.getElementById('betOdds').addEventListener('input', calculate);
+        let fairProb1 = 0;
+        data.forEach(d => {
+            const dec1 = toDecimal(d.s1);
+            const dec2 = toDecimal(d.s2);
+            const imp1 = 1 / dec1;
+            const imp2 = 1 / dec2;
+            const total = imp1 + imp2;
+            fairProb1 += (imp1 / total) * (d.w / 100);
+        });
 
-        addSource();
-    </script>
+        const fairProb2 = 1 - fairProb1;
+        const fairOdds1 = toAmerican(1 / fairProb1);
+        const fairOdds2 = toAmerican(1 / fairProb2);
+
+        document.getElementById('fairOdds1').textContent = fairOdds1;
+        document.getElementById('fairOdds2').textContent = fairOdds2;
+
+        const fairProb = selectedSide === 'side1' ? fairProb1 : fairProb2;
+        const betDec = toDecimal(betOdds);
+        const betProb = 1 / betDec;
+        const edge = fairProb - betProb;
+        const kelly = Math.max(0, ((betDec - 1) * fairProb - (1 - fairProb)) / (betDec - 1));
+        const qKelly = kelly * 0.25;
+        const qBet = bankroll * qKelly;
+
+        if (edge > 0 && kelly > 0) {
+            document.getElementById('kellyDisplay').style.display = 'block';
+            const roundedBet = Math.round(qBet / 5) * 5;
+            document.getElementById('kellyAmount').textContent = `${roundedBet.toFixed(2)}`;
+            document.getElementById('edgeAlert').innerHTML = `<div class="alert alert-success">✓ Edge: ${(edge * 100).toFixed(2)}%</div>`;
+        } else {
+            document.getElementById('edgeAlert').innerHTML = `<div class="alert alert-warning">❌ No edge</div>`;
+        }
+    }
+
+    document.getElementById('bankroll').addEventListener('input', calculate);
+    document.getElementById('betOdds').addEventListener('input', calculate);
+    addSource();
+</script>
+
+                </div>
+        
 </body>
 </html>
