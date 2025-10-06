@@ -467,7 +467,7 @@
         if (edge > 0 && kelly > 0) {
             document.getElementById('kellyDisplay').style.display = 'block';
             const roundedBet = Math.round(qBet / 5) * 5;
-            document.getElementById('kellyAmount').textContent = `${roundedBet.toFixed(2)}`;
+            document.getElementById('kellyAmount').textContent = `$${roundedBet.toFixed(2)}`;
             document.getElementById('edgeAlert').innerHTML = `<div class="alert alert-success">✓ Edge: ${(edge * 100).toFixed(2)}%</div>`;
         } else {
             document.getElementById('edgeAlert').innerHTML = `<div class="alert alert-warning">❌ No edge</div>`;
