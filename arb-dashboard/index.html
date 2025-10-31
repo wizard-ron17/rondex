@@ -30,6 +30,7 @@
             <div class="tabs desktop-tabs">
                 <div class="tab active" data-tab="arbs">Arbs</div>
                 <div class="tab" data-tab="ev">EV</div>
+                <div class="tab" data-tab="edgezone">EdgeZone</div>
                 <div class="tab" data-tab="balances">Balances</div>
                 <div class="tab" data-tab="stats">Stats</div>
                 <div class="tab" data-tab="calendar">Calendar</div>
@@ -41,6 +42,7 @@
                 <div class="mobile-menu-content">
                     <div class="mobile-tab" data-tab="arbs">Arbs</div>
                     <div class="mobile-tab" data-tab="ev">EV</div>
+                    <div class="mobile-tab" data-tab="edgezone">EdgeZone</div>
                     <div class="mobile-tab" data-tab="balances">Balances</div>
                     <div class="mobile-tab" data-tab="stats">Stats</div>
                     <div class="mobile-tab" data-tab="calendar">Calendar</div>
@@ -161,6 +163,18 @@
                         <div class="balance-label">4cx</div>
                         <div class="balance-value" id="4cx-balance">$0.00</div>
                     </div>
+                    <div class="balance-card hardrock">
+                        <div class="balance-label">Hard Rock</div>
+                        <div class="balance-value" id="hardrock-balance">$0.00</div>
+                    </div>
+                    <div class="balance-card bet365">
+                        <div class="balance-label">bet365</div>
+                        <div class="balance-value" id="bet365-balance">$0.00</div>
+                    </div>
+                    <div class="balance-card xbet">
+                        <div class="balance-label">Xbet</div>
+                        <div class="balance-value" id="xbet-balance">$0.00</div>
+                    </div>
                 </div>
                 
                 <div class="balance-summary-section">
@@ -177,16 +191,30 @@
 
             <div class="tab-content" id="calendar-content">
                 <div class="calendar-controls" style="margin-bottom: 1rem;">
-                    <div class="segmented-control" id="calendar-segmented">
-                        <button type="button" class="calendar-segment" data-source="arbs">Arbs</button>
-                        <button type="button" class="calendar-segment" data-source="ev">EV</button>
-                        <button type="button" class="calendar-segment" data-source="both">Both</button>
+                    <div class="calendar-checkboxes" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="calendar-checkbox-all" data-source="all" checked>
+                            <span>All</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="calendar-checkbox-arbs" data-source="arbs" checked>
+                            <span>Arbs</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="calendar-checkbox-ev" data-source="ev" checked>
+                            <span>EV</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="calendar-checkbox-edgezone" data-source="edgezone" checked>
+                            <span>EdgeZone</span>
+                        </label>
                     </div>
                     <label for="calendar-data-source" class="visually-hidden">Show:</label>
-                    <select id="calendar-data-source" class="calendar-select-fallback" aria-label="Calendar data source">
+                    <select id="calendar-data-source" class="calendar-select-fallback" aria-label="Calendar data source" style="display: none;">
+                        <option value="all">All</option>
                         <option value="arbs">Arbs</option>
                         <option value="ev">EV</option>
-                        <option value="both">Both</option>
+                        <option value="edgezone">EdgeZone</option>
                     </select>
                 </div>
                 <div class="calendar-container"></div>
@@ -209,6 +237,11 @@
                         <textarea id="inputData" placeholder="04/28/2025, 16:12 EDT	BetMGM	basketball	NBA	Houston Rockets vs Golden State Warriors	10459-17844-2025-04-28	04/28/2025, 22:00 EDT	Player Points	Stephen Curry Under 27.5	110	100	OddsJam Algo Odds	5.15	10.82	won	positive_ev	5.67		FALSE	FALSE	FALSE	13.8	34			"></textarea>
                         <div class="button-container">
                             <button id="processBtn">Process Data</button>
+                            <label for="formatMode" style="margin-left: 8px;">Output:</label>
+                            <select id="formatMode" aria-label="Output format" style="margin-left: 4px;">
+                                <option value="standard">Standard</option>
+                                <option value="edgezone">EdgeZone</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -249,6 +282,30 @@
                         <p>Loading...</p>
                     </div>
                     <div id="ev-tableContainer"></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="edgezone-content">
+                <div class="container">
+                    <div class="filter-section" id="edgezone-filterSection" style="display: none;">
+                        <h3>Filter Options</h3>
+                        <div class="filter-controls">
+                            <label for="edgezone-channelFilter">Channel:</label>
+                            <select id="edgezone-channelFilter">
+                                <option value="">All Channels</option>
+                            </select>
+                            <label for="edgezone-leagueFilter" style="margin-left: 16px;">League:</label>
+                            <select id="edgezone-leagueFilter">
+                                <option value="">All Leagues</option>
+                            </select>
+                            <button id="edgezone-clearFiltersBtn" style="margin-left: 16px;">Clear Filters</button>
+                        </div>
+                    </div>
+                    <div id="edgezone-summary" class="summary">
+                        <h3>Summary</h3>
+                        <p>Loading...</p>
+                    </div>
+                    <div id="edgezone-tableContainer"></div>
                 </div>
             </div>
         </div>
