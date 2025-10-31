@@ -3,7 +3,7 @@ const API_KEY = 'AIzaSyAQiOsVDU8EPtSRTh2jioOOX1zymwt5UnI';
 const SPREADSHEET_ID = '10W6lR7yZNxwaZLaUOMnhP1FwFLN2i6z0FNV0ANBnG1M';
 const SHEETS = {
     BETS: 'Aaron!A1:Z1000',
-    BALANCES: 'Balances!A1:r1000',
+    BALANCES: 'Balances!A1:U1000',
     EV: 'EV!A1:Z5000'
 };
 // ------------------------------
@@ -405,7 +405,10 @@ function updateBalances(values) {
         14: 'bet105',
         15: 'thrillzz',
         16: 'sportzino',
-        17: '4cx'
+        17: '4cx',
+        18: 'hardrock',
+        19: 'bet365',
+        20: 'xbet'
     };
 
     let total = 0;
@@ -453,7 +456,10 @@ function initializeChart(data) {
         { name: 'Bet105', index: 14, color: '#3083dc' },
         { name: 'Thrillzz', index: 15, color: '#d5ff10' },
         { name: 'Sportzino', index: 16, color: '#05033d' },
-        { name: '4cx', index: 17, color: '#272d58' }
+        { name: '4cx', index: 17, color: '#272d58' },
+        { name: 'Hard Rock', index: 18, color: '#e31e24' },
+        { name: 'bet365', index: 19, color: '#006847' },
+        { name: 'Xbet', index: 20, color: '#8a2be2' }
     ];
 
     // Create datasets for each sportsbook and total
@@ -463,7 +469,7 @@ function initializeChart(data) {
             // Calculate total balance for each date
             data = chartData.map(row => {
                 let total = 0;
-                for (let i = 1; i <= 17; i++) {
+                for (let i = 1; i <= 20; i++) {
                     total += parseFloat(row[i].replace(/[$,]/g, '')) || 0;
                 }
                 return total;
@@ -640,6 +646,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tabNames = {
             'arbs': 'Arbs',
             'ev': 'EV',
+            'edgezone': 'EdgeZone',
             'balances': 'Balances',
             'stats': 'Stats',
             'calendar': 'Calendar',
@@ -805,6 +812,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.values && data.values.length > 0) {
                         renderEVTab(data.values);
                     }
+                });
+        } else if (tabName === 'edgezone') {
+            // Fetch EdgeZone sheet and render
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent('EdgeZone!A1:Z5000')}?key=${API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.values && data.values.length > 0) {
+                        renderEdgeZoneTab(data.values);
+                    } else {
+                        document.getElementById('edgezone-summary').innerHTML = '<p>No data</p>';
+                        document.getElementById('edgezone-tableContainer').innerHTML = '';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('edgezone-summary').innerHTML = '<p>Error loading EdgeZone data</p>';
                 });
         }
     }
@@ -1046,10 +1068,10 @@ function createCalendar() {
         }
     }
 
-    // Store both datasets
+    // Store all datasets
     let arbsData = null;
     let evData = null;
-    let combinedData = null;
+    let edgezoneData = null;
 
     // Helper function to update URL with current month
     function updateCalendarURL(date, dataSource) {
@@ -1067,13 +1089,19 @@ function createCalendar() {
     }
 
     // Helper to process rows for calendar
-    function processDataForCalendar(rows) {
+    function processDataForCalendar(rows, isEdgeZone = false) {
         const dailyData = {};
         rows.forEach(row => {
             const [m, d, y] = row[0].split('/');
             const date = `${parseInt(m)}/${parseInt(d)}/${y.length === 4 ? y.slice(2) : y}`;
-            // Support both legacy (profit at index 6) and new EV (profit at index 8)
-            const profitStr = (row[8] && /[-$\d]/.test(row[8])) ? row[8] : row[6];
+            let profitStr;
+            if (isEdgeZone) {
+                // EdgeZone: Profit $ is at index 9
+                profitStr = row[9] || '0';
+            } else {
+                // Support both legacy (profit at index 6) and new EV (profit at index 8)
+                profitStr = (row[8] && /[-$\d]/.test(row[8])) ? row[8] : row[6];
+            }
             const profit = parseFloat((profitStr || '0').toString().replace(/[$,]/g, '')) || 0;
             if (!dailyData[date]) {
                 dailyData[date] = { profit: 0, bets: 0 };
@@ -1179,88 +1207,125 @@ function createCalendar() {
             currentDate.setMonth(currentDate.getMonth() - 1);
             renderCalendarMonth(currentDate, data);
             // Get current data source for URL
-            const currentSource = (dataSourceSelect && dataSourceSelect.value) || 'both';
-            updateCalendarURL(currentDate, currentSource);
+            const selectedSources = getSelectedSources();
+            const sourceParam = selectedSources.length > 0 ? selectedSources.join(',') : 'all';
+            updateCalendarURL(currentDate, sourceParam);
         });
         
         container.querySelector('.next-month').addEventListener('click', () => {
             currentDate.setMonth(currentDate.getMonth() + 1);
             renderCalendarMonth(currentDate, data);
             // Get current data source for URL
-            const currentSource = (dataSourceSelect && dataSourceSelect.value) || 'both';
-            updateCalendarURL(currentDate, currentSource);
+            const selectedSources = getSelectedSources();
+            const sourceParam = selectedSources.length > 0 ? selectedSources.join(',') : 'all';
+            updateCalendarURL(currentDate, sourceParam);
         });
     }
 
-    // Update calendar based on selector
-    function setActiveSource(source) {
-        // Normalize
-        const src = (source || 'both').toLowerCase();
-        // Update select fallback
-        if (dataSourceSelect && dataSourceSelect.value !== src) dataSourceSelect.value = src;
-        // Update segmented control
-        segmentButtons.forEach(btn => {
-            if (btn.getAttribute('data-source') === src) btn.classList.add('active');
-            else btn.classList.remove('active');
+    // Get selected sources from checkboxes
+    function getSelectedSources() {
+        const checkboxes = document.querySelectorAll('.calendar-checkboxes input[type="checkbox"][data-source]:not([data-source="all"])');
+        const selected = [];
+        checkboxes.forEach(cb => {
+            if (cb.checked) selected.push(cb.getAttribute('data-source'));
         });
-        return src;
+        return selected;
     }
 
     function updateCalendar() {
-        // Source priority: hash param -> UI value -> default 'both'
-        const desired = window.__calendarDesiredSource;
-        const uiValue = (dataSourceSelect && dataSourceSelect.value) || 'both';
-        const source = setActiveSource(desired || uiValue || 'both');
-        let data = {};
-        if (source === 'arbs') {
-            data = arbsData || {};
-        } else if (source === 'ev') {
-            data = evData || {};
-        } else if (source === 'both') {
-            // Merge arbsData and evData
-            data = {};
-            const allDates = new Set([
-                ...Object.keys(arbsData || {}),
-                ...Object.keys(evData || {})
-            ]);
-            allDates.forEach(date => {
-                data[date] = { profit: 0, bets: 0 };
-                if (arbsData && arbsData[date]) {
-                    data[date].profit += arbsData[date].profit;
-                    data[date].bets += arbsData[date].bets;
-                }
-                if (evData && evData[date]) {
-                    data[date].profit += evData[date].profit;
-                    data[date].bets += evData[date].bets;
-                }
-            });
-        }
+        const selectedSources = getSelectedSources();
+        
+        // Merge selected data sources
+        const data = {};
+        const allDates = new Set([
+            ...Object.keys(arbsData || {}),
+            ...Object.keys(evData || {}),
+            ...Object.keys(edgezoneData || {})
+        ]);
+        
+        allDates.forEach(date => {
+            data[date] = { profit: 0, bets: 0 };
+            if (selectedSources.includes('arbs') && arbsData && arbsData[date]) {
+                data[date].profit += arbsData[date].profit;
+                data[date].bets += arbsData[date].bets;
+            }
+            if (selectedSources.includes('ev') && evData && evData[date]) {
+                data[date].profit += evData[date].profit;
+                data[date].bets += evData[date].bets;
+            }
+            if (selectedSources.includes('edgezone') && edgezoneData && edgezoneData[date]) {
+                data[date].profit += edgezoneData[date].profit;
+                data[date].bets += edgezoneData[date].bets;
+            }
+        });
+        
         renderCalendarMonth(currentDate, data);
+        
+        // Update URL with comma-separated sources
+        const sourceParam = selectedSources.length > 0 ? selectedSources.join(',') : 'all';
+        updateCalendarURL(currentDate, sourceParam);
     }
 
-    // Listen for selector changes
-    if (dataSourceSelect) dataSourceSelect.addEventListener('change', () => {
-        updateCalendarURL(currentDate, dataSourceSelect.value);
-        updateCalendar();
-    });
-
-    // Segmented control handlers
-    segmentButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const value = btn.getAttribute('data-source');
-            setActiveSource(value);
-            updateCalendarURL(currentDate, value);
+    // Setup checkbox handlers
+    const allCheckbox = document.getElementById('calendar-checkbox-all');
+    const arbsCheckbox = document.getElementById('calendar-checkbox-arbs');
+    const evCheckbox = document.getElementById('calendar-checkbox-ev');
+    const edgezoneCheckbox = document.getElementById('calendar-checkbox-edgezone');
+    
+    // "All" checkbox handler
+    if (allCheckbox) {
+        allCheckbox.addEventListener('change', () => {
+            const isChecked = allCheckbox.checked;
+            if (arbsCheckbox) arbsCheckbox.checked = isChecked;
+            if (evCheckbox) evCheckbox.checked = isChecked;
+            if (edgezoneCheckbox) edgezoneCheckbox.checked = isChecked;
             updateCalendar();
         });
+    }
+    
+    // Individual checkbox handlers
+    [arbsCheckbox, evCheckbox, edgezoneCheckbox].forEach(cb => {
+        if (cb) {
+            cb.addEventListener('change', () => {
+                const selected = getSelectedSources();
+                // If all are selected, check "All"; if any unchecked, uncheck "All"
+                if (allCheckbox) {
+                    allCheckbox.checked = selected.length === 3;
+                }
+                updateCalendar();
+            });
+        }
     });
+    
+    // Select fallback (hidden but kept for URL parsing)
+    if (dataSourceSelect) {
+        dataSourceSelect.addEventListener('change', () => {
+            // Handle legacy single-select behavior
+            const value = dataSourceSelect.value;
+            if (value === 'all') {
+                if (allCheckbox) allCheckbox.checked = true;
+                if (arbsCheckbox) arbsCheckbox.checked = true;
+                if (evCheckbox) evCheckbox.checked = true;
+                if (edgezoneCheckbox) edgezoneCheckbox.checked = true;
+            } else {
+                if (allCheckbox) allCheckbox.checked = false;
+                if (arbsCheckbox) arbsCheckbox.checked = value === 'arbs';
+                if (evCheckbox) evCheckbox.checked = value === 'ev';
+                if (edgezoneCheckbox) edgezoneCheckbox.checked = value === 'edgezone';
+            }
+            updateCalendar();
+        });
+    }
 
-    // Fetch both Arbs and EV data
+    // Fetch Arbs, EV, and EdgeZone data
     Promise.all([
         fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEETS.BETS}?key=${API_KEY}`)
             .then(response => response.json()),
         fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEETS.EV)}?key=${API_KEY}`)
+            .then(response => response.json()),
+        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent('EdgeZone!A1:Z5000')}?key=${API_KEY}`)
             .then(response => response.json())
-    ]).then(([arbs, ev]) => {
+    ]).then(([arbs, ev, edgezone]) => {
         // Process Arbs data
         if (arbs.values && arbs.values.length > 1) {
             arbsData = processDataForCalendar(arbs.values.slice(1));
@@ -1274,14 +1339,36 @@ function createCalendar() {
         } else {
             evData = {};
         }
-        // Default to 'both' unless a hash requested otherwise
-        if (!window.__calendarDesiredSource) {
-            setActiveSource('both');
+        // Process EdgeZone data
+        if (edgezone.values && edgezone.values.length > 1) {
+            const edgezoneRows = edgezone.values.slice(1);
+            edgezoneData = processDataForCalendar(edgezoneRows, true);
+        } else {
+            edgezoneData = {};
+        }
+        
+        // Handle URL parameters for sources
+        if (window.__calendarDesiredSource) {
+            const sources = window.__calendarDesiredSource.split(',').map(s => s.trim());
+            // Set checkboxes based on URL param
+            if (sources.includes('all') || sources.length === 0) {
+                if (allCheckbox) allCheckbox.checked = true;
+                if (arbsCheckbox) arbsCheckbox.checked = true;
+                if (evCheckbox) evCheckbox.checked = true;
+                if (edgezoneCheckbox) edgezoneCheckbox.checked = true;
+            } else {
+                if (allCheckbox) allCheckbox.checked = false;
+                if (arbsCheckbox) arbsCheckbox.checked = sources.includes('arbs');
+                if (evCheckbox) evCheckbox.checked = sources.includes('ev');
+                if (edgezoneCheckbox) edgezoneCheckbox.checked = sources.includes('edgezone');
+            }
         }
         
         // Set initial URL if not already set
         if (!window.__calendarDesiredMonth) {
-            updateCalendarURL(currentDate, window.__calendarDesiredSource || 'both');
+            const selectedSources = getSelectedSources();
+            const sourceParam = selectedSources.length > 0 ? selectedSources.join(',') : 'all';
+            updateCalendarURL(currentDate, sourceParam);
         }
         
         updateCalendar();
@@ -1450,6 +1537,7 @@ function initializeFormatTab() {
     const outputData = document.getElementById('outputData');
     const processBtn = document.getElementById('processBtn');
     const copyBtn = document.getElementById('copyBtn');
+    const formatMode = document.getElementById('formatMode');
     const summaryDiv = document.getElementById('summary');
     const tableContainer = document.getElementById('tableContainer');
     const filterSection = document.getElementById('filterSection');
@@ -1472,6 +1560,9 @@ function initializeFormatTab() {
     copyBtn.addEventListener('click', copyToClipboard);
     applyFilterBtn.addEventListener('click', applyFilter);
     clearFilterBtn.addEventListener('click', clearFilter);
+    if (formatMode) {
+        formatMode.addEventListener('change', applyCurrentFilter);
+    }
     
     // Helper to parse date+time like '04/28/2025, 16:12 EDT'
     function parseDateTime(str) {
@@ -1648,11 +1739,12 @@ function initializeFormatTab() {
         const betType = parts[7];
         const betDetailsFull = parts[8];
         
-        // Build the final bet description
+        // Build the final bet description and a base title (without market suffix)
         let betDescription;
         
         // First remove any odds at the beginning of bet details
         const cleanBetDetails = betDetailsFull.replace(/^[-+]?\d+(\.\d+)?\s+/, '');
+        let betTitleBase = cleanBetDetails; // EdgeZone will use this (no stat suffix)
         
         // Now add the stat type to the end based on the bet type
         if (betType === "Player Blocks") {
@@ -1705,6 +1797,7 @@ function initializeFormatTab() {
         const gameStart = parseDateTime(gameStartStr);
         if (betPlaced > gameStart) {
             betDescription += " Live";
+            betTitleBase += " Live";
         }
         // --- End live bet logic ---
 
@@ -1737,13 +1830,15 @@ function initializeFormatTab() {
             league,
             teams,
             description: betDescription,
+            titleBase: betTitleBase,
             bookmaker,
             wager,
             totalReturn,
             result,
             profit,
             odds,
-            isParlay: false
+            isParlay: false,
+            marketName: betType || 'N/A'
         };
     }
     
@@ -1885,6 +1980,7 @@ function initializeFormatTab() {
             profit,
             odds: combinedOdds,
             isParlay: true,
+            marketName: 'Parlay',
             parlayLegs: parlayLegs.length
         };
     }
@@ -1896,10 +1992,31 @@ function initializeFormatTab() {
         const totalWagered = validBets.reduce((sum, bet) => sum + bet.wager, 0);
         const totalReturns = validBets.reduce((sum, bet) => sum + bet.totalReturn, 0);
         const profit = totalReturns - totalWagered;
-        const wonBets = validBets.filter(bet => parseFloat(bet.profit) > 0).length;
         const pendingBets = validBets.filter(bet => bet.result === 'pending').length;
-        const completedBets = totalBets - pendingBets;
-        const lostBets = completedBets - wonBets;  // Calculate lost bets
+        const refundedBets = validBets.filter(bet => bet.result === 'refunded').length;
+        
+        // Completed non-refunded bets
+        const completedNonRefunded = validBets.filter(bet => bet.result !== 'pending' && bet.result !== 'refunded');
+        const withDupWon = completedNonRefunded.filter(bet => parseFloat(bet.profit) > 0).length;
+        const withDupLost = completedNonRefunded.length - withDupWon;
+        
+        // Deduplicate by exact Bet Title (description)
+        const seenTitles = new Set();
+        const uniqueCompleted = [];
+        completedNonRefunded.forEach(bet => {
+            const key = bet.description || '';
+            if (!seenTitles.has(key)) {
+                seenTitles.add(key);
+                uniqueCompleted.push(bet);
+            }
+        });
+        const uniqueWon = uniqueCompleted.filter(bet => parseFloat(bet.profit) > 0).length;
+        const uniqueLost = uniqueCompleted.length - uniqueWon;
+        
+        // Primary (non-duplicate) record used for win rate
+        const completedBets = uniqueCompleted.length;
+        const wonBets = uniqueWon;
+        const lostBets = uniqueLost;
         const winRate = completedBets > 0 ? ((wonBets / completedBets) * 100).toFixed(2) : 0;
         const roi = totalWagered > 0 ? ((profit / totalWagered) * 100).toFixed(2) : 0;
         
@@ -1919,7 +2036,7 @@ function initializeFormatTab() {
             bookmakers[bet.bookmaker].returns += bet.totalReturn;
             if (parseFloat(bet.profit) > 0) {
                 bookmakers[bet.bookmaker].wonBets++;
-            } else if (bet.result !== 'pending') {
+            } else if (bet.result !== 'pending' && bet.result !== 'refunded') {
                 bookmakers[bet.bookmaker].lostBets++;  // Count lost bets
             }
         });
@@ -1930,7 +2047,7 @@ function initializeFormatTab() {
                 <div class="summary-stats">
                     <h4>Overall Stats</h4>
                     <p><strong>Total Bets:</strong> ${totalBets}</p>
-                    <p><strong>Record:</strong> ${wonBets}-${lostBets}</p>
+                    <p><strong>Record:</strong> ${wonBets}-${lostBets} (${withDupWon}-${withDupLost} with duplicates)</p>
                     <p><strong>Total Wagered:</strong> ${formatCurrency(totalWagered)}</p>
                     <p><strong>Total Returns:</strong> ${formatCurrency(totalReturns)}</p>
                     <p><strong>Profit/Loss:</strong> ${formatCurrency(profit)} (ROI: ${roi}%)</p>
@@ -2051,10 +2168,14 @@ function initializeFormatTab() {
         }
         
         // Generate output for filtered bets
+        const mode = formatMode ? formatMode.value : 'standard';
         const processedLines = filteredBets.map(bet => {
-            if (bet.isParlay) {
-                return `${bet.date}\t${bet.league}\t${bet.teams}\t${bet.description}\t${bet.bookmaker}\t$${bet.wager.toFixed(2)}\t$${bet.totalReturn.toFixed(2)}\t${bet.odds}`;
+            if (mode === 'edgezone') {
+                // EdgeZone: insert Market Name column before Bet Title, and remove market suffix from Bet Title
+                const title = bet.titleBase || bet.description;
+                return `${bet.date}\t${bet.league}\t${bet.teams}\t${bet.marketName || 'N/A'}\t${title}\t${bet.bookmaker}\t$${bet.wager.toFixed(2)}\t$${bet.totalReturn.toFixed(2)}\t${bet.odds}`;
             } else {
+                // Standard (existing)
                 return `${bet.date}\t${bet.league}\t${bet.teams}\t${bet.description}\t${bet.bookmaker}\t$${bet.wager.toFixed(2)}\t$${bet.totalReturn.toFixed(2)}\t${bet.odds}`;
             }
         });
@@ -2751,6 +2872,214 @@ function renderEVTab(values) {
             const isAscending = header.classList.toggle('asc');
             evHeaders.forEach(h => { if (h !== header) h.classList.remove('asc'); });
             sortEvTable(sortKey, isAscending);
+        });
+    });
+}
+
+// Store all EdgeZone rows for filtering
+let allEdgeZoneRows = [];
+
+function renderEdgeZoneTab(values) {
+    const headers = values[0];
+    allEdgeZoneRows = values.slice(1);
+
+    // Extract unique channels (col 12) and leagues (col 1)
+    // Normalize channel names: "Edge Matrix - Duplicate" becomes "Edge Matrix"
+    const normalizeChannel = (ch) => ch.replace(/\s*-\s*Duplicate\s*$/i, '').trim();
+    const allChannels = allEdgeZoneRows.map(r => normalizeChannel((r[12] || '').trim())).filter(c => c);
+    const uniqueChannels = [...new Set(allChannels)].sort();
+    const uniqueLeagues = [...new Set(allEdgeZoneRows.map(r => (r[1] || '').trim()).filter(l => l))].sort();
+
+    // Populate filter dropdowns
+    const channelFilter = document.getElementById('edgezone-channelFilter');
+    const leagueFilter = document.getElementById('edgezone-leagueFilter');
+    
+    // Clear existing options (except "All")
+    while (channelFilter.children.length > 1) channelFilter.removeChild(channelFilter.lastChild);
+    while (leagueFilter.children.length > 1) leagueFilter.removeChild(leagueFilter.lastChild);
+    
+    uniqueChannels.forEach(ch => {
+        const opt = document.createElement('option');
+        opt.value = ch;
+        opt.textContent = ch;
+        channelFilter.appendChild(opt);
+    });
+    
+    uniqueLeagues.forEach(league => {
+        const opt = document.createElement('option');
+        opt.value = league;
+        opt.textContent = league;
+        leagueFilter.appendChild(opt);
+    });
+
+    // Show filter section
+    document.getElementById('edgezone-filterSection').style.display = 'block';
+
+    // Apply current filters (or show all)
+    applyEdgeZoneFilters();
+
+    // Add event listeners for filters
+    channelFilter.addEventListener('change', applyEdgeZoneFilters);
+    leagueFilter.addEventListener('change', applyEdgeZoneFilters);
+    document.getElementById('edgezone-clearFiltersBtn').addEventListener('click', () => {
+        channelFilter.value = '';
+        leagueFilter.value = '';
+        applyEdgeZoneFilters();
+    });
+}
+
+function applyEdgeZoneFilters() {
+    const channelFilter = document.getElementById('edgezone-channelFilter');
+    const leagueFilter = document.getElementById('edgezone-leagueFilter');
+    const selectedChannel = channelFilter ? channelFilter.value : '';
+    const selectedLeague = leagueFilter ? leagueFilter.value : '';
+
+    // Normalize channel names for matching
+    const normalizeChannel = (ch) => ch.replace(/\s*-\s*Duplicate\s*$/i, '').trim();
+
+    // Filter rows
+    let filteredRows = allEdgeZoneRows.filter(r => {
+        const channel = normalizeChannel((r[12] || '').trim());
+        const league = (r[1] || '').trim();
+        const channelMatch = !selectedChannel || channel === selectedChannel;
+        const leagueMatch = !selectedLeague || league === selectedLeague;
+        return channelMatch && leagueMatch;
+    });
+
+    // Sort by date (col 0) desc
+    filteredRows.sort((a, b) => parseDate(b[0]) - parseDate(a[0]));
+
+    // Summary (uses columns given in user's format):
+    // 0 Date, 1 Sport/League, 2 Event/Teams, 3 Market, 4 Bet Title, 5 Sportsbook, 6 Total Wager,
+    // 7 Return, 8 Odds, 9 Profit $, 10 Profit %, 11 Rolling Profit, 12 Channel, 13 Strat
+    const totalBets = filteredRows.length;
+    const totalWagered = filteredRows.reduce((s, r) => s + (parseFloat((r[6]||'').toString().replace(/[$,]/g, '')) || 0), 0);
+    const totalProfit = filteredRows.reduce((s, r) => s + (parseFloat((r[9]||'').toString().replace(/[$,]/g, '')) || 0), 0);
+    
+    // Deduplicate for record calculation: same date (col 0) + Bet Title (col 4) = one bet
+    const seenBets = new Set();
+    const uniqueBets = [];
+    filteredRows.forEach(r => {
+        const date = (r[0] || '').trim();
+        const betTitle = (r[4] || '').trim();
+        const key = `${date}|${betTitle}`;
+        if (!seenBets.has(key)) {
+            seenBets.add(key);
+            uniqueBets.push(r);
+        }
+    });
+    
+    // Adjusted record (deduplicated)
+    const wonBetsAdjusted = uniqueBets.filter(r => (parseFloat((r[9]||'').toString().replace(/[$,]/g, '')) || 0) > 0).length;
+    const lostBetsAdjusted = uniqueBets.filter(r => (parseFloat((r[9]||'').toString().replace(/[$,]/g, '')) || 0) < 0).length;
+    
+    // Unadjusted record (with duplicates)
+    const wonBetsUnadjusted = filteredRows.filter(r => (parseFloat((r[9]||'').toString().replace(/[$,]/g, '')) || 0) > 0).length;
+    const lostBetsUnadjusted = filteredRows.filter(r => (parseFloat((r[9]||'').toString().replace(/[$,]/g, '')) || 0) < 0).length;
+    
+    const winRate = totalBets ? ((wonBetsUnadjusted / totalBets) * 100).toFixed(2) : 0;
+    const roi = totalWagered ? ((totalProfit / totalWagered) * 100).toFixed(2) : 0;
+
+    const summaryHTML = `
+        <div class="summary-content">
+            <div class="summary-stats">
+                <h4>Overall Stats</h4>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Total Bets</div><div class="stat-value">${totalBets}</div></div>
+                    <div class="stat-card"><div class="stat-label">Record</div><div class="stat-value">${wonBetsAdjusted}-${lostBetsAdjusted} (${wonBetsUnadjusted}-${lostBetsUnadjusted})</div></div>
+                    <div class="stat-card"><div class="stat-label">Total Wagered</div><div class="stat-value">${formatCurrency(totalWagered)}</div></div>
+                    <div class="stat-card"><div class="stat-label">Total Profit</div><div class="stat-value">${formatCurrency(totalProfit)}</div></div>
+                    <div class="stat-card"><div class="stat-label">ROI</div><div class="stat-value">${roi}%</div></div>
+                    <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value">${winRate}%</div></div>
+                </div>
+            </div>
+        </div>`;
+    document.getElementById('edgezone-summary').innerHTML = summaryHTML;
+
+    const maxAbsProfit = filteredRows.reduce((m, r) => Math.max(m, Math.abs(parseFloat((r[9]||'0').toString().replace(/[$,]/g, '')) || 0)), 0) || 1;
+    function getProfitColorEdge(amount) {
+        const val = parseFloat((amount || '0').toString().replace(/[$,]/g, '')) || 0;
+        const ratio = Math.min(1, Math.abs(val) / maxAbsProfit);
+        const saturation = 40 + Math.round(40 * ratio);
+        const lightness = 60 - Math.round(25 * ratio);
+        if (val > 0) return `hsl(120, ${saturation}%, ${lightness}%)`;
+        if (val < 0) return `hsl(0, ${saturation}%, ${lightness}%)`;
+        return '#b3b3b3';
+    }
+
+    const tableHTML = `
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-sort="date" class="bet-th">Date</th>
+                        <th data-sort="league" class="bet-th">Sport/League</th>
+                        <th class="bet-th">Event/Teams</th>
+                        <th class="bet-th">Market</th>
+                        <th class="bet-th">Bet Title</th>
+                        <th data-sort="sportsbook" class="bet-th">Sportsbook</th>
+                        <th data-sort="wager" class="bet-th">Total Wager</th>
+                        <th data-sort="return" class="bet-th">Return</th>
+                        <th data-sort="odds" class="bet-th">Odds</th>
+                        <th data-sort="profit" class="bet-th">Profit $</th>
+                        <th class="bet-th">Profit %</th>
+                        <th class="bet-th">Rolling Profit</th>
+                        <th class="bet-th">Channel</th>
+                        <th class="bet-th">Strat</th>
+                    </tr>
+                </thead>
+                <tbody id="edgezone-data">
+                    ${filteredRows.map(r => {
+                        const p = parseFloat((r[9]||'').toString().replace(/[$,]/g, ''));
+                        const profitClass = p > 0 ? 'positive' : p < 0 ? 'negative' : '';
+                        return `<tr>
+                            <td>${r[0] || ''}</td>
+                            <td>${r[1] || ''}</td>
+                            <td>${r[2] || ''}</td>
+                            <td>${r[3] || ''}</td>
+                            <td>${r[4] || ''}</td>
+                            <td>${r[5] || ''}</td>
+                            <td>${r[6] || ''}</td>
+                            <td>${r[7] || ''}</td>
+                            <td>${r[8] || ''}</td>
+                            <td class="profit ${profitClass}" style="color: ${getProfitColorEdge(r[9])}">${r[9] || ''}</td>
+                            <td>${r[10] || ''}</td>
+                            <td>${r[11] || ''}</td>
+                            <td>${r[12] || ''}</td>
+                            <td>${r[13] || ''}</td>
+                        </tr>`;}).join('')}
+                </tbody>
+            </table>
+        </div>`;
+
+    document.getElementById('edgezone-tableContainer').innerHTML = tableHTML;
+
+    // Sorting
+    const ezTbody = document.getElementById('edgezone-data');
+    const ezHeaders = document.querySelectorAll('#edgezone-content th[data-sort]');
+    function getEzColumnIndex(key) {
+        const map = { date: 0, league: 1, sportsbook: 5, wager: 6, return: 7, odds: 8, profit: 9 };
+        return map[key];
+    }
+    function sortEzTable(key, asc) {
+        const rowsArr = Array.from(ezTbody.getElementsByTagName('tr'));
+        rowsArr.sort((a, b) => {
+            const aVal = a.cells[getEzColumnIndex(key)].textContent.replace(/[$,%]/g, '');
+            const bVal = b.cells[getEzColumnIndex(key)].textContent.replace(/[$,%]/g, '');
+            if (key === 'date') return asc ? parseDate(aVal) - parseDate(bVal) : parseDate(bVal) - parseDate(aVal);
+            if (key === 'sportsbook' || key === 'league') return asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+            const na = parseFloat(aVal) || 0, nb = parseFloat(bVal) || 0;
+            return asc ? na - nb : nb - na;
+        });
+        while (ezTbody.firstChild) ezTbody.removeChild(ezTbody.firstChild);
+        rowsArr.forEach(row => ezTbody.appendChild(row));
+    }
+    ezHeaders.forEach(h => {
+        h.addEventListener('click', () => {
+            const key = h.getAttribute('data-sort');
+            const asc = h.classList.toggle('asc');
+            ezHeaders.forEach(o => { if (o !== h) o.classList.remove('asc'); });
+            sortEzTable(key, asc);
         });
     });
 }
