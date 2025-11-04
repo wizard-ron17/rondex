@@ -2976,8 +2976,9 @@ function applyEdgeZoneFilters() {
     // Unadjusted record (with duplicates)
     const wonBetsUnadjusted = filteredRows.filter(r => (parseFloat((r[9]||'').toString().replace(/[$,]/g, '')) || 0) > 0).length;
     const lostBetsUnadjusted = filteredRows.filter(r => (parseFloat((r[9]||'').toString().replace(/[$,]/g, '')) || 0) < 0).length;
-    
-    const winRate = totalBets ? ((wonBetsUnadjusted / totalBets) * 100).toFixed(2) : 0;
+
+    const totalBetsAdjusted = wonBetsAdjusted + lostBetsAdjusted;
+    const winRate = totalBets ? ((wonBetsAdjusted / totalBetsAdjusted) * 100).toFixed(2) : 0;
     const roi = totalWagered ? ((totalProfit / totalWagered) * 100).toFixed(2) : 0;
 
     const summaryHTML = `
@@ -2985,8 +2986,8 @@ function applyEdgeZoneFilters() {
             <div class="summary-stats">
                 <h4>Overall Stats</h4>
                 <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-label">Total Bets</div><div class="stat-value">${totalBets}</div></div>
-                    <div class="stat-card"><div class="stat-label">Record</div><div class="stat-value">${wonBetsAdjusted}-${lostBetsAdjusted} (${wonBetsUnadjusted}-${lostBetsUnadjusted})</div></div>
+                    <div class="stat-card"><div class="stat-label">Total Bets (Unique)</div><div class="stat-value">${totalBets}(${totalBetsAdjusted})</div></div>
+                    <div class="stat-card"><div class="stat-label">Record (Unique)</div><div class="stat-value">${wonBetsUnadjusted}-${lostBetsUnadjusted} (${wonBetsAdjusted}-${lostBetsAdjusted})</div></div>
                     <div class="stat-card"><div class="stat-label">Total Wagered</div><div class="stat-value">${formatCurrency(totalWagered)}</div></div>
                     <div class="stat-card"><div class="stat-label">Total Profit</div><div class="stat-value">${formatCurrency(totalProfit)}</div></div>
                     <div class="stat-card"><div class="stat-label">ROI</div><div class="stat-value">${roi}%</div></div>
