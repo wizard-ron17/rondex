@@ -3,7 +3,7 @@ const API_KEY = 'AIzaSyAQiOsVDU8EPtSRTh2jioOOX1zymwt5UnI';
 const SPREADSHEET_ID = '10W6lR7yZNxwaZLaUOMnhP1FwFLN2i6z0FNV0ANBnG1M';
 const SHEETS = {
     BETS: 'Aaron!A1:Z1000',
-    BALANCES: 'Balances!A1:U1000',
+    BALANCES: 'Balances!A1:V1000',
     EV: 'EV!A1:Z5000'
 };
 // ------------------------------
@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function getBalanceColor(balance) {
     if (balance < 50) return '#ff4444';  // Red
-    if (balance < 150) return '#ffeb3b';  // Yellow
+    if (balance < 200) return '#ffeb3b';  // Yellow
     if (balance >= 200) return '#4caf50';  // Green
     return '#ffffff';  // Default white
 }
@@ -408,7 +408,8 @@ function updateBalances(values) {
         17: '4cx',
         18: 'hardrock',
         19: 'bet365',
-        20: 'xbet'
+        20: 'xbet',
+        21: 'busr'
     };
 
     let total = 0;
@@ -457,9 +458,10 @@ function initializeChart(data) {
         { name: 'Thrillzz', index: 15, color: '#d5ff10' },
         { name: 'Sportzino', index: 16, color: '#05033d' },
         { name: '4cx', index: 17, color: '#272d58' },
-        { name: 'Hard Rock', index: 18, color: '#e31e24' },
-        { name: 'bet365', index: 19, color: '#006847' },
-        { name: 'Xbet', index: 20, color: '#8a2be2' }
+        { name: 'Hard Rock', index: 18, color: '#6b47f1' },
+        { name: 'bet365', index: 19, color: '#1d7456' },
+        { name: 'Xbet', index: 20, color: '#06dd0d' },
+        { name: 'BUSR', index: 21, color: '#132594' }
     ];
 
     // Create datasets for each sportsbook and total
@@ -469,7 +471,7 @@ function initializeChart(data) {
             // Calculate total balance for each date
             data = chartData.map(row => {
                 let total = 0;
-                for (let i = 1; i <= 20; i++) {
+                for (let i = 1; i <= 21; i++) {
                     total += parseFloat(row[i].replace(/[$,]/g, '')) || 0;
                 }
                 return total;
@@ -2978,7 +2980,7 @@ function applyEdgeZoneFilters() {
     const lostBetsUnadjusted = filteredRows.filter(r => (parseFloat((r[9]||'').toString().replace(/[$,]/g, '')) || 0) < 0).length;
 
     const totalBetsAdjusted = wonBetsAdjusted + lostBetsAdjusted;
-    const winRate = totalBets ? ((wonBetsAdjusted / totalBetsAdjusted) * 100).toFixed(2) : 0;
+    const winRate = totalBetsAdjusted ? ((wonBetsAdjusted / totalBetsAdjusted) * 100).toFixed(2) : 0;
     const roi = totalWagered ? ((totalProfit / totalWagered) * 100).toFixed(2) : 0;
 
     const summaryHTML = `
