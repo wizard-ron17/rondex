@@ -101,16 +101,23 @@ function sortTable(sortKey, isAscending) {
     rows.forEach(row => tbody.appendChild(row));
 }
 
-function displayData(values) {
+// Global variables to store original data for filtering
+let originalArbsData = null;
+let originalEvData = null;
+
+function displayData(values, filteredRows = null) {
     const headers = values[0];
-    const rows = values.slice(1);
-    
-    // Sort rows by date in descending order by default
-    rows.sort((a, b) => {
-        const dateA = parseDate(a[0]);
-        const dateB = parseDate(b[0]);
-        return dateB - dateA;
-    });
+    let rows = filteredRows || values.slice(1);
+
+    // Only sort if not using filtered rows (filtered rows are already sorted)
+    if (!filteredRows) {
+        // Sort rows by date in descending order by default
+        rows.sort((a, b) => {
+            const dateA = parseDate(a[0]);
+            const dateB = parseDate(b[0]);
+            return dateB - dateA;
+        });
+    }
     
     let tableContent = '';
     rows.forEach((row, index) => {
@@ -126,6 +133,8 @@ function displayData(values) {
             ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Major_League_Baseball_logo.svg/640px-Major_League_Baseball_logo.svg.png" alt="MLB" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
             : (league === 'NBA')
             ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/thumb/0/03/National_Basketball_Association_logo.svg/800px-National_Basketball_Association_logo.svg.png" alt="NBA" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'NHL')
+            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/3/3a/05_NHL_Shield.svg" alt="NHL" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
             : (league === 'NCAAF')
             ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/c/cf/NCAA_football_icon_logo.svg" alt="NCAAF" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
             : (league === 'NPB')
@@ -137,7 +146,11 @@ function displayData(values) {
             : (league === 'NCAAM')
             ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/basketball-men.svg" alt="NCAAM" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
             : (league === 'NCAAB')
-            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/baseball.svg" alt="NCAAB" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/basketball-men.svg" alt="NCAAB" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'NCAAW')
+            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/basketball-women.svg" alt="NCAAW" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
+            : (league === 'College Baseball')
+            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/baseball.svg" alt="College Baseball" loading="lazy" onerror="this.style.display='none'"> ${league}</span>`
             : league;
 
         const hasTeams = teamA && teamB;
@@ -163,6 +176,13 @@ function displayData(values) {
                     <span>${row[2]}</span>
                     <img class="logo team" data-league="NBA" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
                 </div>`
+            : (league === 'NHL')
+            ? `
+                <div class="teams-cell">
+                    <img class="logo team" data-league="NHL" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                    <span>${row[2]}</span>
+                    <img class="logo team" data-league="NHL" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                </div>`
             : (league === 'NCAAF')
             ? `
                 <div class="teams-cell">
@@ -176,6 +196,27 @@ function displayData(values) {
                     <img class="logo team" data-league="WNBA" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
                     <span>${row[2]}</span>
                     <img class="logo team" data-league="WNBA" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                </div>`
+            : (league === 'NCAAB')
+            ? `
+                <div class="teams-cell">
+                    <img class="logo team" data-league="NCAAB" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                    <span>${row[2]}</span>
+                    <img class="logo team" data-league="NCAAB" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                </div>`
+            : (league === 'NCAAW')
+            ? `
+                <div class="teams-cell">
+                    <img class="logo team" data-league="NCAAW" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                    <span>${row[2]}</span>
+                    <img class="logo team" data-league="NCAAW" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                </div>`
+            : (league === 'College Baseball')
+            ? `
+                <div class="teams-cell">
+                    <img class="logo team" data-league="College Baseball" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                    <span>${row[2]}</span>
+                    <img class="logo team" data-league="College Baseball" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
                 </div>`
             : `<span>${row[2]}</span>`;
 
@@ -201,6 +242,74 @@ function displayData(values) {
     // Update the date header to show it's sorted in descending order
     const dateHeader = document.querySelector('th[data-sort="date"]');
     dateHeader.classList.remove('asc');
+}
+
+function setupArbsFilters(allArbsRows) {
+    originalArbsData = allArbsRows;
+
+    // Get unique values for filters
+    const allDates = allArbsRows.map(r => r[0]).filter(d => d).sort((a, b) => parseDate(b) - parseDate(a));
+    const uniqueDates = [...new Set(allDates)];
+    const uniqueSports = [...new Set(allArbsRows.map(r => (r[1] || '').trim()).filter(s => s))].sort();
+
+    // Populate filter dropdowns
+    const dateFilter = document.getElementById('arbs-dateRangeFilter');
+    const sportFilter = document.getElementById('arbs-sportFilter');
+
+    // Clear existing options (except "All")
+    while (dateFilter.children.length > 1) dateFilter.removeChild(dateFilter.lastChild);
+    while (sportFilter.children.length > 1) sportFilter.removeChild(sportFilter.lastChild);
+
+    uniqueDates.forEach(date => {
+        const opt = document.createElement('option');
+        opt.value = date;
+        opt.textContent = date;
+        dateFilter.appendChild(opt);
+    });
+
+    uniqueSports.forEach(sport => {
+        const opt = document.createElement('option');
+        opt.value = sport;
+        opt.textContent = sport;
+        sportFilter.appendChild(opt);
+    });
+
+    // Show filter section
+    document.getElementById('arbs-filterSection').style.display = 'block';
+
+    // Add event listeners
+    dateFilter.addEventListener('change', applyArbsFilters);
+    sportFilter.addEventListener('change', applyArbsFilters);
+    document.getElementById('arbs-clearFiltersBtn').addEventListener('click', () => {
+        dateFilter.value = '';
+        sportFilter.value = '';
+        applyArbsFilters();
+    });
+}
+
+function applyArbsFilters() {
+    if (!originalArbsData) return;
+
+    const dateFilter = document.getElementById('arbs-dateRangeFilter');
+    const sportFilter = document.getElementById('arbs-sportFilter');
+    const selectedDate = dateFilter ? dateFilter.value : '';
+    const selectedSport = sportFilter ? sportFilter.value : '';
+
+    // Filter rows
+    let filteredRows = originalArbsData.filter(r => {
+        const date = (r[0] || '').trim();
+        const sport = (r[1] || '').trim();
+        const dateMatch = !selectedDate || date === selectedDate;
+        const sportMatch = !selectedSport || sport === selectedSport;
+        return dateMatch && sportMatch;
+    });
+
+    // Sort by date descending
+    filteredRows.sort((a, b) => parseDate(b[0]) - parseDate(a[0]));
+
+    // Re-display with filtered data
+    const values = [originalArbsData.length > 0 ? ['Date', 'Sport', 'Event', 'Title', 'Wager', 'Profit', 'ROI', 'League', 'Teams'] : [], ...filteredRows];
+    displayData(values, filteredRows);
 }
 
 function calculatePotentialOutcomes(rowData) {
@@ -812,7 +921,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.values && data.values.length > 0) {
+                        const rows = data.values.slice(1); // Skip header
                         renderEVTab(data.values);
+                        setupEvFilters(rows); // Setup filtering with the data rows
                     }
                 });
         } else if (tabName === 'edgezone') {
@@ -1528,7 +1639,9 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${
     .then(response => response.json())
     .then(data => {
         if (data.values && data.values.length > 0) {
+            const rows = data.values.slice(1); // Skip header
             displayData(data.values);
+            setupArbsFilters(rows); // Setup filtering with the data rows
             createWagerChart(data.values); // Call the new chart function here
         }
     });
@@ -2254,7 +2367,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- League & Team Logo Helpers ---
-const LEAGUE_KEYS = { 'NFL': 'nfl', 'NBA': 'nba', 'NHL': 'nhl', 'MLB': 'mlb', 'NCAAF': 'ncaaf', 'CBB': 'cbb', 'CBB ': 'cbb', "CBB Men's": 'cbb', 'NPB': 'npb', 'WNBA': 'wnba', 'KBO': 'kbo', 'NCAAM': 'ncaam', 'NCAAB': 'ncaab' };
+const LEAGUE_KEYS = { 'NFL': 'nfl', 'NBA': 'nba', 'NHL': 'nhl', 'MLB': 'mlb', 'NCAAF': 'ncaaf', 'CBB': 'cbb', 'CBB ': 'cbb', "CBB Men's": 'cbb', 'NPB': 'npb', 'WNBA': 'wnba', 'KBO': 'kbo', 'College Baseball': 'collegebaseball', 'NCAAB': 'ncaaf', 'NCAAW': 'ncaaf' };
 
 // Start with NFL mapping; extend over time
 const TEAM_KEYS = {
@@ -2263,7 +2376,7 @@ const TEAM_KEYS = {
         'Buccaneers': 'tb', 'Falcons': 'atl', 'Packers': 'gb', 'Bears': 'chi', 'Lions': 'det', 'Vikings': 'min',
         'Patriots': 'ne', 'Dolphins': 'mia', 'Bills': 'buf', 'Cowboys': 'dal', 'Eagles': 'phi', '49ers': 'sf',
         'Seahawks': 'sea', 'Rams': 'lar', 'Chargers': 'lac', 'Chiefs': 'kc', 'Raiders': 'lv', 'Ravens': 'bal',
-        'Bengals': 'cin', 'Browns': 'cle', 'Steelers ': 'pit', 'Saints': 'no', 'Panthers': 'car', 'Jaguars': 'jax',
+        'Bengals': 'cin', 'Browns': 'cle', 'Steelers ': 'pit', 'Saints': 'no', 'Panthers': 'car', 'Jaguars': 'jac',
         'Texans': 'hou', 'Colts': 'ind', 'Cardinals': 'ari', 'Jets ': 'nyj'
     },
     mlb: {
@@ -2278,7 +2391,7 @@ const TEAM_KEYS = {
 // NFL team abbreviation map for React-NFL-Logos (uppercase official abbreviations)
 const NFL_ABBREV = {
     'Cardinals': 'ARI', 'Falcons': 'ATL', 'Ravens': 'BAL', 'Bills': 'BUF', 'Panthers': 'CAR', 'Bears': 'CHI', 'Bengals': 'CIN', 'Browns': 'CLE',
-    'Cowboys': 'DAL', 'Broncos': 'DEN', 'Lions': 'DET', 'Packers': 'GB', 'Texans': 'HOU', 'Colts': 'IND', 'Jaguars': 'JAX', 'Chiefs': 'KC',
+    'Cowboys': 'DAL', 'Broncos': 'DEN', 'Lions': 'DET', 'Packers': 'GB', 'Texans': 'HOU', 'Colts': 'IND', 'Jaguars': 'JAC', 'Chiefs': 'KC',
     'Chargers': 'LAC', 'Rams': 'LAR', 'Raiders': 'LV', 'Dolphins': 'MIA', 'Vikings': 'MIN', 'Patriots': 'NE', 'Saints': 'NO', 'Giants': 'NYG',
     'Jets': 'NYJ', 'Eagles': 'PHI', 'Steelers': 'PIT', 'Seahawks': 'SEA', '49ers': 'SF', 'Buccaneers': 'TB', 'Titans': 'TEN', 'Commanders': 'WAS'
 };
@@ -2340,12 +2453,31 @@ const NBA_ABBREV = {
 // WNBA team abbreviations (ESPN format)
 const WNBA_ABBREV = {
     'Atlanta Dream': 'atl', 'Chicago Sky': 'chi', 'Connecticut Sun': 'conn', 'Dallas Wings': 'dal',
-    'Golden State Valkyries': 'gs', 'Indiana Fever': 'ind', 'Las Vegas Aces': 'lv', 'Los Angeles Sparks': 'la', 
-    'Minnesota Lynx': 'min', 'New York Liberty': 'ny', 'Phoenix Mercury': 'phx', 'Seattle Storm': 'sea', 
+    'Golden State Valkyries': 'gs', 'Indiana Fever': 'ind', 'Las Vegas Aces': 'lv', 'Los Angeles Sparks': 'la',
+    'Minnesota Lynx': 'min', 'New York Liberty': 'ny', 'Phoenix Mercury': 'phx', 'Seattle Storm': 'sea',
     'Washington Mystics': 'was',
     // Single-word fallbacks
     'Dream': 'atl', 'Sky': 'chi', 'Sun': 'conn', 'Wings': 'dal', 'Valkyries': 'gs', 'Fever': 'ind', 'Aces': 'lv',
     'Sparks': 'la', 'Lynx': 'min', 'Liberty': 'ny', 'Mercury': 'phx', 'Storm': 'sea', 'Mystics': 'was'
+};
+
+// NHL team abbreviations (FantasyNerds format)
+const NHL_ABBREV = {
+    'Anaheim Ducks': 'ana', 'Utah Mammoth': 'uta', 'Boston Bruins': 'bos', 'Buffalo Sabres': 'buf',
+    'Calgary Flames': 'cgy', 'Carolina Hurricanes': 'car', 'Chicago Blackhawks': 'chi', 'Colorado Avalanche': 'col',
+    'Columbus Blue Jackets': 'cbj', 'Dallas Stars': 'dal', 'Detroit Red Wings': 'det', 'Edmonton Oilers': 'edm',
+    'Florida Panthers': 'fla', 'Los Angeles Kings': 'la', 'Minnesota Wild': 'min', 'Montreal Canadiens': 'mtl',
+    'Nashville Predators': 'nsh', 'New Jersey Devils': 'njd', 'New York Islanders': 'nyi', 'New York Rangers': 'nyr',
+    'Ottawa Senators': 'ott', 'Philadelphia Flyers': 'phi', 'Pittsburgh Penguins': 'pit', 'San Jose Sharks': 'sjs',
+    'Seattle Kraken': 'sea', 'St. Louis Blues': 'stl', 'Tampa Bay Lightning': 'tbl', 'Toronto Maple Leafs': 'tor',
+    'Vancouver Canucks': 'van', 'Vegas Golden Knights': 'vgk', 'Washington Capitals': 'wsh', 'Winnipeg Jets': 'wpg',
+    // Single-word fallbacks
+    'Ducks': 'ana', 'Mammoth': 'uta', 'Bruins': 'bos', 'Sabres': 'buf', 'Flames': 'cgy', 'Hurricanes': 'car',
+    'Blackhawks': 'chi', 'Avalanche': 'col', 'Jackets': 'cbj', 'Stars': 'dal', 'Wings': 'det', 'Oilers': 'edm',
+    'Panthers': 'fla', 'Kings': 'la', 'Wild': 'min', 'Canadiens': 'mtl', 'Predators': 'nsh', 'Devils': 'njd',
+    'Islanders': 'nyi', 'Rangers': 'nyr', 'Senators': 'ott', 'Flyers': 'phi', 'Penguins': 'pit', 'Sharks': 'sjs',
+    'Kraken': 'sea', 'Blues': 'stl', 'Lightning': 'tbl', 'Maple Leafs': 'tor', 'Leafs': 'tor', 'Canucks': 'van',
+    'Golden Knights': 'vgk', 'Capitals': 'wsh', 'Jets': 'wpg'
 };
 
 function getNbaAbbrev(teamName) {
@@ -2366,6 +2498,16 @@ function getWnbaAbbrev(teamName) {
 
 function wnbaPrimaryLogoUrl(abbrev) {
     return `https://a.espncdn.com/combiner/i?img=/i/teamlogos/wnba/500/${abbrev}.png`;
+}
+
+function getNhlAbbrev(teamName) {
+    const words = (teamName || '').trim().split(' ');
+    const last = words[words.length - 1];
+    return NHL_ABBREV[teamName] || NHL_ABBREV[last] || null;
+}
+
+function nhlPrimaryLogoUrl(abbrev) {
+    return `https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/${abbrev}.png`;
 }
 
 // NCAAF team mapping to ESPN IDs (based on GitHub gist data)
@@ -2404,7 +2546,11 @@ const NCAAF_TEAM_IDS = {
     'UAB': '5', 'UTSA': '2636', 'North Texas': '249', 'Rice': '242',
     'Troy': '2653', 'South Alabama': '6', 'Georgia State': '2247',
     'Louisiana': '309', 'Louisiana-Monroe': '2433', 'Arkansas State': '2032',
-    'Texas State': '326', 'Southern Miss': '2572'
+    'Arkansas Little Rock': '2031', 'Texas State': '326', 'Southern Miss': '2572',
+    'Rider': '2520', 'Cal State Northridge': '2463', 'SC Upstate': '2908',
+    'UAlbany': '399', 'Santa Clara': '2541', 'Xavier': '2752', 'Mount St Marys': '116',
+    'St Peters': '2612', 'Creighton': '156', 'DePaul': '305', 'California': '25',
+    'Cal': '25', 'UC Berkeley': '25', 'California Golden Bears': '25'
 };
 
 function getNcaafTeamId(teamName) {
@@ -2415,8 +2561,8 @@ function getNcaafTeamId(teamName) {
 }
 
 function ncaafPrimaryLogoUrl(teamId) {
-    // ESPN CDN format from the GitHub gist (use HTTPS to avoid mixed content)
-    return `https://a.espncdn.com/i/teamlogos/ncaa/500/${teamId}.png`;
+    // ESPN CDN format with optimized parameters for better loading
+    return `https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${teamId}.png&w=80&h=80&cquality=40&scale=crop`;
 }
 
 function nflPrimaryLogoUrl(abbrev) {
@@ -2647,6 +2793,16 @@ function hydrateLogosInContainer(container) {
         }
     });
 
+    // NHL team logos via FantasyNerds
+    container.querySelectorAll('img.logo.team[data-league="NHL"][data-team]').forEach(async img => {
+        if (img.getAttribute('src')) return;
+        const team = img.getAttribute('data-team');
+        const abbr = getNhlAbbrev(team);
+        if (abbr) {
+            img.setAttribute('src', nhlPrimaryLogoUrl(abbr));
+        }
+    });
+
     // NCAAF team logos via ESPN CDN (async index-backed)
     container.querySelectorAll('img.logo.team[data-league="NCAAF"][data-team]').forEach(async img => {
         if (img.getAttribute('src')) return;
@@ -2672,19 +2828,61 @@ function hydrateLogosInContainer(container) {
             img.style.display = 'none';
         }
     });
+
+    // NCAAB team logos via ESPN CDN (same as NCAAF)
+    container.querySelectorAll('img.logo.team[data-league="NCAAB"][data-team]').forEach(async img => {
+        if (img.getAttribute('src')) return;
+        const team = img.getAttribute('data-team');
+        const teamId = await getNcaafTeamIdAsync(team);
+        if (teamId) {
+            img.onerror = function() { this.style.display = 'none'; };
+            img.setAttribute('src', ncaafPrimaryLogoUrl(teamId));
+        } else {
+            img.style.display = 'none';
+        }
+    });
+
+    // NCAAW team logos via ESPN CDN (same as NCAAF)
+    container.querySelectorAll('img.logo.team[data-league="NCAAW"][data-team]').forEach(async img => {
+        if (img.getAttribute('src')) return;
+        const team = img.getAttribute('data-team');
+        const teamId = await getNcaafTeamIdAsync(team);
+        if (teamId) {
+            img.onerror = function() { this.style.display = 'none'; };
+            img.setAttribute('src', ncaafPrimaryLogoUrl(teamId));
+        } else {
+            img.style.display = 'none';
+        }
+    });
+
+    // College Baseball team logos via ESPN CDN (same as NCAAF)
+    container.querySelectorAll('img.logo.team[data-league="College Baseball"][data-team]').forEach(async img => {
+        if (img.getAttribute('src')) return;
+        const team = img.getAttribute('data-team');
+        const teamId = await getNcaafTeamIdAsync(team);
+        if (teamId) {
+            img.onerror = function() { this.style.display = 'none'; };
+            img.setAttribute('src', ncaafPrimaryLogoUrl(teamId));
+        } else {
+            img.style.display = 'none';
+        }
+    });
 }
 
-function renderEVTab(values) {
+function renderEVTab(values, filteredRows = null) {
     // values[0] is header
     const headers = values[0];
-    let rows = values.slice(1);
+    let rows = filteredRows || values.slice(1);
 
-    // Sort by date descending (most recent first)
-    rows.sort((a, b) => {
-        const dateA = parseDate(a[0]);
-        const dateB = parseDate(b[0]);
-        return dateB - dateA;
-    });
+    // Only sort if not using filtered rows (filtered rows are already sorted)
+    if (!filteredRows) {
+        // Sort by date descending (most recent first)
+        rows.sort((a, b) => {
+            const dateA = parseDate(a[0]);
+            const dateB = parseDate(b[0]);
+            return dateB - dateA;
+        });
+    }
 
     // Build summary
     const totalBets = rows.length;
@@ -2764,6 +2962,8 @@ function renderEVTab(values) {
                             ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Major_League_Baseball_logo.svg/640px-Major_League_Baseball_logo.svg.png" alt="MLB" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
                             : (row[1] === 'NBA')
                             ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/thumb/0/03/National_Basketball_Association_logo.svg/800px-National_Basketball_Association_logo.svg.png" alt="NBA" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'NHL')
+                            ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/3/3a/05_NHL_Shield.svg" alt="NHL" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
                             : (row[1] === 'NCAAF')
                             ? `<span class="league-cell"><img class="logo league" src="https://upload.wikimedia.org/wikipedia/en/c/cf/NCAA_football_icon_logo.svg" alt="NCAAF" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
                             : (row[1] === 'NPB')
@@ -2775,7 +2975,11 @@ function renderEVTab(values) {
                             : (row[1] === 'NCAAM')
                             ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/basketball-men.svg" alt="NCAAM" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
                             : (row[1] === 'NCAAB')
-                            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/baseball.svg" alt="NCAAB" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/basketball-men.svg" alt="NCAAB" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'NCAAW')
+                            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/basketball-women.svg" alt="NCAAW" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
+                            : (row[1] === 'College Baseball')
+                            ? `<span class="league-cell"><img class="logo league" src="https://www.ncaa.com/modules/custom/casablanca_core/img/sportbanners/baseball.svg" alt="College Baseball" loading="lazy" onerror="this.style.display='none'"> ${row[1]}</span>`
                             : row[1];
 
                         const hasTeams = teamA && teamB;
@@ -2801,6 +3005,13 @@ function renderEVTab(values) {
                                 <span>${row[2]}</span>
                                 <img class="logo team" data-league="NBA" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
                             </div>`
+                            : (row[1] === 'NHL')
+                            ? `
+                            <div class="teams-cell">
+                                <img class="logo team" data-league="NHL" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                                <span>${row[2]}</span>
+                                <img class="logo team" data-league="NHL" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                            </div>`
                             : (row[1] === 'NCAAF')
                             ? `
                             <div class="teams-cell">
@@ -2814,6 +3025,27 @@ function renderEVTab(values) {
                                 <img class="logo team" data-league="WNBA" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
                                 <span>${row[2]}</span>
                                 <img class="logo team" data-league="WNBA" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                            </div>`
+                            : (row[1] === 'NCAAB')
+                            ? `
+                            <div class="teams-cell">
+                                <img class="logo team" data-league="NCAAB" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                                <span>${row[2]}</span>
+                                <img class="logo team" data-league="NCAAB" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                            </div>`
+                            : (row[1] === 'NCAAW')
+                            ? `
+                            <div class="teams-cell">
+                                <img class="logo team" data-league="NCAAW" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                                <span>${row[2]}</span>
+                                <img class="logo team" data-league="NCAAW" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
+                            </div>`
+                            : (row[1] === 'College Baseball')
+                            ? `
+                            <div class="teams-cell">
+                                <img class="logo team" data-league="College Baseball" data-team="${teamA}" alt="${teamA}" loading="lazy" onerror="this.style.display='none'">
+                                <span>${row[2]}</span>
+                                <img class="logo team" data-league="College Baseball" data-team="${teamB}" alt="${teamB}" loading="lazy" onerror="this.style.display='none'">
                             </div>`
                             : `<span>${row[2]}</span>`;
 
@@ -2876,6 +3108,90 @@ function renderEVTab(values) {
             sortEvTable(sortKey, isAscending);
         });
     });
+}
+
+function setupEvFilters(allEvRows) {
+    originalEvData = allEvRows;
+
+    // Get unique values for filters
+    const allDates = allEvRows.map(r => r[0]).filter(d => d).sort((a, b) => parseDate(b) - parseDate(a));
+    const uniqueDates = [...new Set(allDates)];
+    const uniqueLeagues = [...new Set(allEvRows.map(r => (r[1] || '').trim()).filter(l => l))].sort();
+    const uniqueSportsbooks = [...new Set(allEvRows.map(r => (r[5] || '').trim()).filter(s => s))].sort();
+
+    // Populate filter dropdowns
+    const dateFilter = document.getElementById('ev-dateRangeFilter');
+    const leagueFilter = document.getElementById('ev-leagueFilter');
+    const sportsbookFilter = document.getElementById('ev-sportsbookFilter');
+
+    // Clear existing options (except "All")
+    while (dateFilter.children.length > 1) dateFilter.removeChild(dateFilter.lastChild);
+    while (leagueFilter.children.length > 1) leagueFilter.removeChild(leagueFilter.lastChild);
+    while (sportsbookFilter.children.length > 1) sportsbookFilter.removeChild(sportsbookFilter.lastChild);
+
+    uniqueDates.forEach(date => {
+        const opt = document.createElement('option');
+        opt.value = date;
+        opt.textContent = date;
+        dateFilter.appendChild(opt);
+    });
+
+    uniqueLeagues.forEach(league => {
+        const opt = document.createElement('option');
+        opt.value = league;
+        opt.textContent = league;
+        leagueFilter.appendChild(opt);
+    });
+
+    uniqueSportsbooks.forEach(sportsbook => {
+        const opt = document.createElement('option');
+        opt.value = sportsbook;
+        opt.textContent = sportsbook;
+        sportsbookFilter.appendChild(opt);
+    });
+
+    // Show filter section
+    document.getElementById('ev-filterSection').style.display = 'block';
+
+    // Add event listeners
+    dateFilter.addEventListener('change', applyEvFilters);
+    leagueFilter.addEventListener('change', applyEvFilters);
+    sportsbookFilter.addEventListener('change', applyEvFilters);
+    document.getElementById('ev-clearFiltersBtn').addEventListener('click', () => {
+        dateFilter.value = '';
+        leagueFilter.value = '';
+        sportsbookFilter.value = '';
+        applyEvFilters();
+    });
+}
+
+function applyEvFilters() {
+    if (!originalEvData) return;
+
+    const dateFilter = document.getElementById('ev-dateRangeFilter');
+    const leagueFilter = document.getElementById('ev-leagueFilter');
+    const sportsbookFilter = document.getElementById('ev-sportsbookFilter');
+    const selectedDate = dateFilter ? dateFilter.value : '';
+    const selectedLeague = leagueFilter ? leagueFilter.value : '';
+    const selectedSportsbook = sportsbookFilter ? sportsbookFilter.value : '';
+
+    // Filter rows
+    let filteredRows = originalEvData.filter(r => {
+        const date = (r[0] || '').trim();
+        const league = (r[1] || '').trim();
+        const sportsbook = (r[5] || '').trim();
+        const dateMatch = !selectedDate || date === selectedDate;
+        const leagueMatch = !selectedLeague || league === selectedLeague;
+        const sportsbookMatch = !selectedSportsbook || sportsbook === selectedSportsbook;
+        return dateMatch && leagueMatch && sportsbookMatch;
+    });
+
+    // Sort by date descending
+    filteredRows.sort((a, b) => parseDate(b[0]) - parseDate(a[0]));
+
+    // Re-display with filtered data
+    const values = [originalEvData.length > 0 ? ['Date', 'League', 'Event', 'Bet Title', 'Sportsbook', 'Wager', 'Return', 'Odds', 'Profit'] : [], ...filteredRows];
+    renderEVTab(values, filteredRows);
 }
 
 // Store all EdgeZone rows for filtering
