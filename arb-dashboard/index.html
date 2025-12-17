@@ -73,6 +73,21 @@
                     </div>
                 </div>
 
+                <div class="filter-section" id="arbs-filterSection" style="display: none;">
+                    <h3>Filter Options</h3>
+                    <div class="filter-controls">
+                        <label for="arbs-dateRangeFilter">Date Range:</label>
+                        <select id="arbs-dateRangeFilter">
+                            <option value="">All Dates</option>
+                        </select>
+                        <label for="arbs-sportFilter" style="margin-left: 16px;">Sport:</label>
+                        <select id="arbs-sportFilter">
+                            <option value="">All Sports</option>
+                        </select>
+                        <button id="arbs-clearFiltersBtn" style="margin-left: 16px;">Clear Filters</button>
+                    </div>
+                </div>
+
                 <div class="error"></div>
                 <div class="table-container">
                     <div class="loading">Loading data from Google Sheets...</div>
@@ -285,6 +300,26 @@
                         <h3>Summary</h3>
                         <p>Loading...</p>
                     </div>
+
+                    <div class="filter-section" id="ev-filterSection" style="display: none;">
+                        <h3>Filter Options</h3>
+                        <div class="filter-controls">
+                            <label for="ev-dateRangeFilter">Date Range:</label>
+                            <select id="ev-dateRangeFilter">
+                                <option value="">All Dates</option>
+                            </select>
+                            <label for="ev-leagueFilter" style="margin-left: 16px;">League:</label>
+                            <select id="ev-leagueFilter">
+                                <option value="">All Leagues</option>
+                            </select>
+                            <label for="ev-sportsbookFilter" style="margin-left: 16px;">Sportsbook:</label>
+                            <select id="ev-sportsbookFilter">
+                                <option value="">All Sportsbooks</option>
+                            </select>
+                            <button id="ev-clearFiltersBtn" style="margin-left: 16px;">Clear Filters</button>
+                        </div>
+                    </div>
+
                     <div id="ev-tableContainer"></div>
                 </div>
             </div>
