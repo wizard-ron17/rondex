@@ -3,7 +3,7 @@ const API_KEY = 'AIzaSyAQiOsVDU8EPtSRTh2jioOOX1zymwt5UnI';
 const SPREADSHEET_ID = '10W6lR7yZNxwaZLaUOMnhP1FwFLN2i6z0FNV0ANBnG1M';
 const SHEETS = {
     BETS: 'Aaron!A1:Z1000',
-    BALANCES: 'Balances!A1:V1000',
+    BALANCES: 'Balances!A1:Y1000',
     EV: 'EV!A1:Z8000'
 };
 // ------------------------------
@@ -518,7 +518,10 @@ function updateBalances(values) {
         18: 'hardrock',
         19: 'bet365',
         20: 'xbet',
-        21: 'busr'
+        21: 'busr',
+        22: 'betnow',
+        23: 'wagerattack',
+        24: 'wagerhub'
     };
 
     let total = 0;
@@ -570,7 +573,10 @@ function initializeChart(data) {
         { name: 'Hard Rock', index: 18, color: '#6b47f1' },
         { name: 'bet365', index: 19, color: '#1d7456' },
         { name: 'Xbet', index: 20, color: '#06dd0d' },
-        { name: 'BUSR', index: 21, color: '#132594' }
+        { name: 'BUSR', index: 21, color: '#132594' },
+        { name: 'BetNow', index: 22, color: '#f76500' },
+        { name: 'WagerAttack', index: 23, color: '#e64241' },
+        { name: 'WagerHub', index: 24, color: '#fde404' }
     ];
 
     // Create datasets for each sportsbook and total
@@ -580,7 +586,7 @@ function initializeChart(data) {
             // Calculate total balance for each date
             data = chartData.map(row => {
                 let total = 0;
-                for (let i = 1; i <= 21; i++) {
+                for (let i = 1; i <= 24; i++) {
                     total += parseFloat(row[i].replace(/[$,]/g, '')) || 0;
                 }
                 return total;
@@ -3117,7 +3123,7 @@ function setupEvFilters(allEvRows) {
     const allDates = allEvRows.map(r => r[0]).filter(d => d).sort((a, b) => parseDate(b) - parseDate(a));
     const uniqueDates = [...new Set(allDates)];
     const uniqueLeagues = [...new Set(allEvRows.map(r => (r[1] || '').trim()).filter(l => l))].sort();
-    const uniqueSportsbooks = [...new Set(allEvRows.map(r => (r[5] || '').trim()).filter(s => s))].sort();
+    const uniqueSportsbooks = [...new Set(allEvRows.map(r => (r[4] || '').trim()).filter(s => s))].sort();
 
     // Populate filter dropdowns
     const dateFilter = document.getElementById('ev-dateRangeFilter');
@@ -3179,7 +3185,7 @@ function applyEvFilters() {
     let filteredRows = originalEvData.filter(r => {
         const date = (r[0] || '').trim();
         const league = (r[1] || '').trim();
-        const sportsbook = (r[5] || '').trim();
+        const sportsbook = (r[4] || '').trim();
         const dateMatch = !selectedDate || date === selectedDate;
         const leagueMatch = !selectedLeague || league === selectedLeague;
         const sportsbookMatch = !selectedSportsbook || sportsbook === selectedSportsbook;
