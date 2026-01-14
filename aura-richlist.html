@@ -113,7 +113,7 @@
 
   .rank {
     width: 52px;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .address a {
@@ -141,14 +141,11 @@
     color: var(--text-muted);
   }
 
-  /* Mobile */
+  /* Mobile adjustments */
   @media (max-width: 640px) {
-    th.rank, td.rank {
-      display: none;
-    }
-
     .address {
       max-width: 140px;
+      word-break: break-all;
     }
   }
 </style>
@@ -196,10 +193,14 @@
   </div>
 
 <script>
-  const API =
-    "https://backend.mainnet.alephium.org/tokens/holders/token/4e0515f9d7daabd7cdae603e355a9ea015b5288380ef2206a10a531bc858d600?limit=100";
+  const API_BASE =
+    "https://backend.mainnet.alephium.org/tokens/holders/token/4e0515f9d7daabd7cdae603e355a9ea015b5288380ef2206a10a531bc858d600";
+
   const EXPLORER = "https://explorer.alephium.org/addresses/";
   const DECIMALS = 1e18;
+
+  const LIMIT = 100;
+  const MAX_PAGES = 5; // loads up to 500 holders (non-zero only)
 
   const formatAmount = (n) => {
     if (n >= 1e9) return (n / 1e9).toFixed(2).replace(/\.00$/, "") + "b";
@@ -211,22 +212,42 @@
   const truncateAddress = (a) =>
     a.slice(0, 6) + "…" + a.slice(-4);
 
+  async function fetchPage(page) {
+    const res = await fetch(`${API_BASE}?limit=${LIMIT}&page=${page}`);
+    if (!res.ok) throw new Error("API error");
+    return res.json();
+  }
+
   async function load() {
     try {
-      const res = await fetch(API);
-      const data = await res.json();
+      const holderMap = new Map();
 
-      const normalized = data.map(x => ({
-        address: x.address,
-        balance: Number(x.balance) / DECIMALS
-      }));
+      for (let page = 1; page <= MAX_PAGES; page++) {
+        const batch = await fetchPage(page);
 
-      normalized.sort((a, b) => b.balance - a.balance);
+        let added = 0;
 
-      const total = normalized.reduce((s, x) => s + x.balance, 0);
+        for (const h of batch) {
+          const balance = Number(h.balance) / DECIMALS;
+          if (balance > 0 && !holderMap.has(h.address)) {
+            holderMap.set(h.address, balance);
+            added++;
+          }
+        }
+
+        // Stop if page returned no new non-zero holders
+        if (added === 0) break;
+        if (batch.length < LIMIT) break;
+      }
+
+      const holders = Array.from(holderMap.entries())
+        .map(([address, balance]) => ({ address, balance }))
+        .sort((a, b) => b.balance - a.balance);
+
+      const total = holders.reduce((s, x) => s + x.balance, 0);
 
       document.getElementById("holders").textContent =
-        normalized.length.toLocaleString();
+        holders.length.toLocaleString();
 
       document.getElementById("total").textContent =
         formatAmount(total);
@@ -234,7 +255,7 @@
       const tbody = document.getElementById("tbody");
       tbody.innerHTML = "";
 
-      normalized.forEach((x, i) => {
+      holders.forEach((x, i) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td class="rank">#${i + 1}</td>
@@ -252,7 +273,8 @@
       document.getElementById("status").style.display = "none";
       document.getElementById("table").style.display = "table";
 
-    } catch {
+    } catch (err) {
+      console.error(err);
       document.getElementById("status").textContent =
         "Failed to load rich list.";
     }
