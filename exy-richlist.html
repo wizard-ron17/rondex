@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>$EXY Rich List</title>
+
+<style>
+  :root {
+    --bg-main: #dcffe9;
+    --card-bg: rgba(255, 255, 255, 0.55);
+    --card-border: rgba(0, 0, 0, 0.06);
+
+    --text-main: #14532d;
+    --text-muted: rgba(20, 83, 45, 0.65);
+
+    --accent-green: #22c55e;
+    --accent-pink: #f9a8d4;
+  }
+
+  body {
+    margin: 0;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 16px 64px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+
+  .header img {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+  }
+
+  h1 {
+    font-size: 1.9rem;
+    margin: 0;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .stat {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 14px;
+    backdrop-filter: blur(10px);
+  }
+
+  .stat-label {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  .stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  th, td {
+    padding: 12px 14px;
+    font-size: 0.9rem;
+  }
+
+  th {
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  tbody tr {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  tbody tr:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .rank {
+    width: 52px;
+    font-weight: 700;
+  }
+
+  .address a {
+    color: #166534;
+    text-decoration: none;
+    font-family: monospace;
+  }
+
+  .label {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: 999px;
+    background: var(--accent-pink);
+    color: #7a0441;
+  }
+
+  .balance, .percent {
+    text-align: right;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .loading, .error {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .address {
+      max-width: 140px;
+      word-break: break-all;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="header">
+    <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/EXY.png" />
+    <div>
+      <h1>$EXY Rich List</h1>
+      <div class="subtitle">Top holders by balance</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Holders</div>
+      <div id="holders" class="stat-value">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Total $EXY Held</div>
+      <div id="total" class="stat-value">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">$EXY Burned</div>
+      <div id="burned" class="stat-value">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="status" class="loading">Loading rich list…</div>
+    <table id="table" style="display:none;">
+      <thead>
+        <tr>
+          <th class="rank">#</th>
+          <th>Address</th>
+          <th class="balance">$EXY</th>
+          <th class="percent">% Owned</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    Data from Alephium Mainnet
+  </footer>
+</div>
+
+<script>
+  const API_BASE =
+    "https://backend.mainnet.alephium.org/tokens/holders/token/b067767804137fa913fe30a26a7c5f397faba36aaa7b9650327ae4e6e9305d00";
+
+  const EXPLORER = "https://explorer.alephium.org/addresses/";
+  const DECIMALS = 1e18;
+  const INITIAL_SUPPLY = 69_000_000;
+
+  const LABELS = {
+    "13gD5RtjkAD237PvDsVR1w9VBBwHFH1hddgAT9Mn6mL1R": "$EXY Team",
+    "1GT7VotqHcb91dsKuvmoGNEzTyortaTkB1LZzgzekyjyj": "$EXY Treasury",
+    "15EVxhQEeAhnoPnL7Dd6vd2GCdYDCQ6L9vG5KwXq4AFDr": "$EXY Bribe",
+    "15vrr6bQNgQHkJ3TrGxoY7GnthRiRx1M4ESkdik7TaXAF": "$EXY LP",
+    "275YMYo21Hw4REEY2SXhweMHTXSpAP9dBUUGNtwGGX3SF": "Elexium LP Contract"
+  };
+
+  const LIMIT = 100;
+  const MAX_PAGES = 5;
+
+  const formatAmount = (n) => {
+    if (n >= 1e9) return (n / 1e9).toFixed(2).replace(/\.00$/, "") + "b";
+    if (n >= 1e6) return (n / 1e6).toFixed(2).replace(/\.00$/, "") + "m";
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k";
+    return n.toFixed(2).replace(/\.00$/, "");
+  };
+
+  const truncateAddress = (a) => a.slice(0, 6) + "…" + a.slice(-4);
+
+  async function fetchPage(page) {
+    const res = await fetch(`${API_BASE}?limit=${LIMIT}&page=${page}`);
+    if (!res.ok) throw new Error("API error");
+    return res.json();
+  }
+
+  async function load() {
+    try {
+      const holderMap = new Map();
+
+      for (let page = 1; page <= MAX_PAGES; page++) {
+        const batch = await fetchPage(page);
+        let added = 0;
+
+        for (const h of batch) {
+          const balance = Number(h.balance) / DECIMALS;
+          if (balance > 0 && !holderMap.has(h.address)) {
+            holderMap.set(h.address, balance);
+            added++;
+          }
+        }
+
+        if (added === 0 || batch.length < LIMIT) break;
+      }
+
+      const holders = [...holderMap.entries()]
+        .map(([address, balance]) => ({ address, balance }))
+        .sort((a, b) => b.balance - a.balance);
+
+      const totalHeld = holders.reduce((s, x) => s + x.balance, 0);
+      const burned = Math.max(0, INITIAL_SUPPLY - totalHeld);
+
+      document.getElementById("holders").textContent =
+        holders.length.toLocaleString();
+
+      document.getElementById("total").textContent =
+        formatAmount(totalHeld);
+
+      document.getElementById("burned").textContent =
+        formatAmount(burned);
+
+      const tbody = document.getElementById("tbody");
+      tbody.innerHTML = "";
+
+      holders.forEach((x, i) => {
+        const label = LABELS[x.address]
+          ? `<span class="label">${LABELS[x.address]}</span>`
+          : "";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="rank">#${i + 1}</td>
+          <td class="address">
+            <a href="${EXPLORER}${x.address}" target="_blank">
+              ${window.innerWidth < 640 ? truncateAddress(x.address) : x.address}
+            </a>
+            ${label}
+          </td>
+          <td class="balance">${formatAmount(x.balance)}</td>
+          <td class="percent">${((x.balance / totalHeld) * 100).toFixed(2)}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("status").style.display = "none";
+      document.getElementById("table").style.display = "table";
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById("status").textContent =
+        "Failed to load rich list.";
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
