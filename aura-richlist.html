@@ -196,12 +196,10 @@
   </div>
 
 <script>
-  const API_BASE =
-    "https://backend.mainnet.alephium.org/tokens/holders/token/4e0515f9d7daabd7cdae603e355a9ea015b5288380ef2206a10a531bc858d600";
+  const API =
+    "https://backend.mainnet.alephium.org/tokens/holders/token/4e0515f9d7daabd7cdae603e355a9ea015b5288380ef2206a10a531bc858d600?limit=100";
   const EXPLORER = "https://explorer.alephium.org/addresses/";
   const DECIMALS = 1e18;
-  const PAGE_SIZE = 100;
-  const PAGES_TO_LOAD = 2; // 2 × 100 = 200 holders
 
   const formatAmount = (n) => {
     if (n >= 1e9) return (n / 1e9).toFixed(2).replace(/\.00$/, "") + "b";
@@ -213,36 +211,22 @@
   const truncateAddress = (a) =>
     a.slice(0, 6) + "…" + a.slice(-4);
 
-  async function fetchPage(offset) {
-    const res = await fetch(`${API_BASE}?limit=${PAGE_SIZE}&offset=${offset}`);
-    if (!res.ok) throw new Error("API error");
-    return res.json();
-  }
-
   async function load() {
     try {
-      let holdersRaw = [];
+      const res = await fetch(API);
+      const data = await res.json();
 
-      // Fetch multiple pages
-      for (let i = 0; i < PAGES_TO_LOAD; i++) {
-        const page = await fetchPage(i * PAGE_SIZE);
-        holdersRaw = holdersRaw.concat(page);
-
-        // Stop early if API returns less than requested
-        if (page.length < PAGE_SIZE) break;
-      }
-
-      const holders = holdersRaw.map(x => ({
+      const normalized = data.map(x => ({
         address: x.address,
         balance: Number(x.balance) / DECIMALS
       }));
 
-      holders.sort((a, b) => b.balance - a.balance);
+      normalized.sort((a, b) => b.balance - a.balance);
 
-      const total = holders.reduce((s, x) => s + x.balance, 0);
+      const total = normalized.reduce((s, x) => s + x.balance, 0);
 
       document.getElementById("holders").textContent =
-        holders.length.toLocaleString();
+        normalized.length.toLocaleString();
 
       document.getElementById("total").textContent =
         formatAmount(total);
@@ -250,7 +234,7 @@
       const tbody = document.getElementById("tbody");
       tbody.innerHTML = "";
 
-      holders.forEach((x, i) => {
+      normalized.forEach((x, i) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td class="rank">#${i + 1}</td>
@@ -268,8 +252,7 @@
       document.getElementById("status").style.display = "none";
       document.getElementById("table").style.display = "table";
 
-    } catch (err) {
-      console.error(err);
+    } catch {
       document.getElementById("status").textContent =
         "Failed to load rich list.";
     }
