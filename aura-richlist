@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>$AURA Rich List</title>
+
+<style>
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.12);
+    --glass-border: rgba(255, 255, 255, 0.25);
+    --text-main: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.75);
+    --accent: #7dd3fc;
+  }
+
+  body {
+    margin: 0;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-main);
+    background: linear-gradient(120deg, #8b5cf6 0%, #3b82f6 50%, #38bdf8 100%);
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .header img {
+    width: 48px;
+    height: 48px;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin: 0;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-size: 0.95rem;
+  }
+
+  .card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    backdrop-filter: blur(14px);
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  th, td {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 0.95rem;
+  }
+
+  th {
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  tbody tr {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  tbody tr:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .rank {
+    font-weight: 600;
+    width: 70px;
+  }
+
+  .address a {
+    color: #e0f2fe;
+    text-decoration: none;
+    font-family: monospace;
+  }
+
+  .address a:hover {
+    text-decoration: underline;
+  }
+
+  .balance {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .loading, .error {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/AURA.png" alt="AURA Logo" />
+      <div>
+        <h1>$AURA Rich List</h1>
+        <div class="subtitle">Top holders by balance</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="status" class="loading">Loading rich list…</div>
+      <table id="table" style="display:none;">
+        <thead>
+          <tr>
+            <th class="rank">Rank</th>
+            <th>Address</th>
+            <th class="balance">Balance (AURA)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <footer>
+      Data via Aura API • Alephium Explorer
+    </footer>
+  </div>
+
+<script>
+  const API_URL = "https://backend.mainnet.alephium.org/tokens/holders/token/4e0515f9d7daabd7cdae603e355a9ea015b5288380ef2206a10a531bc858d600";
+  const EXPLORER_BASE = "https://explorer.alephium.org/addresses/";
+  const DECIMALS = 1e18;
+
+  async function loadRichList() {
+    try {
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error("API request failed");
+
+      const data = await res.json();
+
+      // Normalize + sort
+      const normalized = data
+        .map(x => ({
+          address: x.address,
+          balance: Number(x.balance) / DECIMALS
+        }))
+        .sort((a, b) => b.balance - a.balance);
+
+      const tbody = document.getElementById("tbody");
+      tbody.innerHTML = "";
+
+      normalized.forEach((item, index) => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td class="rank">#${index + 1}</td>
+          <td class="address">
+            <a href="${EXPLORER_BASE}${item.address}" target="_blank" rel="noopener">
+              ${item.address}
+            </a>
+          </td>
+          <td class="balance">
+            ${item.balance.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 6
+            })}
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("status").style.display = "none";
+      document.getElementById("table").style.display = "table";
+
+    } catch (err) {
+      document.getElementById("status").textContent =
+        "Failed to load rich list.";
+      document.getElementById("status").className = "error";
+      console.error(err);
+    }
+  }
+
+  loadRichList();
+</script>
+</body>
+</html>
