@@ -11,7 +11,6 @@
     --glass-border: rgba(255, 255, 255, 0.25);
     --text-main: #ffffff;
     --text-muted: rgba(255, 255, 255, 0.75);
-    --accent: #7dd3fc;
   }
 
   body {
@@ -113,7 +112,7 @@
   }
 
   .rank {
-    width: 56px;
+    width: 52px;
     font-weight: 600;
   }
 
@@ -123,14 +122,10 @@
     font-family: monospace;
   }
 
-  .address a:hover {
-    text-decoration: underline;
-  }
-
   .balance, .percent {
     text-align: right;
-    font-variant-numeric: tabular-nums;
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
   }
 
   .loading, .error {
@@ -146,13 +141,9 @@
     color: var(--text-muted);
   }
 
-  /* Mobile tweaks */
+  /* Mobile */
   @media (max-width: 640px) {
     th.rank, td.rank {
-      display: none;
-    }
-
-    th.balance, td.balance {
       display: none;
     }
 
@@ -166,7 +157,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/AURA.png" alt="AURA Logo" />
+      <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/AURA.png" />
       <div>
         <h1>$AURA Rich List</h1>
         <div class="subtitle">Top holders by balance</div>
@@ -191,7 +182,7 @@
           <tr>
             <th class="rank">#</th>
             <th>Address</th>
-            <th class="balance">Balance</th>
+            <th class="balance">AURA</th>
             <th class="percent">% Owned</th>
           </tr>
         </thead>
@@ -200,73 +191,60 @@
     </div>
 
     <footer>
-      Data from Alephium Mainnet • Aura
+      Data from Alephium Mainnet
     </footer>
   </div>
 
 <script>
-  const API_URL =
+  const API =
     "https://backend.mainnet.alephium.org/tokens/holders/token/4e0515f9d7daabd7cdae603e355a9ea015b5288380ef2206a10a531bc858d600";
-
   const EXPLORER = "https://explorer.alephium.org/addresses/";
   const DECIMALS = 1e18;
 
-  function truncateAddress(addr) {
-    return addr.slice(0, 6) + "…" + addr.slice(-4);
-  }
+  const formatAmount = (n) => {
+    if (n >= 1e9) return (n / 1e9).toFixed(2).replace(/\.00$/, "") + "b";
+    if (n >= 1e6) return (n / 1e6).toFixed(2).replace(/\.00$/, "") + "m";
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k";
+    return n.toFixed(2).replace(/\.00$/, "");
+  };
 
-  async function loadRichList() {
+  const truncateAddress = (a) =>
+    a.slice(0, 6) + "…" + a.slice(-4);
+
+  async function load() {
     try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error("API error");
-
+      const res = await fetch(API);
       const data = await res.json();
-
-      const holders = data.length;
 
       const normalized = data.map(x => ({
         address: x.address,
         balance: Number(x.balance) / DECIMALS
       }));
 
-      const totalSupply = normalized.reduce(
-        (sum, x) => sum + x.balance,
-        0
-      );
-
       normalized.sort((a, b) => b.balance - a.balance);
 
+      const total = normalized.reduce((s, x) => s + x.balance, 0);
+
       document.getElementById("holders").textContent =
-        holders.toLocaleString();
+        normalized.length.toLocaleString();
 
       document.getElementById("total").textContent =
-        totalSupply.toLocaleString(undefined, {
-          maximumFractionDigits: 2
-        });
+        formatAmount(total);
 
       const tbody = document.getElementById("tbody");
       tbody.innerHTML = "";
 
-      normalized.forEach((item, i) => {
-        const percent = (item.balance / totalSupply) * 100;
-
+      normalized.forEach((x, i) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td class="rank">#${i + 1}</td>
           <td class="address">
-            <a href="${EXPLORER}${item.address}" target="_blank">
-              <span class="full">${item.address}</span>
-              <span class="short">${truncateAddress(item.address)}</span>
+            <a href="${EXPLORER}${x.address}" target="_blank">
+              ${window.innerWidth < 640 ? truncateAddress(x.address) : x.address}
             </a>
           </td>
-          <td class="balance">
-            ${item.balance.toLocaleString(undefined, {
-              maximumFractionDigits: 6
-            })}
-          </td>
-          <td class="percent">
-            ${percent.toFixed(2)}%
-          </td>
+          <td class="balance">${formatAmount(x.balance)}</td>
+          <td class="percent">${((x.balance / total) * 100).toFixed(2)}%</td>
         `;
         tbody.appendChild(tr);
       });
@@ -274,22 +252,13 @@
       document.getElementById("status").style.display = "none";
       document.getElementById("table").style.display = "table";
 
-      // Toggle address display for mobile
-      if (window.innerWidth <= 640) {
-        document.querySelectorAll(".full").forEach(e => e.style.display = "none");
-      } else {
-        document.querySelectorAll(".short").forEach(e => e.style.display = "none");
-      }
-
-    } catch (err) {
+    } catch {
       document.getElementById("status").textContent =
         "Failed to load rich list.";
-      document.getElementById("status").className = "error";
-      console.error(err);
     }
   }
 
-  loadRichList();
+  load();
 </script>
 </body>
 </html>
