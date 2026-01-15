@@ -25,7 +25,7 @@ html, body {
 
 body {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: radial-gradient(1200px 600px at bottom, #1b1f2a, #0b0d10);
+  background: linear-gradient(to bottom, #1b1f2a 0%, #0b0d10 600px, #0b0d10 100%);
   color: var(--text);
   display: flex;
   flex-direction: column;
@@ -157,6 +157,22 @@ h1 {
   margin-top: 6px;
   font-size: 1.15rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(167,139,250,0.3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* TABLE */
@@ -291,6 +307,41 @@ footer {
   font-size: 0.75rem;
   color: var(--muted);
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 14px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--accent);
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
 </style>
 </head>
 
@@ -320,15 +371,21 @@ footer {
   <div class="stats">
     <div class="stat">
       <div class="stat-label">Holders</div>
-      <div id="holders" class="stat-value">—</div>
+      <div id="holders" class="stat-value">
+        <span>—</span>
+      </div>
     </div>
     <div class="stat">
       <div class="stat-label">Total Supply</div>
-      <div id="supply" class="stat-value">—</div>
+      <div id="supply" class="stat-value">
+        <span>—</span>
+      </div>
     </div>
     <div class="stat">
       <div class="stat-label">Top 10 Concentration</div>
-      <div id="top10" class="stat-value">—</div>
+      <div id="top10" class="stat-value">
+        <span>—</span>
+      </div>
     </div>
   </div>
 
@@ -347,6 +404,12 @@ footer {
       </thead>
       <tbody id="tbody"></tbody>
     </table>
+  </div>
+
+  <div class="pagination">
+    <button id="prevPage" onclick="changePage(-1)">← Previous</button>
+    <span id="pageInfo">Page 1</span>
+    <button id="nextPage" onclick="changePage(1)">Next →</button>
   </div>
 
   <footer>
@@ -374,6 +437,9 @@ const MAX_PAGES = 20;
 let TOKENS = [];
 let CURRENT_TOKEN = null;
 let HIGHLIGHT = null;
+let ALL_HOLDERS = [];
+let CURRENT_PAGE = 1;
+const PER_PAGE = 100;
 
 // ALPH token placeholder
 const ALPH_TOKEN = {
@@ -392,7 +458,13 @@ const URL_HOLDER = params.get("holder");
 
 /* ---------- HELPERS ---------- */
 
-const truncate = a => a.slice(0,6) + "…" + a.slice(-4);
+const truncate = a => {
+  // Truncate addresses longer than 45 characters (standard ALPH addresses are ~45 chars)
+  if (a.length > 45) {
+    return a.slice(0, 8) + "…" + a.slice(-6);
+  }
+  return a;
+};
 
 const badge = p =>
   p >= 10 ? "🐋" :
@@ -402,6 +474,71 @@ const badge = p =>
 const formatDisplay = n =>
   n < 0.001 && n > 0 ? "(<0.001)" :
   n.toLocaleString(undefined, { maximumFractionDigits: 3 });
+
+function showLoadingSpinner(elementId) {
+  const el = document.getElementById(elementId);
+  el.innerHTML = '<span>—</span><div class="loading-spinner"></div>';
+}
+
+function updateStat(elementId, value) {
+  const el = document.getElementById(elementId);
+  el.innerHTML = `<span>${value}</span>`;
+}
+
+function changePage(delta) {
+  const maxPage = Math.ceil(ALL_HOLDERS.length / PER_PAGE);
+  CURRENT_PAGE = Math.max(1, Math.min(maxPage, CURRENT_PAGE + delta));
+  renderCurrentPage();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderCurrentPage() {
+  const start = (CURRENT_PAGE - 1) * PER_PAGE;
+  const end = start + PER_PAGE;
+  const pageHolders = ALL_HOLDERS.slice(start, end);
+  
+  const totalSupply = ALL_HOLDERS.reduce((s,x)=>s+x.balance,0);
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+
+  pageHolders.forEach((h, idx) => {
+    const globalIndex = start + idx;
+    const pct = h.balance / totalSupply * 100;
+    const tr = document.createElement("tr");
+    if (HIGHLIGHT === h.address) tr.classList.add("highlight");
+
+    const exchangeBadge = (h.type === "Exchange" || h.type === "Bridge") && h.name
+      ? `<span class="exchange-badge">${h.name}</span>`
+      : "";
+
+    const displayAddress = h.address.length > 45 ? truncate(h.address) : h.address;
+
+    tr.innerHTML = `
+      <td class="rank">#${globalIndex + 1}</td>
+      <td class="address">
+        <a href="${EXPLORER}${h.address}" target="_blank"
+           onclick="event.stopPropagation();
+             history.replaceState(null,'',
+               '?token=${CURRENT_TOKEN.id}&holder=${h.address}')">
+          ${displayAddress}
+        </a>
+        <span class="badge">${badge(pct)}</span>
+        ${exchangeBadge}
+      </td>
+      <td class="balance tooltip">
+        ${formatDisplay(h.balance)}
+        <span>${h.balance.toLocaleString()}</span>
+      </td>
+      <td class="percent">${pct.toFixed(2)}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const maxPage = Math.ceil(ALL_HOLDERS.length / PER_PAGE);
+  document.getElementById("pageInfo").textContent = `Page ${CURRENT_PAGE} of ${maxPage}`;
+  document.getElementById("prevPage").disabled = CURRENT_PAGE === 1;
+  document.getElementById("nextPage").disabled = CURRENT_PAGE === maxPage;
+}
 
 /* ---------- INIT ---------- */
 
@@ -431,6 +568,8 @@ async function init() {
 async function loadALPH() {
   CURRENT_TOKEN = ALPH_TOKEN;
   HIGHLIGHT = URL_HOLDER;
+  CURRENT_PAGE = 1;
+  ALL_HOLDERS = [];
 
   history.replaceState(null, "",
     "?token=ALPH" + (HIGHLIGHT ? "&holder="+HIGHLIGHT : "")
@@ -443,14 +582,18 @@ async function loadALPH() {
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = "";
   
+  // Show loading spinners
+  showLoadingSpinner("holders");
+  showLoadingSpinner("supply");
+  showLoadingSpinner("top10");
+  
   document.getElementById("status").style.display = "none";
   document.getElementById("table").style.display = "table";
 
-  const holders = [];
   let page = 1;
   const perPage = 100;
-  let totalSupply = 0;
   let activeAddresses = 0;
+  let firstPageDone = false;
 
   // Fetch first page to get initial data
   try {
@@ -461,14 +604,14 @@ async function loadALPH() {
     activeAddresses = data.active_addresses || 0;
     
     // Set holders stat immediately
-    document.getElementById("holders").textContent = activeAddresses.toLocaleString();
+    updateStat("holders", activeAddresses.toLocaleString());
     
     if (!data.addresses || data.addresses.length === 0) return;
 
     for (const addr of data.addresses) {
       const bal = Number(addr.balance) / 1e18;
       if (bal > 0) {
-        holders.push({
+        ALL_HOLDERS.push({
           address: addr.address,
           balance: bal,
           type: addr.type || "",
@@ -477,8 +620,9 @@ async function loadALPH() {
       }
     }
 
-    // Render first 20 immediately
-    renderHolders(holders.slice(0, 20), holders, 0);
+    // Render first page immediately
+    renderCurrentPage();
+    firstPageDone = true;
 
     page++;
 
@@ -495,7 +639,7 @@ async function loadALPH() {
           for (const addr of data.addresses) {
             const bal = Number(addr.balance) / 1e18;
             if (bal > 0) {
-              holders.push({
+              ALL_HOLDERS.push({
                 address: addr.address,
                 balance: bal,
                 type: addr.type || "",
@@ -504,19 +648,19 @@ async function loadALPH() {
             }
           }
 
-          // Update stats and table periodically
+          // Update stats periodically
           if (page % 5 === 0 || data.addresses.length < perPage) {
-            totalSupply = holders.reduce((s,x)=>s+x.balance,0);
-            const top10 = holders.slice(0,10)
+            const totalSupply = ALL_HOLDERS.reduce((s,x)=>s+x.balance,0);
+            const top10 = ALL_HOLDERS.slice(0,10)
               .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
 
-            document.getElementById("supply").textContent =
-              totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 });
+            updateStat("supply", totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 }));
+            updateStat("top10", top10.toFixed(2) + "%");
 
-            document.getElementById("top10").textContent =
-              top10.toFixed(2) + "%";
-
-            renderHolders(holders, holders, totalSupply);
+            // Update current page if we're still on page 1
+            if (CURRENT_PAGE === 1) {
+              renderCurrentPage();
+            }
           }
 
           if (data.addresses.length < perPage) break;
@@ -528,59 +672,21 @@ async function loadALPH() {
       }
 
       // Final update
-      totalSupply = holders.reduce((s,x)=>s+x.balance,0);
-      const top10 = holders.slice(0,10)
+      const totalSupply = ALL_HOLDERS.reduce((s,x)=>s+x.balance,0);
+      const top10 = ALL_HOLDERS.slice(0,10)
         .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
 
-      document.getElementById("supply").textContent =
-        totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 });
+      updateStat("supply", totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 }));
+      updateStat("top10", top10.toFixed(2) + "%");
 
-      document.getElementById("top10").textContent =
-        top10.toFixed(2) + "%";
-
-      renderHolders(holders, holders, totalSupply);
+      if (CURRENT_PAGE === 1) {
+        renderCurrentPage();
+      }
     })();
 
   } catch (e) {
     console.error("Error fetching ALPH richlist:", e);
   }
-}
-
-function renderHolders(displayHolders, allHolders, supply) {
-  const tbody = document.getElementById("tbody");
-  tbody.innerHTML = "";
-
-  const totalSupply = supply || allHolders.reduce((s,x)=>s+x.balance,0);
-
-  displayHolders.forEach((h,i)=>{
-    const pct = h.balance / totalSupply * 100;
-    const tr = document.createElement("tr");
-    if (HIGHLIGHT === h.address) tr.classList.add("highlight");
-
-    const exchangeBadge = (h.type === "Exchange" || h.type === "Bridge") && h.name
-      ? `<span class="exchange-badge">${h.name}</span>`
-      : "";
-
-    tr.innerHTML = `
-      <td class="rank">#${i+1}</td>
-      <td class="address">
-        <a href="${EXPLORER}${h.address}" target="_blank"
-           onclick="event.stopPropagation();
-             history.replaceState(null,'',
-               '?token=ALPH&holder=${h.address}')">
-          ${window.innerWidth < 640 ? truncate(h.address) : h.address}
-        </a>
-        <span class="badge">${badge(pct)}</span>
-        ${exchangeBadge}
-      </td>
-      <td class="balance tooltip">
-        ${formatDisplay(h.balance)}
-        <span>${h.balance.toLocaleString()}</span>
-      </td>
-      <td class="percent">${pct.toFixed(2)}%</td>
-    `;
-    tbody.appendChild(tr);
-  });
 }
 
 /* ---------- LOAD TOKEN ---------- */
@@ -592,6 +698,8 @@ async function loadToken(token) {
 
   CURRENT_TOKEN = token;
   HIGHLIGHT = URL_HOLDER;
+  CURRENT_PAGE = 1;
+  ALL_HOLDERS = [];
 
   history.replaceState(null, "",
     "?token=" + token.id + (HIGHLIGHT ? "&holder="+HIGHLIGHT : "")
@@ -623,53 +731,22 @@ async function loadToken(token) {
     if (added === 0 || data.length < LIMIT) break;
   }
 
-  const holders = [...map.entries()]
-    .map(([address, balance]) => ({ address, balance }))
+  ALL_HOLDERS = [...map.entries()]
+    .map(([address, balance]) => ({ address, balance, type: "", name: "" }))
     .sort((a,b)=>b.balance-a.balance);
 
-  const totalSupply = holders.reduce((s,x)=>s+x.balance,0);
-  const top10 = holders.slice(0,10)
+  const totalSupply = ALL_HOLDERS.reduce((s,x)=>s+x.balance,0);
+  const top10 = ALL_HOLDERS.slice(0,10)
     .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
 
-  document.getElementById("holders").textContent =
-    holders.length.toLocaleString();
-
-  document.getElementById("supply").textContent =
-    totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 });
-
-  document.getElementById("top10").textContent =
-    top10.toFixed(2) + "%";
-
-  const tbody = document.getElementById("tbody");
-  tbody.innerHTML = "";
-
-  holders.forEach((h,i)=>{
-    const pct = h.balance / totalSupply * 100;
-    const tr = document.createElement("tr");
-    if (HIGHLIGHT === h.address) tr.classList.add("highlight");
-
-    tr.innerHTML = `
-      <td class="rank">#${i+1}</td>
-      <td class="address">
-        <a href="${EXPLORER}${h.address}" target="_blank"
-           onclick="event.stopPropagation();
-             history.replaceState(null,'',
-               '?token=${token.id}&holder=${h.address}')">
-          ${window.innerWidth < 640 ? truncate(h.address) : h.address}
-        </a>
-        <span class="badge">${badge(pct)}</span>
-      </td>
-      <td class="balance tooltip">
-        ${formatDisplay(h.balance)}
-        <span>${h.balance.toLocaleString()}</span>
-      </td>
-      <td class="percent">${pct.toFixed(2)}%</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  updateStat("holders", ALL_HOLDERS.length.toLocaleString());
+  updateStat("supply", totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 }));
+  updateStat("top10", top10.toFixed(2) + "%");
 
   document.getElementById("status").style.display = "none";
   document.getElementById("table").style.display = "table";
+  
+  renderCurrentPage();
 }
 
 /* ---------- SEARCH ---------- */
