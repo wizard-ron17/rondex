@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ron's Alephium Richlist</title>
+
+<style>
+:root {
+  --bg: #0b0d10;
+  --card: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.08);
+  --text: #e5e7eb;
+  --muted: rgba(229,231,235,0.55);
+  --accent: #a78bfa;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(1200px 600px at bottom, #1b1f2a, #0b0d10);
+  color: var(--text);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 16px 64px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.header img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.9rem;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* SEARCH */
+
+.search {
+  position: relative;
+  margin-bottom: 26px;
+}
+
+.search input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.search-results {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  right: 0;
+  background: #0f1117;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.search-item:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.search-item img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+/* STATS */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  backdrop-filter: blur(12px);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.stat-value {
+  margin-top: 6px;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* TABLE */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.loading {
+  padding: 36px;
+  text-align: center;
+  color: var(--muted);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: rgba(255,255,255,0.04);
+}
+
+th, td {
+  padding: 12px 14px;
+  font-size: 0.9rem;
+}
+
+th {
+  text-align: left;
+  color: var(--muted);
+}
+
+tbody tr {
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+tbody tr:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.rank { width: 56px; font-weight: 700; }
+
+.address a {
+  color: #c4b5fd;
+  text-decoration: none;
+  font-family: monospace;
+}
+
+.balance, .percent {
+  text-align: right;
+  font-weight: 600;
+}
+
+.badge {
+  margin-left: 6px;
+}
+
+/* FOOTER */
+
+footer {
+  margin-top: 26px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="header">
+    <img id="logo" style="display:none;" />
+    <div>
+      <h1>Ron's Alephium Richlist</h1>
+      <div id="subtitle" class="subtitle">
+        Search for a token to view top holders
+      </div>
+    </div>
+  </div>
+
+  <div class="search">
+    <input id="search" placeholder="Search tokens by name or symbol…" />
+    <div id="results" class="search-results" style="display:none;"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Holders</div>
+      <div id="holders" class="stat-value">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Total Held</div>
+      <div id="total" class="stat-value">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Top 10 Concentration</div>
+      <div id="top10" class="stat-value">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="status" class="loading">Select a token to load rich list</div>
+    <table id="table" style="display:none;">
+      <thead>
+        <tr>
+          <th class="rank">#</th>
+          <th>Address</th>
+          <th class="balance">Balance</th>
+          <th class="percent">% Supply</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    Data from Alephium Mainnet · API updates approximately once per day
+  </footer>
+
+</div>
+
+<script>
+const TOKEN_LIST_URL =
+  "https://raw.githubusercontent.com/alephium/token-list/master/tokens/mainnet.json";
+
+const HOLDERS_API =
+  "https://backend.mainnet.alephium.org/tokens/holders/token/";
+
+const EXPLORER =
+  "https://explorer.alephium.org/addresses/";
+
+const LIMIT = 100;
+const MAX_PAGES = 20;
+
+let TOKENS = [];
+
+const format = (n) =>
+  n >= 1e6 ? (n/1e6).toFixed(2).replace(/\.00$/,"")+"m"
+          : n.toLocaleString();
+
+const badge = (p) =>
+  p >= 10 ? "🐋" : p >= 5 ? "🦈" : p >= 1 ? "🐬" : "🐟";
+
+async function init() {
+  const res = await fetch(TOKEN_LIST_URL);
+  const json = await res.json();
+  TOKENS = json.tokens;
+}
+
+async function loadToken(token) {
+  document.getElementById("logo").src = token.logoURI;
+  document.getElementById("logo").style.display = "block";
+  document.getElementById("subtitle").textContent =
+    `${token.name} (${token.symbol}) · Top holders`;
+
+  document.getElementById("status").textContent = "Loading holders…";
+  document.getElementById("status").style.display = "block";
+  document.getElementById("table").style.display = "none";
+
+  const map = new Map();
+
+  for (let p = 1; p <= MAX_PAGES; p++) {
+    const r = await fetch(`${HOLDERS_API}${token.id}?limit=${LIMIT}&page=${p}`);
+    if (!r.ok) break;
+    const data = await r.json();
+    let added = 0;
+
+    for (const h of data) {
+      const bal = Number(h.balance) / 10 ** token.decimals;
+      if (bal > 0 && !map.has(h.address)) {
+        map.set(h.address, bal);
+        added++;
+      }
+    }
+    if (added === 0 || data.length < LIMIT) break;
+  }
+
+  const holders = [...map.entries()]
+    .map(([address, balance]) => ({ address, balance }))
+    .sort((a,b)=>b.balance-a.balance);
+
+  const total = holders.reduce((s,x)=>s+x.balance,0);
+  const top10 = holders.slice(0,10)
+    .reduce((s,x)=>s+x.balance,0) / total * 100;
+
+  document.getElementById("holders").textContent =
+    holders.length.toLocaleString();
+  document.getElementById("total").textContent = format(total);
+  document.getElementById("top10").textContent = top10.toFixed(2)+"%";
+
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+
+  holders.forEach((h,i)=>{
+    const pct = h.balance / total * 100;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="rank">#${i+1}</td>
+      <td class="address">
+        <a href="${EXPLORER}${h.address}" target="_blank">${h.address}</a>
+        <span class="badge">${badge(pct)}</span>
+      </td>
+      <td class="balance">${format(h.balance)}</td>
+      <td class="percent">${pct.toFixed(2)}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("status").style.display = "none";
+  document.getElementById("table").style.display = "table";
+}
+
+document.getElementById("search").addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
+  const box = document.getElementById("results");
+  box.innerHTML = "";
+
+  if (!q) return box.style.display = "none";
+
+  TOKENS.filter(t =>
+    t.name.toLowerCase().includes(q) ||
+    t.symbol.toLowerCase().includes(q)
+  ).slice(0,30).forEach(t=>{
+    const div = document.createElement("div");
+    div.className = "search-item";
+    div.innerHTML = `
+      <img src="${t.logoURI}" />
+      <div>${t.name} (${t.symbol})</div>
+    `;
+    div.onclick = () => {
+      box.style.display = "none";
+      document.getElementById("search").value = t.symbol;
+      loadToken(t);
+    };
+    box.appendChild(div);
+  });
+
+  box.style.display = "block";
+});
+
+init();
+</script>
+</body>
+</html>
