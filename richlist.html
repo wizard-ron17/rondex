@@ -13,6 +13,7 @@
   --text: #e5e7eb;
   --muted: rgba(229,231,235,0.55);
   --accent: #a78bfa;
+  --highlight: rgba(167,139,250,0.18);
 }
 
 * { box-sizing: border-box; }
@@ -27,37 +28,40 @@ body {
 .container {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 36px 16px 64px;
+  padding: 32px 14px 64px;
 }
+
+/* HEADER */
 
 .header {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .header img {
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
+  display: none;
 }
 
 h1 {
   margin: 0;
-  font-size: 1.9rem;
+  font-size: 1.8rem;
 }
 
 .subtitle {
-  color: var(--muted);
   font-size: 0.9rem;
+  color: var(--muted);
 }
 
 /* SEARCH */
 
 .search {
   position: relative;
-  margin-bottom: 26px;
+  margin-bottom: 22px;
 }
 
 .search input {
@@ -105,27 +109,26 @@ h1 {
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
-  margin-bottom: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .stat {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 16px;
-  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 14px;
 }
 
 .stat-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--muted);
 }
 
 .stat-value {
   margin-top: 6px;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
 }
 
@@ -134,12 +137,12 @@ h1 {
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 18px;
   overflow: hidden;
 }
 
 .loading {
-  padding: 36px;
+  padding: 28px;
   text-align: center;
   color: var(--muted);
 }
@@ -154,13 +157,14 @@ thead {
 }
 
 th, td {
-  padding: 12px 14px;
-  font-size: 0.9rem;
+  padding: 10px 12px;
+  font-size: 0.88rem;
 }
 
 th {
   text-align: left;
   color: var(--muted);
+  font-weight: 600;
 }
 
 tbody tr {
@@ -171,7 +175,10 @@ tbody tr:hover {
   background: rgba(255,255,255,0.04);
 }
 
-.rank { width: 56px; font-weight: 700; }
+.rank {
+  width: 44px;
+  font-weight: 700;
+}
 
 .address a {
   color: #c4b5fd;
@@ -182,16 +189,62 @@ tbody tr:hover {
 .balance, .percent {
   text-align: right;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .badge {
-  margin-left: 6px;
+  margin-left: 4px;
+}
+
+.highlight {
+  background: var(--highlight);
+}
+
+/* TOOLTIP */
+
+.tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.tooltip span {
+  visibility: hidden;
+  position: absolute;
+  bottom: 125%;
+  right: 0;
+  background: #111;
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.tooltip:hover span {
+  visibility: visible;
+}
+
+/* MOBILE */
+
+@media (max-width: 640px) {
+  th, td {
+    padding: 8px 8px;
+    font-size: 0.8rem;
+  }
+
+  .address a {
+    display: inline-block;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+  }
 }
 
 /* FOOTER */
 
 footer {
-  margin-top: 26px;
+  margin-top: 22px;
   text-align: center;
   font-size: 0.75rem;
   color: var(--muted);
@@ -203,11 +256,11 @@ footer {
 <div class="container">
 
   <div class="header">
-    <img id="logo" style="display:none;" />
+    <img id="logo" />
     <div>
       <h1>Ron's Alephium Richlist</h1>
       <div id="subtitle" class="subtitle">
-        Search for a token to view top holders
+        Search for a token to view holders
       </div>
     </div>
   </div>
@@ -223,8 +276,8 @@ footer {
       <div id="holders" class="stat-value">—</div>
     </div>
     <div class="stat">
-      <div class="stat-label">Total Held</div>
-      <div id="total" class="stat-value">—</div>
+      <div class="stat-label">Total Supply</div>
+      <div id="supply" class="stat-value">—</div>
     </div>
     <div class="stat">
       <div class="stat-label">Top 10 Concentration</div>
@@ -233,7 +286,9 @@ footer {
   </div>
 
   <div class="card">
-    <div id="status" class="loading">Select a token to load rich list</div>
+    <div id="status" class="loading">
+      Select a token to load rich list
+    </div>
     <table id="table" style="display:none;">
       <thead>
         <tr>
@@ -267,21 +322,54 @@ const LIMIT = 100;
 const MAX_PAGES = 20;
 
 let TOKENS = [];
+let CURRENT_TOKEN = null;
+let HIGHLIGHT = null;
 
-const format = (n) =>
-  n >= 1e6 ? (n/1e6).toFixed(2).replace(/\.00$/,"")+"m"
-          : n.toLocaleString();
+/* ---------- URL PARAMS ---------- */
 
-const badge = (p) =>
-  p >= 10 ? "🐋" : p >= 5 ? "🦈" : p >= 1 ? "🐬" : "🐟";
+const params = new URLSearchParams(window.location.search);
+const URL_TOKEN = params.get("token");
+const URL_HOLDER = params.get("holder");
+
+/* ---------- HELPERS ---------- */
+
+const truncate = a => a.slice(0,6) + "…" + a.slice(-4);
+
+const badge = p =>
+  p >= 10 ? "🐋" :
+  p >= 5  ? "🦈" :
+  p >= 1  ? "🐬" : "🐟";
+
+const formatDisplay = n =>
+  n < 0.001 && n > 0 ? "(<0.001)" :
+  n.toLocaleString(undefined, { maximumFractionDigits: 3 });
+
+/* ---------- INIT ---------- */
 
 async function init() {
   const res = await fetch(TOKEN_LIST_URL);
   const json = await res.json();
   TOKENS = json.tokens;
+
+  if (URL_TOKEN) {
+    const t = TOKENS.find(x => x.id === URL_TOKEN);
+    if (t) {
+      document.getElementById("search").value = t.symbol;
+      loadToken(t);
+    }
+  }
 }
 
+/* ---------- LOAD TOKEN ---------- */
+
 async function loadToken(token) {
+  CURRENT_TOKEN = token;
+  HIGHLIGHT = URL_HOLDER;
+
+  history.replaceState(null, "",
+    "?token=" + token.id + (HIGHLIGHT ? "&holder="+HIGHLIGHT : "")
+  );
+
   document.getElementById("logo").src = token.logoURI;
   document.getElementById("logo").style.display = "block";
   document.getElementById("subtitle").textContent =
@@ -313,28 +401,42 @@ async function loadToken(token) {
     .map(([address, balance]) => ({ address, balance }))
     .sort((a,b)=>b.balance-a.balance);
 
-  const total = holders.reduce((s,x)=>s+x.balance,0);
+  const totalSupply = holders.reduce((s,x)=>s+x.balance,0);
   const top10 = holders.slice(0,10)
-    .reduce((s,x)=>s+x.balance,0) / total * 100;
+    .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
 
   document.getElementById("holders").textContent =
     holders.length.toLocaleString();
-  document.getElementById("total").textContent = format(total);
-  document.getElementById("top10").textContent = top10.toFixed(2)+"%";
+
+  document.getElementById("supply").textContent =
+    totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 });
+
+  document.getElementById("top10").textContent =
+    top10.toFixed(2) + "%";
 
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = "";
 
   holders.forEach((h,i)=>{
-    const pct = h.balance / total * 100;
+    const pct = h.balance / totalSupply * 100;
     const tr = document.createElement("tr");
+    if (HIGHLIGHT === h.address) tr.classList.add("highlight");
+
     tr.innerHTML = `
       <td class="rank">#${i+1}</td>
       <td class="address">
-        <a href="${EXPLORER}${h.address}" target="_blank">${h.address}</a>
+        <a href="${EXPLORER}${h.address}" target="_blank"
+           onclick="event.stopPropagation();
+             history.replaceState(null,'',
+               '?token=${token.id}&holder=${h.address}')">
+          ${window.innerWidth < 640 ? truncate(h.address) : h.address}
+        </a>
         <span class="badge">${badge(pct)}</span>
       </td>
-      <td class="balance">${format(h.balance)}</td>
+      <td class="balance tooltip">
+        ${formatDisplay(h.balance)}
+        <span>${h.balance.toLocaleString()}</span>
+      </td>
       <td class="percent">${pct.toFixed(2)}%</td>
     `;
     tbody.appendChild(tr);
@@ -343,6 +445,8 @@ async function loadToken(token) {
   document.getElementById("status").style.display = "none";
   document.getElementById("table").style.display = "table";
 }
+
+/* ---------- SEARCH ---------- */
 
 document.getElementById("search").addEventListener("input", e => {
   const q = e.target.value.toLowerCase();
