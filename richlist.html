@@ -8,7 +8,7 @@
 <style>
 :root {
   --bg: #0b0d10;
-  --card-bg: rgba(255,255,255,0.06);
+  --card: rgba(255,255,255,0.06);
   --border: rgba(255,255,255,0.08);
   --text: #e5e7eb;
   --muted: rgba(229,231,235,0.55);
@@ -18,111 +18,160 @@
 
 * { box-sizing: border-box; }
 
-body {
+html, body {
+  height: 100%;
   margin: 0;
-  min-height: 100vh;
-  font-family: Inter, system-ui, sans-serif;
-  background: var(--bg-main);
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(1200px 600px at bottom, #1b1f2a, #0b0d10);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+.donate-banner {
+  background: linear-gradient(90deg, rgba(167,139,250,0.15), rgba(139,92,246,0.15));
+  border-bottom: 1px solid var(--border);
+  padding: 8px 14px;
+  text-align: center;
+  font-size: 0.8rem;
   color: var(--text);
 }
 
-.banner {
-  background: rgba(0,0,0,.06);
-  padding: 6px 12px;
-  font-size: .8rem;
-  text-align: center;
+.donate-banner a {
+  color: var(--accent);
+  text-decoration: none;
+  font-family: monospace;
+  margin-left: 6px;
+}
+
+.donate-banner a:hover {
+  text-decoration: underline;
 }
 
 .container {
-  min-height: calc(100vh - 32px);
   max-width: 1100px;
+  width: 100%;
   margin: 0 auto;
-  padding: 20px 14px 60px;
+  padding: 32px 14px 64px;
+  flex: 1;
 }
+
+/* HEADER */
 
 .header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
 .header img {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
 }
 
-h1 { margin: 0; font-size: 1.8rem; }
+h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
 
 .subtitle {
-  font-size: .9rem;
+  font-size: 0.9rem;
   color: var(--muted);
 }
 
+/* SEARCH */
+
 .search {
-  margin: 18px 0;
   position: relative;
+  margin-bottom: 22px;
 }
 
 .search input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 14px 16px;
   border-radius: 14px;
+  background: var(--card);
   border: 1px solid var(--border);
-  font-size: .95rem;
+  color: var(--text);
+  font-size: 0.95rem;
 }
 
-.results {
+.search-results {
   position: absolute;
-  top: 105%;
+  top: 110%;
   left: 0;
   right: 0;
-  background: white;
-  border-radius: 12px;
+  background: #0f1117;
   border: 1px solid var(--border);
-  max-height: 260px;
-  overflow: auto;
-  z-index: 5;
+  border-radius: 14px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 10;
 }
 
-.result {
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px 14px;
   cursor: pointer;
 }
 
-.result:hover {
-  background: rgba(0,0,0,.05);
+.search-item:hover {
+  background: rgba(255,255,255,0.05);
 }
+
+.search-item img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+/* STATS */
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
   margin-bottom: 18px;
 }
 
 .stat {
-  background: var(--card-bg);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 14px;
 }
 
 .stat-label {
-  font-size: .75rem;
+  font-size: 0.72rem;
   color: var(--muted);
 }
 
 .stat-value {
+  margin-top: 6px;
   font-size: 1.15rem;
   font-weight: 700;
 }
 
+/* TABLE */
+
 .card {
-  background: var(--card-bg);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 18px;
   overflow: hidden;
+}
+
+.loading {
+  padding: 28px;
+  text-align: center;
+  color: var(--muted);
 }
 
 table {
@@ -130,100 +179,170 @@ table {
   border-collapse: collapse;
 }
 
+thead {
+  background: rgba(255,255,255,0.04);
+}
+
 th, td {
-  padding: 12px;
-  font-size: .88rem;
+  padding: 10px 12px;
+  font-size: 0.88rem;
 }
 
 th {
   text-align: left;
   color: var(--muted);
+  font-weight: 600;
+}
+
+tbody tr {
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+tbody tr:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.rank {
+  width: 44px;
+  font-weight: 700;
+}
+
+.address a {
+  color: #c4b5fd;
+  text-decoration: none;
+  font-family: monospace;
 }
 
 .balance, .percent {
   text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.rank { width: 52px; font-weight: 700; }
-
-.address a {
-  font-family: monospace;
-  color: #166534;
-  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .badge {
-  margin-left: 6px;
-  font-size: .7rem;
+  margin-left: 4px;
 }
 
-.loading {
-  padding: 40px;
-  text-align: center;
-  color: var(--muted);
+.exchange-badge {
+  margin-left: 6px;
+  font-size: 0.7rem;
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
 }
+
+.highlight {
+  background: var(--highlight);
+}
+
+/* TOOLTIP */
+
+.tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.tooltip span {
+  visibility: hidden;
+  position: absolute;
+  bottom: 125%;
+  right: 0;
+  background: #111;
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.tooltip:hover span {
+  visibility: visible;
+}
+
+/* MOBILE */
+
+@media (max-width: 640px) {
+  th, td {
+    padding: 8px 8px;
+    font-size: 0.8rem;
+  }
+
+  .address a {
+    display: inline-block;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+  }
+
+  .balance, .percent {
+    display: table-cell;
+  }
+}
+
+/* FOOTER */
 
 footer {
   margin-top: 22px;
-  font-size: .75rem;
   text-align: center;
+  font-size: 0.75rem;
   color: var(--muted);
-}
-
-@media (max-width: 640px) {
-  th.address-col { width: 40%; }
-  .address a { font-size: .75rem; }
-  th.balance, th.percent { font-size: .7rem; }
 }
 </style>
 </head>
 
 <body>
-
-<div class="banner">
-  ❤️ Donate ALPH: <code>18dQPP6LpNqCm9upKvqi6YTjR4W7X2xF5KghFCFtGEcYM</code>
+<div class="donate-banner">
+  💜 Support this project:
+  <a href="https://explorer.alephium.org/addresses/18dQPP6LpNqCm9upKvqi6YTjR4W7X2xF5KghFCFtGEcYM" target="_blank">18dQPP6LpNqCm9upKvqi6YTjR4W7X2xF5KghFCFtGEcYM</a>
 </div>
 
 <div class="container">
 
   <div class="header">
-    <img id="logo" />
+    <img id="logo" src="https://raw.githubusercontent.com/alephium/token-list/master/logos/ALPH.png" />
     <div>
-      <h1 id="title">Ron's Alephium Richlist</h1>
-      <div class="subtitle" id="subtitle"></div>
+      <h1>Ron's Alephium Richlist</h1>
+      <div id="subtitle" class="subtitle">
+        Alephium (ALPH) · Top holders
+      </div>
     </div>
   </div>
 
   <div class="search">
-    <input id="search" placeholder="Search tokens…" />
-    <div id="results" class="results" style="display:none;"></div>
+    <input id="search" placeholder="Search tokens by name or symbol…" />
+    <div id="results" class="search-results" style="display:none;"></div>
   </div>
 
   <div class="stats">
     <div class="stat">
       <div class="stat-label">Holders</div>
-      <div id="statHolders" class="stat-value">—</div>
+      <div id="holders" class="stat-value">—</div>
     </div>
     <div class="stat">
       <div class="stat-label">Total Supply</div>
-      <div id="statSupply" class="stat-value">—</div>
+      <div id="supply" class="stat-value">—</div>
     </div>
     <div class="stat">
       <div class="stat-label">Top 10 Concentration</div>
-      <div id="statTop10" class="stat-value">—</div>
+      <div id="top10" class="stat-value">—</div>
     </div>
   </div>
 
   <div class="card">
-    <div id="status" class="loading">Loading rich list…</div>
-    <table id="table" style="display:none;">
+    <div id="status" class="loading" style="display:none;">
+      Select a token to load rich list
+    </div>
+    <table id="table">
       <thead>
         <tr>
           <th class="rank">#</th>
-          <th class="address-col">Address</th>
+          <th>Address</th>
           <th class="balance">Balance</th>
-          <th class="percent">% Owned</th>
+          <th class="percent">% Supply</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -231,116 +350,320 @@ footer {
   </div>
 
   <footer>
-    Alephium APIs update roughly once per day
+    Data from Alephium Mainnet · API updates approximately once per day
   </footer>
 
 </div>
 
 <script>
-const TOKEN_LIST =
+const TOKEN_LIST_URL =
   "https://raw.githubusercontent.com/alephium/token-list/master/tokens/mainnet.json";
 
-const TOKEN_API =
+const HOLDERS_API =
   "https://backend.mainnet.alephium.org/tokens/holders/token/";
 
-const ALPH_API =
+const ALPH_RICHLIST_API =
   "https://api-richlist.alephium.notrustverify.ch/addresses";
 
-const EXPLORER = "https://explorer.alephium.org/addresses/";
+const EXPLORER =
+  "https://explorer.alephium.org/addresses/";
+
+const LIMIT = 100;
+const MAX_PAGES = 20;
 
 let TOKENS = [];
+let CURRENT_TOKEN = null;
+let HIGHLIGHT = null;
 
-const formatAmount = n =>
-  n < 0.001 ? "<0.001" :
-  n >= 1e9 ? (n/1e9).toFixed(2)+"b" :
-  n >= 1e6 ? (n/1e6).toFixed(2)+"m" :
-  n >= 1e3 ? (n/1e3).toFixed(1)+"k" :
-  n.toFixed(3);
+// ALPH token placeholder
+const ALPH_TOKEN = {
+  id: "ALPH",
+  name: "Alephium",
+  symbol: "ALPH",
+  decimals: 18,
+  logoURI: "https://raw.githubusercontent.com/alephium/token-list/master/logos/ALPH.png"
+};
 
-const whale = p => p >= 5 ? "🐋" : p >= 1 ? "🦈" : p >= .1 ? "🐬" : "";
+/* ---------- URL PARAMS ---------- */
+
+const params = new URLSearchParams(window.location.search);
+const URL_TOKEN = params.get("token");
+const URL_HOLDER = params.get("holder");
+
+/* ---------- HELPERS ---------- */
+
+const truncate = a => a.slice(0,6) + "…" + a.slice(-4);
+
+const badge = p =>
+  p >= 10 ? "🐋" :
+  p >= 5  ? "🦈" :
+  p >= 1  ? "🐬" : "🐟";
+
+const formatDisplay = n =>
+  n < 0.001 && n > 0 ? "(<0.001)" :
+  n.toLocaleString(undefined, { maximumFractionDigits: 3 });
+
+/* ---------- INIT ---------- */
 
 async function init() {
-  const res = await fetch(TOKEN_LIST);
+  const res = await fetch(TOKEN_LIST_URL);
   const json = await res.json();
-  TOKENS = json.tokens;
+  // Remove ALPH from token list if it exists to avoid duplicates
+  TOKENS = json.tokens.filter(t => t.symbol !== "ALPH" && t.id !== "ALPH");
 
-  loadFromURL();
+  if (URL_TOKEN && URL_TOKEN !== "ALPH") {
+    const t = TOKENS.find(x => x.id === URL_TOKEN);
+    if (t) {
+      document.getElementById("search").value = t.symbol;
+      loadToken(t);
+    } else {
+      loadToken(ALPH_TOKEN);
+    }
+  } else {
+    // Default to ALPH
+    document.getElementById("search").value = "ALPH";
+    loadToken(ALPH_TOKEN);
+  }
 }
 
-function loadFromURL() {
-  const t = new URLSearchParams(location.search).get("token") || "ALPH";
-  if (t === "ALPH") loadAlph();
-  else loadToken(t);
+/* ---------- LOAD ALPH ---------- */
+
+async function loadALPH() {
+  CURRENT_TOKEN = ALPH_TOKEN;
+  HIGHLIGHT = URL_HOLDER;
+
+  history.replaceState(null, "",
+    "?token=ALPH" + (HIGHLIGHT ? "&holder="+HIGHLIGHT : "")
+  );
+
+  document.getElementById("logo").src = ALPH_TOKEN.logoURI;
+  document.getElementById("subtitle").textContent =
+    `${ALPH_TOKEN.name} (${ALPH_TOKEN.symbol}) · Top holders`;
+
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+  
+  document.getElementById("status").style.display = "none";
+  document.getElementById("table").style.display = "table";
+
+  const holders = [];
+  let page = 1;
+  const perPage = 100;
+  let totalSupply = 0;
+  let activeAddresses = 0;
+
+  // Fetch first page to get initial data
+  try {
+    const r = await fetch(`${ALPH_RICHLIST_API}?page=${page}&amount=${perPage}&sort=balance&order=desc&filter=nogenesis`);
+    if (!r.ok) return;
+    const data = await r.json();
+    
+    activeAddresses = data.active_addresses || 0;
+    
+    // Set holders stat immediately
+    document.getElementById("holders").textContent = activeAddresses.toLocaleString();
+    
+    if (!data.addresses || data.addresses.length === 0) return;
+
+    for (const addr of data.addresses) {
+      const bal = Number(addr.balance) / 1e18;
+      if (bal > 0) {
+        holders.push({
+          address: addr.address,
+          balance: bal,
+          type: addr.type || "",
+          name: addr.name || ""
+        });
+      }
+    }
+
+    // Render first 20 immediately
+    renderHolders(holders.slice(0, 20), holders, 0);
+
+    page++;
+
+    // Continue loading in background
+    (async () => {
+      while (page <= 50) {
+        try {
+          const r = await fetch(`${ALPH_RICHLIST_API}?page=${page}&amount=${perPage}&sort=balance&order=desc&filter=nogenesis`);
+          if (!r.ok) break;
+          const data = await r.json();
+          
+          if (!data.addresses || data.addresses.length === 0) break;
+
+          for (const addr of data.addresses) {
+            const bal = Number(addr.balance) / 1e18;
+            if (bal > 0) {
+              holders.push({
+                address: addr.address,
+                balance: bal,
+                type: addr.type || "",
+                name: addr.name || ""
+              });
+            }
+          }
+
+          // Update stats and table periodically
+          if (page % 5 === 0 || data.addresses.length < perPage) {
+            totalSupply = holders.reduce((s,x)=>s+x.balance,0);
+            const top10 = holders.slice(0,10)
+              .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
+
+            document.getElementById("supply").textContent =
+              totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 });
+
+            document.getElementById("top10").textContent =
+              top10.toFixed(2) + "%";
+
+            renderHolders(holders, holders, totalSupply);
+          }
+
+          if (data.addresses.length < perPage) break;
+          page++;
+        } catch (e) {
+          console.error("Error fetching ALPH richlist:", e);
+          break;
+        }
+      }
+
+      // Final update
+      totalSupply = holders.reduce((s,x)=>s+x.balance,0);
+      const top10 = holders.slice(0,10)
+        .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
+
+      document.getElementById("supply").textContent =
+        totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 });
+
+      document.getElementById("top10").textContent =
+        top10.toFixed(2) + "%";
+
+      renderHolders(holders, holders, totalSupply);
+    })();
+
+  } catch (e) {
+    console.error("Error fetching ALPH richlist:", e);
+  }
 }
 
-async function loadAlph() {
-  document.getElementById("logo").src =
-    "https://raw.githubusercontent.com/alephium/token-list/master/logos/ALPH.png";
-  document.getElementById("subtitle").textContent = "Native coin";
+function renderHolders(displayHolders, allHolders, supply) {
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
 
-  const res = await fetch(`${ALPH_API}?page=1&amount=100&sort=balance&order=desc`);
-  const json = await res.json();
+  const totalSupply = supply || allHolders.reduce((s,x)=>s+x.balance,0);
 
-  const rows = json.addresses.map(a => ({
-    address: a.address,
-    balance: a.balance / 1e18,
-    name: a.type || ""
-  }));
+  displayHolders.forEach((h,i)=>{
+    const pct = h.balance / totalSupply * 100;
+    const tr = document.createElement("tr");
+    if (HIGHLIGHT === h.address) tr.classList.add("highlight");
 
-  render(rows, rows.reduce((s,x)=>s+x.balance,0), true);
+    const exchangeBadge = (h.type === "Exchange" || h.type === "Bridge") && h.name
+      ? `<span class="exchange-badge">${h.name}</span>`
+      : "";
+
+    tr.innerHTML = `
+      <td class="rank">#${i+1}</td>
+      <td class="address">
+        <a href="${EXPLORER}${h.address}" target="_blank"
+           onclick="event.stopPropagation();
+             history.replaceState(null,'',
+               '?token=ALPH&holder=${h.address}')">
+          ${window.innerWidth < 640 ? truncate(h.address) : h.address}
+        </a>
+        <span class="badge">${badge(pct)}</span>
+        ${exchangeBadge}
+      </td>
+      <td class="balance tooltip">
+        ${formatDisplay(h.balance)}
+        <span>${h.balance.toLocaleString()}</span>
+      </td>
+      <td class="percent">${pct.toFixed(2)}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
-async function loadToken(id) {
-  const token = TOKENS.find(t => t.id === id);
-  if (!token) return;
+/* ---------- LOAD TOKEN ---------- */
+
+async function loadToken(token) {
+  if (token.id === "ALPH") {
+    return loadALPH();
+  }
+
+  CURRENT_TOKEN = token;
+  HIGHLIGHT = URL_HOLDER;
+
+  history.replaceState(null, "",
+    "?token=" + token.id + (HIGHLIGHT ? "&holder="+HIGHLIGHT : "")
+  );
 
   document.getElementById("logo").src = token.logoURI;
-  document.getElementById("subtitle").textContent = token.name;
+  document.getElementById("subtitle").textContent =
+    `${token.name} (${token.symbol}) · Top holders`;
 
-  const res = await fetch(`${TOKEN_API}${id}?limit=100&page=1`);
-  const json = await res.json();
+  document.getElementById("status").textContent = "Loading holders…";
+  document.getElementById("status").style.display = "block";
+  document.getElementById("table").style.display = "none";
 
-  const rows = json
-    .filter(h => h.balance > 0)
-    .map(h => ({
-      address: h.address,
-      balance: h.balance / Math.pow(10, token.decimals)
-    }));
+  const map = new Map();
 
-  const total = rows.reduce((s,x)=>s+x.balance,0);
-  render(rows, total, false);
-}
+  for (let p = 1; p <= MAX_PAGES; p++) {
+    const r = await fetch(`${HOLDERS_API}${token.id}?limit=${LIMIT}&page=${p}`);
+    if (!r.ok) break;
+    const data = await r.json();
+    let added = 0;
 
-function render(rows, total, alph) {
-  rows.sort((a,b)=>b.balance-a.balance);
+    for (const h of data) {
+      const bal = Number(h.balance) / 10 ** token.decimals;
+      if (bal > 0 && !map.has(h.address)) {
+        map.set(h.address, bal);
+        added++;
+      }
+    }
+    if (added === 0 || data.length < LIMIT) break;
+  }
 
-  document.getElementById("statHolders").textContent = rows.length;
-  document.getElementById("statSupply").textContent = formatAmount(total);
+  const holders = [...map.entries()]
+    .map(([address, balance]) => ({ address, balance }))
+    .sort((a,b)=>b.balance-a.balance);
 
-  const top10 = rows.slice(0,10).reduce((s,x)=>s+x.balance,0);
-  document.getElementById("statTop10").textContent =
-    ((top10/total)*100).toFixed(2)+"%";
+  const totalSupply = holders.reduce((s,x)=>s+x.balance,0);
+  const top10 = holders.slice(0,10)
+    .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
+
+  document.getElementById("holders").textContent =
+    holders.length.toLocaleString();
+
+  document.getElementById("supply").textContent =
+    totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 });
+
+  document.getElementById("top10").textContent =
+    top10.toFixed(2) + "%";
 
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = "";
 
-  rows.forEach((r,i)=>{
-    const p = (r.balance/total)*100;
+  holders.forEach((h,i)=>{
+    const pct = h.balance / totalSupply * 100;
     const tr = document.createElement("tr");
+    if (HIGHLIGHT === h.address) tr.classList.add("highlight");
+
     tr.innerHTML = `
       <td class="rank">#${i+1}</td>
       <td class="address">
-        <a href="${EXPLORER}${r.address}" target="_blank"
-           title="${r.balance}">
-          ${r.address.slice(0,6)}…${r.address.slice(-4)}
+        <a href="${EXPLORER}${h.address}" target="_blank"
+           onclick="event.stopPropagation();
+             history.replaceState(null,'',
+               '?token=${token.id}&holder=${h.address}')">
+          ${window.innerWidth < 640 ? truncate(h.address) : h.address}
         </a>
-        <span class="badge">${whale(p)}</span>
-        ${alph && r.name ? `<span class="badge">${r.name}</span>` : ""}
+        <span class="badge">${badge(pct)}</span>
       </td>
-      <td class="balance" title="${r.balance}">
-        ${formatAmount(r.balance)}
+      <td class="balance tooltip">
+        ${formatDisplay(h.balance)}
+        <span>${h.balance.toLocaleString()}</span>
       </td>
-      <td class="percent">${p.toFixed(2)}%</td>
+      <td class="percent">${pct.toFixed(2)}%</td>
     `;
     tbody.appendChild(tr);
   });
@@ -349,36 +672,40 @@ function render(rows, total, alph) {
   document.getElementById("table").style.display = "table";
 }
 
+/* ---------- SEARCH ---------- */
+
 document.getElementById("search").addEventListener("input", e => {
   const q = e.target.value.toLowerCase();
   const box = document.getElementById("results");
   box.innerHTML = "";
 
-  const results = [
-    { symbol:"ALPH", name:"Alephium (Native)", id:"ALPH" },
-    ...TOKENS.filter(t =>
-      t.symbol.toLowerCase().includes(q) ||
-      t.name.toLowerCase().includes(q)
-    )
-  ].slice(0,10);
+  if (!q) return box.style.display = "none";
 
-  results.forEach(r=>{
+  // Add ALPH to search results
+  const allTokens = [ALPH_TOKEN, ...TOKENS];
+
+  allTokens.filter(t =>
+    t.name.toLowerCase().includes(q) ||
+    t.symbol.toLowerCase().includes(q)
+  ).slice(0,30).forEach(t=>{
     const div = document.createElement("div");
-    div.className = "result";
-    div.textContent = `${r.symbol} — ${r.name}`;
-    div.onclick = ()=>{
-      history.pushState({}, "", `?token=${r.id}`);
+    div.className = "search-item";
+    div.innerHTML = `
+      <img src="${t.logoURI}" />
+      <div>${t.name} (${t.symbol})</div>
+    `;
+    div.onclick = () => {
       box.style.display = "none";
-      r.id === "ALPH" ? loadAlph() : loadToken(r.id);
+      document.getElementById("search").value = t.symbol;
+      loadToken(t);
     };
     box.appendChild(div);
   });
 
-  box.style.display = results.length ? "block" : "none";
+  box.style.display = "block";
 });
 
 init();
 </script>
-
 </body>
 </html>
