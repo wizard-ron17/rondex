@@ -64,8 +64,14 @@ body {
 .header {
   display: flex;
   align-items: center;
-  gap: 14px;
+  justify-content: space-between;
   margin-bottom: 18px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .header img {
@@ -84,6 +90,25 @@ h1 {
   color: var(--muted);
 }
 
+.settings-btn {
+  padding: 10px 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--accent);
+}
+
 /* SEARCH */
 
 .search {
@@ -91,14 +116,30 @@ h1 {
   margin-bottom: 22px;
 }
 
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .search input {
   width: 100%;
-  padding: 14px 16px;
+  padding: 14px 16px 14px 50px;
   border-radius: 14px;
   background: var(--card);
   border: 1px solid var(--border);
   color: var(--text);
   font-size: 0.95rem;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .search-results {
@@ -236,8 +277,27 @@ tbody tr:hover {
 }
 
 .badge {
-  margin-left: 4px;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
 }
+
+.badge.leviathan { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; }
+.badge.kraken { background: linear-gradient(135deg, #6366f1, #3b82f6); color: #fff; }
+.badge.whale { background: linear-gradient(135deg, #3b82f6, #06b6d4); color: #fff; }
+.badge.orca { background: linear-gradient(135deg, #06b6d4, #14b8a6); color: #fff; }
+.badge.shark { background: linear-gradient(135deg, #14b8a6, #10b981); color: #fff; }
+.badge.dolphin { background: linear-gradient(135deg, #10b981, #22c55e); color: #fff; }
+.badge.swordfish { background: linear-gradient(135deg, #22c55e, #84cc16); color: #fff; }
+.badge.tuna { background: linear-gradient(135deg, #84cc16, #eab308); color: #000; }
+.badge.sardine { background: linear-gradient(135deg, #eab308, #f59e0b); color: #000; }
+.badge.shrimp { background: linear-gradient(135deg, #f59e0b, #f97316); color: #000; }
+.badge.plankton { background: linear-gradient(135deg, #f97316, #ef4444); color: #fff; }
 
 .exchange-badge {
   margin-left: 6px;
@@ -251,6 +311,206 @@ tbody tr:hover {
 
 .highlight {
   background: var(--highlight);
+}
+
+/* MODAL */
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: #0f1117;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--text);
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-section {
+  margin-bottom: 24px;
+}
+
+.modal-section:last-child {
+  margin-bottom: 0;
+}
+
+.modal-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-config {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.badge-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 60px;
+  gap: 10px;
+  align-items: center;
+}
+
+.badge-row .badge {
+  justify-content: center;
+}
+
+.badge-row input {
+  padding: 8px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.filter-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--border);
+}
+
+.modal-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.modal-btn-primary:hover {
+  background: #9575e6;
+}
+
+.modal-btn-secondary {
+  background: var(--card);
+  color: var(--text);
+}
+
+.modal-btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* ALPH REDIRECT */
+
+.alph-redirect {
+  background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.2));
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  margin: 40px 0;
+}
+
+.alph-redirect h2 {
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+}
+
+.alph-redirect p {
+  margin: 0 0 24px 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.alph-redirect a {
+  display: inline-block;
+  padding: 12px 28px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.alph-redirect a:hover {
+  background: #9575e6;
+  transform: translateY(-2px);
 }
 
 /* TOOLTIP */
@@ -278,35 +538,7 @@ tbody tr:hover {
   visibility: visible;
 }
 
-/* MOBILE */
-
-@media (max-width: 640px) {
-  th, td {
-    padding: 8px 8px;
-    font-size: 0.8rem;
-  }
-
-  .address a {
-    display: inline-block;
-    max-width: 110px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: bottom;
-  }
-
-  .balance, .percent {
-    display: table-cell;
-  }
-}
-
-/* FOOTER */
-
-footer {
-  margin-top: 22px;
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
+/* PAGINATION */
 
 .pagination {
   display: flex;
@@ -342,6 +574,42 @@ footer {
   color: var(--muted);
   font-size: 0.9rem;
 }
+
+/* FOOTER */
+
+footer {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* MOBILE */
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  th, td {
+    padding: 8px 8px;
+    font-size: 0.8rem;
+  }
+
+  .address a {
+    display: inline-block;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+  }
+
+  .badge-row {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 </head>
 
@@ -354,68 +622,178 @@ footer {
 <div class="container">
 
   <div class="header">
-    <img id="logo" src="https://raw.githubusercontent.com/alephium/token-list/master/logos/ALPH.png" />
-    <div>
-      <h1>Ron's Alephium Richlist</h1>
-      <div id="subtitle" class="subtitle">
-        Alephium (ALPH) · Top holders
+    <div class="header-left">
+      <img src="https://raw.githubusercontent.com/alephium/token-list/master/logos/ALPH.png" />
+      <div>
+        <h1>Ron's Alephium Richlist</h1>
+        <div id="subtitle" class="subtitle">
+          Top token holders
+        </div>
       </div>
     </div>
+    <button class="settings-btn" onclick="openSettings()">
+      ⚙️ Settings
+    </button>
   </div>
 
   <div class="search">
-    <input id="search" placeholder="Search tokens by name or symbol…" />
+    <div class="search-wrapper">
+      <img id="searchIcon" class="search-icon" src="" style="display: none;" />
+      <input id="search" placeholder="Search tokens by name or symbol…" />
+    </div>
     <div id="results" class="search-results" style="display:none;"></div>
   </div>
 
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-label">Holders</div>
-      <div id="holders" class="stat-value">
-        <span>—</span>
-      </div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Total Supply</div>
-      <div id="supply" class="stat-value">
-        <span>—</span>
-      </div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Top 10 Concentration</div>
-      <div id="top10" class="stat-value">
-        <span>—</span>
-      </div>
-    </div>
+  <div id="alphRedirect" class="alph-redirect" style="display:none;">
+    <h2>🌊 ALPH Richlist Available</h2>
+    <p>For the ALPH token richlist, please visit the dedicated site:</p>
+    <a href="https://richlist.alephium.world/" target="_blank">Visit ALPH Richlist →</a>
   </div>
 
-  <div class="card">
-    <div id="status" class="loading" style="display:none;">
-      Select a token to load rich list
+  <div id="mainContent">
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Holders</div>
+        <div id="holders" class="stat-value">
+          <span>—</span>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Supply</div>
+        <div id="supply" class="stat-value">
+          <span>—</span>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Top 10 Concentration</div>
+        <div id="top10" class="stat-value">
+          <span>—</span>
+        </div>
+      </div>
     </div>
-    <table id="table">
-      <thead>
-        <tr>
-          <th class="rank">#</th>
-          <th>Address</th>
-          <th class="balance">Balance</th>
-          <th class="percent">% Supply</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
 
-  <div class="pagination">
-    <button id="prevPage" onclick="changePage(-1)">← Previous</button>
-    <span id="pageInfo">Page 1</span>
-    <button id="nextPage" onclick="changePage(1)">Next →</button>
+    <div class="card">
+      <div id="status" class="loading" style="display:none;">
+        Select a token to load rich list
+      </div>
+      <table id="table">
+        <thead>
+          <tr>
+            <th class="rank">#</th>
+            <th>Address</th>
+            <th class="balance">Balance</th>
+            <th class="percent">% Supply</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button id="prevPage" onclick="changePage(-1)">← Previous</button>
+      <span id="pageInfo">Page 1</span>
+      <button id="nextPage" onclick="changePage(1)">Next →</button>
+    </div>
   </div>
 
   <footer>
     Data from Alephium Mainnet · API updates approximately once per day
   </footer>
 
+</div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal-overlay" onclick="closeSettingsOnOverlay(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2>⚙️ Settings</h2>
+      <button class="modal-close" onclick="closeSettings()">×</button>
+    </div>
+    <div class="modal-body">
+      
+      <div class="modal-section">
+        <h3>🐋 Badge Thresholds (%)</h3>
+        <div class="badge-config">
+          <div class="badge-row">
+            <div class="badge leviathan">🦑 Leviathan</div>
+            <input type="number" id="thresh-leviathan" step="0.1" min="0" />
+            <span>%</span>
+          </div>
+          <div class="badge-row">
+            <div class="badge kraken">🐙 Kraken</div>
+            <input type="number" id="thresh-kraken" step="0.1" min="0" />
+            <span>%</span>
+          </div>
+          <div class="badge-row">
+            <div class="badge whale">🐋 Whale</div>
+            <input type="number" id="thresh-whale" step="0.1" min="0" />
+            <span>%</span>
+          </div>
+          <div class="badge-row">
+            <div class="badge orca">🐬 Orca</div>
+            <input type="number" id="thresh-orca" step="0.1" min="0" />
+            <span>%</span>
+          </div>
+          <div class="badge-row">
+            <div class="badge shark">🦈 Shark</div>
+            <input type="number" id="thresh-shark" step="0.1" min="0" />
+            <span>%</span>
+          </div>
+          <div class="badge-row">
+            <div class="badge dolphin">🐬 Dolphin</div>
+            <input type="number" id="thresh-dolphin" step="0.1" min="0" />
+            <span>%</span>
+          </div>
+          <div class="badge-row">
+            <div class="badge swordfish">🗡️ Swordfish</div>
+            <input type="number" id="thresh-swordfish" step="0.1" min="0" />
+            <span>%</span>
+          </div>
+          <div class="badge-row">
+            <div class="badge tuna">🐟 Tuna</div>
+            <input type="number" id="thresh-tuna" step="0.1" min="0" />
+            <span>%</span>
+          </div>
+          <div class="badge-row">
+            <div class="badge sardine">🐠 Sardine</div>
+            <input type="number" id="thresh-sardine" step="0.1" min="0" />
+            <span>%</span>
+          </div>
+          <div class="badge-row">
+            <div class="badge shrimp">🦐 Shrimp</div>
+            <input type="number" id="thresh-shrimp" step="0.1" min="0" />
+            <span>%</span>
+          </div>
+          <div class="badge-row">
+            <div class="badge plankton">🦠 Plankton</div>
+            <span style="font-size: 0.8rem; color: var(--muted);">< Shrimp</span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <h3>🔍 Find Your Address</h3>
+        <label class="filter-label">Search for your wallet address</label>
+        <input type="text" class="filter-input" id="findAddress" placeholder="Enter your address..." />
+        <button class="modal-btn modal-btn-primary" onclick="findMyAddress()">Find & Highlight</button>
+      </div>
+
+      <div class="modal-section">
+        <h3>📊 Filter Holders</h3>
+        <label class="filter-label">Minimum Balance</label>
+        <input type="number" class="filter-input" id="minBalance" step="0.01" min="0" placeholder="0" />
+        
+        <label class="filter-label">Maximum Balance</label>
+        <input type="number" class="filter-input" id="maxBalance" step="0.01" min="0" placeholder="No limit" />
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-secondary" onclick="resetSettings()">Reset to Default</button>
+        <button class="modal-btn modal-btn-primary" onclick="applySettings()">Apply Settings</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -425,30 +803,37 @@ const TOKEN_LIST_URL =
 const HOLDERS_API =
   "https://backend.mainnet.alephium.org/tokens/holders/token/";
 
-const ALPH_RICHLIST_API =
-  "https://api-richlist.alephium.notrustverify.ch/addresses";
-
 const EXPLORER =
   "https://explorer.alephium.org/addresses/";
 
 const LIMIT = 100;
 const MAX_PAGES = 20;
+const AURA_TOKEN_ID = "4e0515f9d7daabd7cdae603e355a9ea015b5288380ef2206a10a531bc858d600";
 
 let TOKENS = [];
 let CURRENT_TOKEN = null;
 let HIGHLIGHT = null;
 let ALL_HOLDERS = [];
+let FILTERED_HOLDERS = [];
 let CURRENT_PAGE = 1;
 const PER_PAGE = 100;
 
-// ALPH token placeholder
-const ALPH_TOKEN = {
-  id: "ALPH",
-  name: "Alephium",
-  symbol: "ALPH",
-  decimals: 18,
-  logoURI: "https://raw.githubusercontent.com/alephium/token-list/master/logos/ALPH.png"
+// Settings
+let BADGE_THRESHOLDS = {
+  leviathan: 50,
+  kraken: 25,
+  whale: 10,
+  orca: 5,
+  shark: 2.5,
+  dolphin: 1,
+  swordfish: 0.5,
+  tuna: 0.1,
+  sardine: 0.05,
+  shrimp: 0.01
 };
+
+let FILTER_MIN = 0;
+let FILTER_MAX = Infinity;
 
 /* ---------- URL PARAMS ---------- */
 
@@ -459,17 +844,26 @@ const URL_HOLDER = params.get("holder");
 /* ---------- HELPERS ---------- */
 
 const truncate = a => {
-  // Truncate addresses longer than 45 characters (standard ALPH addresses are ~45 chars)
   if (a.length > 45) {
     return a.slice(0, 8) + "…" + a.slice(-6);
   }
   return a;
 };
 
-const badge = p =>
-  p >= 10 ? "🐋" :
-  p >= 5  ? "🦈" :
-  p >= 1  ? "🐬" : "🐟";
+const badge = p => {
+  const t = BADGE_THRESHOLDS;
+  if (p >= t.leviathan) return { emoji: '🦑', name: 'Leviathan', class: 'leviathan' };
+  if (p >= t.kraken) return { emoji: '🐙', name: 'Kraken', class: 'kraken' };
+  if (p >= t.whale) return { emoji: '🐋', name: 'Whale', class: 'whale' };
+  if (p >= t.orca) return { emoji: '🐬', name: 'Orca', class: 'orca' };
+  if (p >= t.shark) return { emoji: '🦈', name: 'Shark', class: 'shark' };
+  if (p >= t.dolphin) return { emoji: '🐬', name: 'Dolphin', class: 'dolphin' };
+  if (p >= t.swordfish) return { emoji: '🗡️', name: 'Swordfish', class: 'swordfish' };
+  if (p >= t.tuna) return { emoji: '🐟', name: 'Tuna', class: 'tuna' };
+  if (p >= t.sardine) return { emoji: '🐠', name: 'Sardine', class: 'sardine' };
+  if (p >= t.shrimp) return { emoji: '🦐', name: 'Shrimp', class: 'shrimp' };
+  return { emoji: '🦠', name: 'Plankton', class: 'plankton' };
+};
 
 const formatDisplay = n =>
   n < 0.001 && n > 0 ? "(<0.001)" :
@@ -486,31 +880,47 @@ function updateStat(elementId, value) {
 }
 
 function changePage(delta) {
-  const maxPage = Math.ceil(ALL_HOLDERS.length / PER_PAGE);
+  const maxPage = Math.ceil(FILTERED_HOLDERS.length / PER_PAGE);
   CURRENT_PAGE = Math.max(1, Math.min(maxPage, CURRENT_PAGE + delta));
   renderCurrentPage();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function applyFilters() {
+  FILTERED_HOLDERS = ALL_HOLDERS.filter(h => 
+    h.balance >= FILTER_MIN && h.balance <= FILTER_MAX
+  );
+  CURRENT_PAGE = 1;
+  updateStats();
+  renderCurrentPage();
+}
+
+function updateStats() {
+  const totalSupply = ALL_HOLDERS.reduce((s,x)=>s+x.balance,0);
+  const top10 = ALL_HOLDERS.slice(0,10)
+    .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
+
+  updateStat("holders", FILTERED_HOLDERS.length.toLocaleString());
+  updateStat("supply", totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 }));
+  updateStat("top10", top10.toFixed(2) + "%");
+}
+
 function renderCurrentPage() {
   const start = (CURRENT_PAGE - 1) * PER_PAGE;
   const end = start + PER_PAGE;
-  const pageHolders = ALL_HOLDERS.slice(start, end);
+  const pageHolders = FILTERED_HOLDERS.slice(start, end);
   
   const totalSupply = ALL_HOLDERS.reduce((s,x)=>s+x.balance,0);
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = "";
 
   pageHolders.forEach((h, idx) => {
-    const globalIndex = start + idx;
+    const globalIndex = ALL_HOLDERS.indexOf(h);
     const pct = h.balance / totalSupply * 100;
     const tr = document.createElement("tr");
     if (HIGHLIGHT === h.address) tr.classList.add("highlight");
 
-    const exchangeBadge = (h.type === "Exchange" || h.type === "Bridge") && h.name
-      ? `<span class="exchange-badge">${h.name}</span>`
-      : "";
-
+    const badgeInfo = badge(pct);
     const displayAddress = h.address.length > 45 ? truncate(h.address) : h.address;
 
     tr.innerHTML = `
@@ -522,8 +932,7 @@ function renderCurrentPage() {
                '?token=${CURRENT_TOKEN.id}&holder=${h.address}')">
           ${displayAddress}
         </a>
-        <span class="badge">${badge(pct)}</span>
-        ${exchangeBadge}
+        <span class="badge ${badgeInfo.class}">${badgeInfo.emoji} ${badgeInfo.name}</span>
       </td>
       <td class="balance tooltip">
         ${formatDisplay(h.balance)}
@@ -534,10 +943,108 @@ function renderCurrentPage() {
     tbody.appendChild(tr);
   });
 
-  const maxPage = Math.ceil(ALL_HOLDERS.length / PER_PAGE);
+  const maxPage = Math.ceil(FILTERED_HOLDERS.length / PER_PAGE);
   document.getElementById("pageInfo").textContent = `Page ${CURRENT_PAGE} of ${maxPage}`;
   document.getElementById("prevPage").disabled = CURRENT_PAGE === 1;
   document.getElementById("nextPage").disabled = CURRENT_PAGE === maxPage;
+}
+
+/* ---------- SETTINGS ---------- */
+
+function openSettings() {
+  document.getElementById("settingsModal").classList.add("active");
+  
+  // Load current thresholds
+  Object.keys(BADGE_THRESHOLDS).forEach(key => {
+    const input = document.getElementById(`thresh-${key}`);
+    if (input) input.value = BADGE_THRESHOLDS[key];
+  });
+  
+  document.getElementById("minBalance").value = FILTER_MIN || "";
+  document.getElementById("maxBalance").value = FILTER_MAX === Infinity ? "" : FILTER_MAX;
+}
+
+function closeSettings() {
+  document.getElementById("settingsModal").classList.remove("active");
+}
+
+function closeSettingsOnOverlay(e) {
+  if (e.target.id === "settingsModal") {
+    closeSettings();
+  }
+}
+
+function applySettings() {
+  // Update badge thresholds
+  Object.keys(BADGE_THRESHOLDS).forEach(key => {
+    const input = document.getElementById(`thresh-${key}`);
+    if (input && input.value) {
+      BADGE_THRESHOLDS[key] = parseFloat(input.value);
+    }
+  });
+  
+  // Update filters
+  FILTER_MIN = parseFloat(document.getElementById("minBalance").value) || 0;
+  FILTER_MAX = parseFloat(document.getElementById("maxBalance").value) || Infinity;
+  
+  applyFilters();
+  closeSettings();
+}
+
+function resetSettings() {
+  BADGE_THRESHOLDS = {
+    leviathan: 50,
+    kraken: 25,
+    whale: 10,
+    orca: 5,
+    shark: 2.5,
+    dolphin: 1,
+    swordfish: 0.5,
+    tuna: 0.1,
+    sardine: 0.05,
+    shrimp: 0.01
+  };
+  FILTER_MIN = 0;
+  FILTER_MAX = Infinity;
+  
+  openSettings();
+  applyFilters();
+}
+
+function findMyAddress() {
+  const searchAddr = document.getElementById("findAddress").value.trim();
+  if (!searchAddr) {
+    alert("Please enter an address");
+    return;
+  }
+  
+  const holderIndex = ALL_HOLDERS.findIndex(h => 
+    h.address.toLowerCase() === searchAddr.toLowerCase()
+  );
+  
+  if (holderIndex === -1) {
+    alert("Address not found in holder list");
+    return;
+  }
+  
+  HIGHLIGHT = ALL_HOLDERS[holderIndex].address;
+  const filteredIndex = FILTERED_HOLDERS.findIndex(h => h.address === HIGHLIGHT);
+  
+  if (filteredIndex === -1) {
+    alert("Address found but filtered out by current settings");
+    return;
+  }
+  
+  CURRENT_PAGE = Math.floor(filteredIndex / PER_PAGE) + 1;
+  renderCurrentPage();
+  closeSettings();
+  
+  setTimeout(() => {
+    const highlightedRow = document.querySelector(".highlight");
+    if (highlightedRow) {
+      highlightedRow.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, 100);
 }
 
 /* ---------- INIT ---------- */
@@ -545,169 +1052,74 @@ function renderCurrentPage() {
 async function init() {
   const res = await fetch(TOKEN_LIST_URL);
   const json = await res.json();
-  // Remove ALPH from token list if it exists to avoid duplicates
-  TOKENS = json.tokens.filter(t => t.symbol !== "ALPH" && t.id !== "ALPH");
+  TOKENS = json.tokens;
 
-  if (URL_TOKEN && URL_TOKEN !== "ALPH") {
+  if (URL_TOKEN) {
+    if (URL_TOKEN === "ALPH") {
+      showAlphRedirect();
+      return;
+    }
     const t = TOKENS.find(x => x.id === URL_TOKEN);
     if (t) {
       document.getElementById("search").value = t.symbol;
       loadToken(t);
     } else {
-      loadToken(ALPH_TOKEN);
+      loadDefaultToken();
     }
   } else {
-    // Default to ALPH
-    document.getElementById("search").value = "ALPH";
-    loadToken(ALPH_TOKEN);
+    loadDefaultToken();
   }
 }
 
-/* ---------- LOAD ALPH ---------- */
+function loadDefaultToken() {
+  const auraToken = TOKENS.find(t => t.id === AURA_TOKEN_ID);
+  if (auraToken) {
+    updateSearchDisplay(auraToken);
+    loadToken(auraToken);
+  }
+}
 
-async function loadALPH() {
-  CURRENT_TOKEN = ALPH_TOKEN;
-  HIGHLIGHT = URL_HOLDER;
-  CURRENT_PAGE = 1;
-  ALL_HOLDERS = [];
-
-  history.replaceState(null, "",
-    "?token=ALPH" + (HIGHLIGHT ? "&holder="+HIGHLIGHT : "")
-  );
-
-  document.getElementById("logo").src = ALPH_TOKEN.logoURI;
-  document.getElementById("subtitle").textContent =
-    `${ALPH_TOKEN.name} (${ALPH_TOKEN.symbol}) · Top holders`;
-
-  const tbody = document.getElementById("tbody");
-  tbody.innerHTML = "";
+function updateSearchDisplay(token) {
+  const searchInput = document.getElementById("search");
+  const searchIcon = document.getElementById("searchIcon");
   
-  // Show loading spinners
-  showLoadingSpinner("holders");
-  showLoadingSpinner("supply");
-  showLoadingSpinner("top10");
+  searchInput.value = `${token.name} (${token.symbol})`;
+  searchIcon.src = token.logoURI;
+  searchIcon.style.display = "block";
+}
+
+function showAlphRedirect() {
+  document.getElementById("alphRedirect").style.display = "block";
+  document.getElementById("mainContent").style.display = "none";
   
-  document.getElementById("status").style.display = "none";
-  document.getElementById("table").style.display = "table";
-
-  let page = 1;
-  const perPage = 100;
-  let activeAddresses = 0;
-  let firstPageDone = false;
-
-  // Fetch first page to get initial data
-  try {
-    const r = await fetch(`${ALPH_RICHLIST_API}?page=${page}&amount=${perPage}&sort=balance&order=desc&filter=nogenesis`);
-    if (!r.ok) return;
-    const data = await r.json();
-    
-    activeAddresses = data.active_addresses || 0;
-    
-    // Set holders stat immediately
-    updateStat("holders", activeAddresses.toLocaleString());
-    
-    if (!data.addresses || data.addresses.length === 0) return;
-
-    for (const addr of data.addresses) {
-      const bal = Number(addr.balance) / 1e18;
-      if (bal > 0) {
-        ALL_HOLDERS.push({
-          address: addr.address,
-          balance: bal,
-          type: addr.type || "",
-          name: addr.name || ""
-        });
-      }
-    }
-
-    // Render first page immediately
-    renderCurrentPage();
-    firstPageDone = true;
-
-    page++;
-
-    // Continue loading in background
-    (async () => {
-      while (page <= 50) {
-        try {
-          const r = await fetch(`${ALPH_RICHLIST_API}?page=${page}&amount=${perPage}&sort=balance&order=desc&filter=nogenesis`);
-          if (!r.ok) break;
-          const data = await r.json();
-          
-          if (!data.addresses || data.addresses.length === 0) break;
-
-          for (const addr of data.addresses) {
-            const bal = Number(addr.balance) / 1e18;
-            if (bal > 0) {
-              ALL_HOLDERS.push({
-                address: addr.address,
-                balance: bal,
-                type: addr.type || "",
-                name: addr.name || ""
-              });
-            }
-          }
-
-          // Update stats periodically
-          if (page % 5 === 0 || data.addresses.length < perPage) {
-            const totalSupply = ALL_HOLDERS.reduce((s,x)=>s+x.balance,0);
-            const top10 = ALL_HOLDERS.slice(0,10)
-              .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
-
-            updateStat("supply", totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 }));
-            updateStat("top10", top10.toFixed(2) + "%");
-
-            // Update current page if we're still on page 1
-            if (CURRENT_PAGE === 1) {
-              renderCurrentPage();
-            }
-          }
-
-          if (data.addresses.length < perPage) break;
-          page++;
-        } catch (e) {
-          console.error("Error fetching ALPH richlist:", e);
-          break;
-        }
-      }
-
-      // Final update
-      const totalSupply = ALL_HOLDERS.reduce((s,x)=>s+x.balance,0);
-      const top10 = ALL_HOLDERS.slice(0,10)
-        .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
-
-      updateStat("supply", totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 }));
-      updateStat("top10", top10.toFixed(2) + "%");
-
-      if (CURRENT_PAGE === 1) {
-        renderCurrentPage();
-      }
-    })();
-
-  } catch (e) {
-    console.error("Error fetching ALPH richlist:", e);
+  const alphToken = TOKENS.find(t => t.symbol === "ALPH");
+  if (alphToken) {
+    updateSearchDisplay(alphToken);
   }
 }
 
 /* ---------- LOAD TOKEN ---------- */
 
 async function loadToken(token) {
-  if (token.id === "ALPH") {
-    return loadALPH();
+  if (token.symbol === "ALPH" || token.id === "ALPH") {
+    showAlphRedirect();
+    return;
   }
+
+  document.getElementById("alphRedirect").style.display = "none";
+  document.getElementById("mainContent").style.display = "block";
 
   CURRENT_TOKEN = token;
   HIGHLIGHT = URL_HOLDER;
   CURRENT_PAGE = 1;
   ALL_HOLDERS = [];
+  FILTERED_HOLDERS = [];
 
   history.replaceState(null, "",
     "?token=" + token.id + (HIGHLIGHT ? "&holder="+HIGHLIGHT : "")
   );
 
-  document.getElementById("logo").src = token.logoURI;
-  document.getElementById("subtitle").textContent =
-    `${token.name} (${token.symbol}) · Top holders`;
+  updateSearchDisplay(token);
 
   document.getElementById("status").textContent = "Loading holders…";
   document.getElementById("status").style.display = "block";
@@ -732,16 +1144,12 @@ async function loadToken(token) {
   }
 
   ALL_HOLDERS = [...map.entries()]
-    .map(([address, balance]) => ({ address, balance, type: "", name: "" }))
+    .map(([address, balance]) => ({ address, balance }))
     .sort((a,b)=>b.balance-a.balance);
 
-  const totalSupply = ALL_HOLDERS.reduce((s,x)=>s+x.balance,0);
-  const top10 = ALL_HOLDERS.slice(0,10)
-    .reduce((s,x)=>s+x.balance,0) / totalSupply * 100;
+  FILTERED_HOLDERS = [...ALL_HOLDERS];
 
-  updateStat("holders", ALL_HOLDERS.length.toLocaleString());
-  updateStat("supply", totalSupply.toLocaleString(undefined, { maximumFractionDigits: 3 }));
-  updateStat("top10", top10.toFixed(2) + "%");
+  updateStats();
 
   document.getElementById("status").style.display = "none";
   document.getElementById("table").style.display = "table";
@@ -751,6 +1159,17 @@ async function loadToken(token) {
 
 /* ---------- SEARCH ---------- */
 
+document.getElementById("search").addEventListener("focus", e => {
+  e.target.value = "";
+  document.getElementById("searchIcon").style.display = "none";
+});
+
+document.getElementById("search").addEventListener("blur", e => {
+  if (CURRENT_TOKEN && !e.target.value) {
+    updateSearchDisplay(CURRENT_TOKEN);
+  }
+});
+
 document.getElementById("search").addEventListener("input", e => {
   const q = e.target.value.toLowerCase();
   const box = document.getElementById("results");
@@ -758,22 +1177,27 @@ document.getElementById("search").addEventListener("input", e => {
 
   if (!q) return box.style.display = "none";
 
-  // Add ALPH to search results
-  const allTokens = [ALPH_TOKEN, ...TOKENS];
-
-  allTokens.filter(t =>
+  TOKENS.filter(t =>
     t.name.toLowerCase().includes(q) ||
     t.symbol.toLowerCase().includes(q)
   ).slice(0,30).forEach(t=>{
     const div = document.createElement("div");
     div.className = "search-item";
-    div.innerHTML = `
-      <img src="${t.logoURI}" />
-      <div>${t.name} (${t.symbol})</div>
-    `;
+    
+    if (t.symbol === "ALPH" || t.id === "ALPH") {
+      div.innerHTML = `
+        <img src="${t.logoURI}" />
+        <div>${t.name} (${t.symbol}) <span style="color: var(--accent); font-size: 0.8rem;">→ External</span></div>
+      `;
+    } else {
+      div.innerHTML = `
+        <img src="${t.logoURI}" />
+        <div>${t.name} (${t.symbol})</div>
+      `;
+    }
+    
     div.onclick = () => {
       box.style.display = "none";
-      document.getElementById("search").value = t.symbol;
       loadToken(t);
     };
     box.appendChild(div);
