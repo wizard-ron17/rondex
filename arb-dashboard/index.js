@@ -1685,12 +1685,13 @@ function initializeFormatTab() {
         formatMode.addEventListener('change', applyCurrentFilter);
     }
     
-    // Helper to parse date+time like '04/28/2025, 16:12 EDT'
+    // Helper to parse date+time like '2026-01-25 5:18:20' (UTC) and convert to EST
     function parseDateTime(str) {
-        // Remove timezone if present
-        const cleaned = str.replace(/,?\s*[A-Z]{2,4}$/, '');
-        // e.g. '04/28/2025, 16:12'
-        return new Date(cleaned);
+        // Parse the new format: '2026-01-25 5:18:20'
+        const date = new Date(str + ' UTC');
+        // Convert UTC to EST (UTC-5)
+        date.setHours(date.getHours() - 5);
+        return date;
     }
 
     function processData() {
@@ -1778,10 +1779,13 @@ function initializeFormatTab() {
     }
     
     function processIndividualBet(parts, index) {
-        // Format date as MM/DD/YY instead of MM/DD/YYYY
-        const fullDateStr = parts[0].split(',')[0];
-        const dateComponents = fullDateStr.split('/');
-        const dateStr = `${dateComponents[0]}/${dateComponents[1]}/${dateComponents[2].substring(2)}`;
+        // Format date as MM/DD/YY from new format '2026-01-25 5:18:20'
+        // Parse the date, convert to EST, then format
+        const betDateTime = parseDateTime(parts[0]);
+        const month = String(betDateTime.getMonth() + 1).padStart(2, '0');
+        const day = String(betDateTime.getDate()).padStart(2, '0');
+        const year = String(betDateTime.getFullYear()).slice(-2);
+        const dateStr = `${month}/${day}/${year}`;
         
         const bookmaker = parts[1];
         
@@ -1940,10 +1944,12 @@ function initializeFormatTab() {
         // Extract odds from column 8 (index 7) - American odds
         const odds = parts[9] || 'N/A';
         
-        // Extract event date from the second date/time (column 6)
-        const eventDateStr = parts[6].split(',')[0]; // Get just the date part
-        const eventDateComponents = eventDateStr.split('/');
-        const eventDateFormatted = `${eventDateComponents[0]}/${eventDateComponents[1]}/${eventDateComponents[2].substring(2)}`;
+        // Extract event date from the second date/time (column 6) in new format
+        const eventDateTime = parseDateTime(parts[6]);
+        const eventMonth = String(eventDateTime.getMonth() + 1).padStart(2, '0');
+        const eventDay = String(eventDateTime.getDate()).padStart(2, '0');
+        const eventYear = String(eventDateTime.getFullYear()).slice(-2);
+        const eventDateFormatted = `${eventMonth}/${eventDay}/${eventYear}`;
         
         return {
             date: dateStr,
@@ -1970,17 +1976,21 @@ function initializeFormatTab() {
         const firstLeg = parlayLegs[0];
         const parts = firstLeg.parts;
         
-        // Format date as MM/DD/YY instead of MM/DD/YYYY
-        const fullDateStr = parts[0].split(',')[0];
-        const dateComponents = fullDateStr.split('/');
-        const dateStr = `${dateComponents[0]}/${dateComponents[1]}/${dateComponents[2].substring(2)}`;
-        
+        // Format date as MM/DD/YY from new format '2026-01-25 5:18:20'
+        const betDateTime = parseDateTime(parts[0]);
+        const month = String(betDateTime.getMonth() + 1).padStart(2, '0');
+        const day = String(betDateTime.getDate()).padStart(2, '0');
+        const year = String(betDateTime.getFullYear()).slice(-2);
+        const dateStr = `${month}/${day}/${year}`;
+
         const bookmaker = parts[1];
-        
-        // Extract event date from the second date/time (column 6)
-        const eventDateStr = parts[6].split(',')[0];
-        const eventDateComponents = eventDateStr.split('/');
-        const eventDateFormatted = `${eventDateComponents[0]}/${eventDateComponents[1]}/${eventDateComponents[2].substring(2)}`;
+
+        // Extract event date from the second date/time (column 6) in new format
+        const eventDateTime = parseDateTime(parts[6]);
+        const eventMonth = String(eventDateTime.getMonth() + 1).padStart(2, '0');
+        const eventDay = String(eventDateTime.getDate()).padStart(2, '0');
+        const eventYear = String(eventDateTime.getFullYear()).slice(-2);
+        const eventDateFormatted = `${eventMonth}/${eventDay}/${eventYear}`;
         
         // Get unique leagues from all legs
         const leagues = [...new Set(parlayLegs.map(leg => leg.parts[3]).filter(league => league && league.trim()))];
