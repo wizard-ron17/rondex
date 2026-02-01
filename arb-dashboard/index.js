@@ -1793,27 +1793,37 @@ function initializeFormatTab() {
         const fullTeams = parts[4] || '';
         const teamsArray = fullTeams ? fullTeams.split(' vs ') : ['', ''];
         
+        // Extract league from column 4 (index 3) - needed for team name simplification
+        const league = parts[3] || 'N/A';
+
         // Filter out city names, keeping only the team name
-        const simplifyTeamName = (team) => {
+        // For college teams, preserve full names (e.g., "West Virginia" not just "Virginia")
+        const simplifyTeamName = (team, league) => {
             if (!team || team.trim() === '') {
                 return '';
             }
-            
+
+            // For college leagues, don't simplify - keep full team names
+            const collegeLeagues = ['NCAAF', 'NCAAB', 'NCAAW', 'College Baseball'];
+            if (collegeLeagues.includes(league)) {
+                return team.trim();
+            }
+
             // First approach: Check against known team names
             const teamNames = [
-                'Yankees', 'Orioles', 'Cubs', 'Pirates', 'Braves', 'Rockies', 
+                'Yankees', 'Orioles', 'Cubs', 'Pirates', 'Braves', 'Rockies',
                 'Twins', 'Guardians', 'Bucks', 'Pacers', 'Angels', 'Mariners',
                 'Pistons', 'Knicks', 'Heat', 'Celtics', 'Lakers', 'Warriors',
-                'Timberwolves', 'Clippers', 'Nuggets', 'Kings', 'Suns', 'Blazers', 
-                'Spurs', 'Thunder', 'Mavericks', 'Grizzlies', 'Pelicans', 'Nets', 
+                'Timberwolves', 'Clippers', 'Nuggets', 'Kings', 'Suns', 'Blazers',
+                'Spurs', 'Thunder', 'Mavericks', 'Grizzlies', 'Pelicans', 'Nets',
                 'Hornets', 'Bulls', 'Cavaliers', '76ers', 'Magic', 'Wizards', 'Hawks',
-                'Raptors', 'Rockets', 'Royals', 'Nationals', 'Blue Jays', 'Rays', 
-                'Red Sox', 'Phillies', 'Mets', 'Marlins', 'Brewers', 'Reds', 
-                'Cardinals', 'White Sox', 'Tigers', 'Guardians', 'Astros', 'Dodgers', 
+                'Raptors', 'Rockets', 'Royals', 'Nationals', 'Blue Jays', 'Rays',
+                'Red Sox', 'Phillies', 'Mets', 'Marlins', 'Brewers', 'Reds',
+                'Cardinals', 'White Sox', 'Tigers', 'Guardians', 'Astros', 'Dodgers',
                 'Padres', 'Giants', 'Mariners', 'Rangers', 'Athletics', 'Diamondbacks',
                 'Oilers', 'Flames', 'Canucks', 'Sharks', 'Knights', 'Kraken', 'Ducks',
                 'Kings', 'Maple Leafs', 'Senators', 'Canadiens', 'Bruins', 'Lightning',
-                'Panthers', 'Red Wings', 'Sabres', 'Jets', 'Wild', 'Blues', 'Predators', 
+                'Panthers', 'Red Wings', 'Sabres', 'Jets', 'Wild', 'Blues', 'Predators',
                 'Blackhawks', 'Avalanche', 'Stars', 'Coyotes', 'Hurricanes', 'Capitals',
                 'Islanders', 'Flyers', 'Devils', 'Rangers', 'Blue Jackets', 'Penguins',
                 'Raiders', 'Chiefs', 'Broncos', 'Chargers', 'Seahawks', '49ers', 'Rams',
@@ -1822,42 +1832,42 @@ function initializeFormatTab() {
                 'Dolphins', 'Patriots', 'Jets', 'Bengals', 'Ravens', 'Browns', 'Steelers',
                 'Colts', 'Texans', 'Titans', 'Jaguars'
             ];
-            
+
             // Try known team names first
             for (const name of teamNames) {
                 if (team.includes(name)) {
                     return name;
                 }
             }
-            
+
             // Second approach: Handle the general case by splitting by spaces
             // Most city names are at the beginning (e.g., "New York Knicks", "Los Angeles Lakers")
             // Usually the last word is the team name
             const words = team.split(' ');
-            
+
             // Some special cases - cities with two words
-            const twoWordCities = ['New York', 'Los Angeles', 'San Francisco', 'San Diego', 'San Antonio', 
-                                 'New Orleans', 'New Jersey', 'Las Vegas', 'St. Louis', 'Kansas City', 
+            const twoWordCities = ['New York', 'Los Angeles', 'San Francisco', 'San Diego', 'San Antonio',
+                                 'New Orleans', 'New Jersey', 'Las Vegas', 'St. Louis', 'Kansas City',
                                  'Oklahoma City', 'Tampa Bay'];
-            
+
             for (const city of twoWordCities) {
                 if (team.startsWith(city)) {
                     // Return everything after the city name
                     return team.substring(city.length).trim();
                 }
             }
-            
+
             // If all else fails, just return the last word (usually the team name)
             if (words.length > 1) {
                 return words[words.length - 1];
             }
-            
+
             // If nothing else works, return the original
             return team;
         };
         
-        const team1 = simplifyTeamName(teamsArray[0]);
-        const team2 = simplifyTeamName(teamsArray[1]);
+        const team1 = simplifyTeamName(teamsArray[0], league);
+        const team2 = simplifyTeamName(teamsArray[1], league);
         const teams = (team1 && team2) ? `${team1} vs ${team2}` : (team1 || team2 || 'N/A');
         
         // Get bet type and details
@@ -1870,11 +1880,17 @@ function initializeFormatTab() {
         // First remove any odds at the beginning of bet details
         const cleanBetDetails = betDetailsFull.replace(/^[-+]?\d+(\.\d+)?\s+/, '');
         let betTitleBase = cleanBetDetails; // EdgeZone will use this (no stat suffix)
+
+        // Check if this is a moneyline bet for betTitleBase (EdgeZone format)
+        const isMoneylineBet = (cleanBetDetails === team1 || cleanBetDetails === team2) && team1 && team2;
+        if (isMoneylineBet) {
+            betTitleBase = cleanBetDetails + " Moneyline";
+        }
         
         // Now add the stat type to the end based on the bet type
         if (betType === "Player Blocks") {
             betDescription = cleanBetDetails + " Blocks";
-        } 
+        }
         else if (betType === "Player Points") {
             betDescription = cleanBetDetails + " Points";
         }
@@ -1913,6 +1929,11 @@ function initializeFormatTab() {
         else {
             // Fallback - use complete bet type
             betDescription = cleanBetDetails;
+
+            // Check if this is a moneyline bet (bet title matches a team name)
+            if ((cleanBetDetails === team1 || cleanBetDetails === team2) && team1 && team2) {
+                betDescription = cleanBetDetails + " Moneyline";
+            }
         }
 
         // --- Live bet logic ---
@@ -1937,10 +1958,7 @@ function initializeFormatTab() {
             totalReturn = wager + profit;
         }
         // For losing bets, totalReturn remains 0
-        
-        // Extract league from column 4 (index 3)
-        const league = parts[3] || 'N/A';
-        
+
         // Extract odds from column 8 (index 7) - American odds
         const odds = parts[9] || 'N/A';
         
