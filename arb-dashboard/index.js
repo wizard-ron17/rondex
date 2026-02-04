@@ -1687,11 +1687,34 @@ function initializeFormatTab() {
     
     // Helper to parse date+time like '2026-01-25 5:18:20' (UTC) and convert to EST
     function parseDateTime(str) {
-        // Parse the new format: '2026-01-25 5:18:20'
-        const date = new Date(str + ' UTC');
-        // Convert UTC to EST (UTC-5)
-        date.setHours(date.getHours() - 5);
-        return date;
+        if (!str || typeof str !== 'string') {
+            console.warn('Invalid date string (null/undefined/not string):', str);
+            return new Date(); // Return current date as fallback
+        }
+
+        const trimmedStr = str.trim();
+        if (!trimmedStr) {
+            console.warn('Empty date string after trimming');
+            return new Date(); // Return current date as fallback
+        }
+
+        try {
+            // Parse the new format: '2026-01-25 5:18:20'
+            const date = new Date(trimmedStr + ' UTC');
+
+            // Check if date is valid
+            if (isNaN(date.getTime())) {
+                console.warn('Invalid date parsed from:', trimmedStr, '(resulted in NaN)');
+                return new Date(); // Return current date as fallback
+            }
+
+            // Convert UTC to EST (UTC-5)
+            date.setHours(date.getHours() - 5);
+            return date;
+        } catch (error) {
+            console.warn('Error parsing date:', trimmedStr, error);
+            return new Date(); // Return current date as fallback
+        }
     }
 
     function processData() {
@@ -1782,10 +1805,13 @@ function initializeFormatTab() {
         // Format date as MM/DD/YY from new format '2026-01-25 5:18:20'
         // Parse the date, convert to EST, then format
         const betDateTime = parseDateTime(parts[0]);
-        const month = String(betDateTime.getMonth() + 1).padStart(2, '0');
-        const day = String(betDateTime.getDate()).padStart(2, '0');
-        const year = String(betDateTime.getFullYear()).slice(-2);
-        const dateStr = `${month}/${day}/${year}`;
+        let dateStr = 'Invalid Date';
+        if (!isNaN(betDateTime.getTime())) {
+            const month = String(betDateTime.getMonth() + 1).padStart(2, '0');
+            const day = String(betDateTime.getDate()).padStart(2, '0');
+            const year = String(betDateTime.getFullYear()).slice(-2);
+            dateStr = `${month}/${day}/${year}`;
+        }
         
         const bookmaker = parts[1];
         
@@ -1961,14 +1987,17 @@ function initializeFormatTab() {
 
         // Extract odds from column 8 (index 7) - American odds
         const odds = parts[9] || 'N/A';
-        
+
         // Extract event date from the second date/time (column 6) in new format
         const eventDateTime = parseDateTime(parts[6]);
-        const eventMonth = String(eventDateTime.getMonth() + 1).padStart(2, '0');
-        const eventDay = String(eventDateTime.getDate()).padStart(2, '0');
-        const eventYear = String(eventDateTime.getFullYear()).slice(-2);
-        const eventDateFormatted = `${eventMonth}/${eventDay}/${eventYear}`;
-        
+        let eventDateFormatted = 'Invalid Date';
+        if (!isNaN(eventDateTime.getTime())) {
+            const eventMonth = String(eventDateTime.getMonth() + 1).padStart(2, '0');
+            const eventDay = String(eventDateTime.getDate()).padStart(2, '0');
+            const eventYear = String(eventDateTime.getFullYear()).slice(-2);
+            eventDateFormatted = `${eventMonth}/${eventDay}/${eventYear}`;
+        }
+
         return {
             date: dateStr,
             eventDate: eventDateFormatted,
@@ -1996,20 +2025,26 @@ function initializeFormatTab() {
         
         // Format date as MM/DD/YY from new format '2026-01-25 5:18:20'
         const betDateTime = parseDateTime(parts[0]);
-        const month = String(betDateTime.getMonth() + 1).padStart(2, '0');
-        const day = String(betDateTime.getDate()).padStart(2, '0');
-        const year = String(betDateTime.getFullYear()).slice(-2);
-        const dateStr = `${month}/${day}/${year}`;
+        let dateStr = 'Invalid Date';
+        if (!isNaN(betDateTime.getTime())) {
+            const month = String(betDateTime.getMonth() + 1).padStart(2, '0');
+            const day = String(betDateTime.getDate()).padStart(2, '0');
+            const year = String(betDateTime.getFullYear()).slice(-2);
+            dateStr = `${month}/${day}/${year}`;
+        }
 
         const bookmaker = parts[1];
 
         // Extract event date from the second date/time (column 6) in new format
         const eventDateTime = parseDateTime(parts[6]);
-        const eventMonth = String(eventDateTime.getMonth() + 1).padStart(2, '0');
-        const eventDay = String(eventDateTime.getDate()).padStart(2, '0');
-        const eventYear = String(eventDateTime.getFullYear()).slice(-2);
-        const eventDateFormatted = `${eventMonth}/${eventDay}/${eventYear}`;
-        
+        let eventDateFormatted = 'Invalid Date';
+        if (!isNaN(eventDateTime.getTime())) {
+            const eventMonth = String(eventDateTime.getMonth() + 1).padStart(2, '0');
+            const eventDay = String(eventDateTime.getDate()).padStart(2, '0');
+            const eventYear = String(eventDateTime.getFullYear()).slice(-2);
+            eventDateFormatted = `${eventMonth}/${eventDay}/${eventYear}`;
+        }
+
         // Get unique leagues from all legs
         const leagues = [...new Set(parlayLegs.map(leg => leg.parts[3]).filter(league => league && league.trim()))];
         const leagueCount = leagues.length;
