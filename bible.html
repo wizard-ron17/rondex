@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Bible Book Club</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,19 +26,42 @@
   --bridge-bg:  #F5EDE0;
   --bg:         #F3EDE2;
   --card-bg:    #FDFAF5;
+  --locked-bg:  #F7F5F2;
   --u0: #B8860B; --u1: #1A7A8A; --u2: #6B3A7D; --u3: #2D6A4F;
   --font-serif: 'EB Garamond', Georgia, serif;
   --font-sans:  'Inter', system-ui, sans-serif;
-  --r: 10px;
+  --r: 12px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 body {
   font-family: var(--font-sans);
   background: var(--bg);
   color: var(--dark);
   min-height: 100vh;
+  overscroll-behavior-y: contain;
 }
+
+/* ── CLOUD SYNC BANNER ──────────────────────────────── */
+#sync-banner {
+  background: var(--dark);
+  padding: 6px 16px;
+  text-align: center;
+  font-size: .68rem;
+  color: rgba(255,255,255,.5);
+  letter-spacing: .05em;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+#sync-status { display: flex; align-items: center; gap: 5px; }
+.sync-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #4CAF50;
+  animation: pulse-sync 2s ease-in-out infinite;
+}
+.sync-dot.syncing { background: var(--gold-lt); animation: spin-dot 1s linear infinite; }
+.sync-dot.error   { background: #e74c3c; animation: none; }
+@keyframes pulse-sync { 0%,100%{opacity:.5} 50%{opacity:1} }
+@keyframes spin-dot   { to{transform:rotate(360deg)} }
 
 /* ── HEADER ─────────────────────────────────────────── */
 #site-header {
@@ -47,36 +70,38 @@ body {
   box-shadow: 0 2px 12px rgba(0,0,0,.35);
 }
 .header-inner {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 18px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
   max-width: 900px; margin: 0 auto;
 }
 .brand {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 7px;
   flex-shrink: 0;
 }
-.brand svg { width: 26px; height: 26px; }
+.brand svg { width: 24px; height: 24px; }
 .brand-text {
   font-family: var(--font-serif);
-  font-size: 1.15rem; font-weight: 700;
+  font-size: 1.05rem; font-weight: 700;
   color: var(--gold-lt);
   line-height: 1;
 }
-.brand-text small { display: block; font-size: .6rem; font-weight: 400; color: var(--rule); letter-spacing: .08em; }
+.brand-text small { display: block; font-size: .55rem; font-weight: 400; color: var(--rule); letter-spacing: .08em; }
 .spacer { flex: 1; }
-#user-switcher { display: flex; gap: 6px; }
+#user-switcher { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
 .user-btn {
   border: 2px solid transparent;
   border-radius: 50px;
-  padding: 4px 11px;
-  font-size: .7rem; font-weight: 600;
+  padding: 5px 10px;
+  font-size: .68rem; font-weight: 600;
   cursor: pointer; transition: all .2s;
   background: rgba(255,255,255,.08);
   color: rgba(255,255,255,.6);
   white-space: nowrap;
   position: relative;
+  min-height: 32px;
+  -webkit-tap-highlight-color: transparent;
 }
-.user-btn:hover { background: rgba(255,255,255,.15); color: #fff; }
+.user-btn:hover, .user-btn:active { background: rgba(255,255,255,.15); color: #fff; }
 .user-btn.active { color: #fff; background: rgba(255,255,255,.12); }
 .user-btn .streak-badge {
   position: absolute; top: -6px; right: -4px;
@@ -88,12 +113,14 @@ body {
 .sunday-btn {
   border: 1.5px solid var(--gold);
   background: transparent; color: var(--gold-lt);
-  border-radius: 50px; padding: 5px 13px;
-  font-size: .72rem; font-weight: 600;
+  border-radius: 50px; padding: 5px 11px;
+  font-size: .68rem; font-weight: 600;
   cursor: pointer; transition: all .2s;
   white-space: nowrap;
+  min-height: 32px;
+  -webkit-tap-highlight-color: transparent;
 }
-.sunday-btn:hover { background: var(--gold); color: #fff; }
+.sunday-btn:active { background: var(--gold); color: #fff; }
 
 /* Progress bar */
 #progress-wrap { background: rgba(0,0,0,.3); height: 5px; position: relative; }
@@ -120,7 +147,7 @@ body {
 /* ── HERO ────────────────────────────────────────────── */
 .hero {
   text-align: center;
-  padding: 52px 20px 40px;
+  padding: 40px 20px 32px;
   background: linear-gradient(160deg, #1A1612 0%, #2C2318 50%, #1A1612 100%);
   position: relative; overflow: hidden;
 }
@@ -132,54 +159,56 @@ body {
     radial-gradient(ellipse 40% 60% at 20% 80%, rgba(184,134,11,.08) 0%, transparent 60%);
 }
 .hero-content { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
-.hero-stars { font-size: 1.1rem; letter-spacing: .5em; color: var(--gold); margin-bottom: 12px; display: block; }
+.hero-stars { font-size: 1rem; letter-spacing: .4em; color: var(--gold); margin-bottom: 10px; display: block; }
 .hero h1 {
   font-family: var(--font-serif);
-  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-size: clamp(1.9rem, 7vw, 3.2rem);
   font-weight: 700; color: #fff;
-  line-height: 1.1; margin-bottom: 10px;
+  line-height: 1.1; margin-bottom: 8px;
 }
 .hero-sub {
-  font-family: var(--font-serif); font-style: italic; font-size: 1.05rem;
-  color: var(--rule); margin-bottom: 18px;
+  font-family: var(--font-serif); font-style: italic; font-size: .98rem;
+  color: var(--rule); margin-bottom: 14px;
 }
-.hero-divider { width: 60px; height: 1.5px; background: var(--gold); margin: 0 auto 16px; }
-.hero-meta { font-size: .78rem; color: rgba(255,255,255,.45); letter-spacing: .05em; margin-bottom: 22px; }
+.hero-divider { width: 50px; height: 1.5px; background: var(--gold); margin: 0 auto 12px; }
+.hero-meta { font-size: .72rem; color: rgba(255,255,255,.45); letter-spacing: .04em; margin-bottom: 18px; line-height: 1.7; }
 .hero-cta {
   display: inline-flex; align-items: center; gap: 6px;
   background: var(--gold); color: #fff;
   border: none; border-radius: 50px;
-  padding: 10px 22px; font-size: .8rem; font-weight: 600;
+  padding: 11px 22px; font-size: .8rem; font-weight: 600;
   cursor: pointer; transition: all .2s; font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
 }
-.hero-cta:hover { background: var(--gold-lt); transform: translateY(-1px); }
-.hero-book-svg { margin-bottom: 20px; opacity: .85; }
+.hero-cta:active { background: var(--gold-lt); transform: scale(.98); }
+.hero-book-svg { margin-bottom: 16px; opacity: .85; }
 
 /* ── GROUP SNAPSHOT ─────────────────────────────────── */
 .group-snapshot {
-  max-width: 860px; margin: 24px auto 0;
-  padding: 0 16px;
+  max-width: 860px; margin: 20px auto 0;
+  padding: 0 14px;
 }
 .group-snapshot-inner {
   background: var(--dark);
   border-radius: var(--r);
-  padding: 16px 20px;
-  display: flex; align-items: center; gap: 20px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
   flex-wrap: wrap;
 }
 .group-snap-title {
-  font-size: .65rem; font-weight: 700; letter-spacing: .12em;
+  font-size: .62rem; font-weight: 700; letter-spacing: .12em;
   color: var(--rule); margin-bottom: 8px;
 }
-.group-members { display: flex; gap: 16px; flex: 1; flex-wrap: wrap; }
+.group-members { display: flex; gap: 14px; flex: 1; flex-wrap: wrap; }
 .group-member {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  min-width: 60px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  min-width: 52px;
 }
 .member-avatar {
-  width: 38px; height: 38px; border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-serif); font-size: 1rem; font-weight: 700;
+  font-family: var(--font-serif); font-size: .95rem; font-weight: 700;
   color: #fff; border: 2px solid rgba(255,255,255,.15);
   position: relative; cursor: default;
 }
@@ -190,60 +219,57 @@ body {
   border-radius: 50px; padding: 1px 5px; line-height: 1.4;
 }
 .member-name {
-  font-size: .65rem; color: rgba(255,255,255,.55);
+  font-size: .62rem; color: rgba(255,255,255,.55);
   font-weight: 600; letter-spacing: .04em; text-align: center;
-  max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.member-weeks {
-  font-size: .6rem; color: rgba(255,255,255,.3);
-  text-align: center;
-}
-.snap-divider { width: 1px; height: 50px; background: rgba(255,255,255,.1); }
-.snap-week-info { display: flex; flex-direction: column; gap: 4px; }
-.snap-current-label { font-size: .62rem; color: rgba(255,255,255,.35); letter-spacing: .08em; }
+.member-weeks { font-size: .58rem; color: rgba(255,255,255,.3); text-align: center; }
+.snap-divider { width: 1px; height: 46px; background: rgba(255,255,255,.1); }
+.snap-week-info { display: flex; flex-direction: column; gap: 3px; }
+.snap-current-label { font-size: .6rem; color: rgba(255,255,255,.35); letter-spacing: .08em; }
 .snap-current-week {
-  font-family: var(--font-serif); font-size: 1.05rem;
+  font-family: var(--font-serif); font-size: 1rem;
   color: var(--gold-lt); line-height: 1.2;
 }
-.snap-date { font-size: .65rem; color: rgba(255,255,255,.3); }
+.snap-date { font-size: .62rem; color: rgba(255,255,255,.3); }
 
 /* ── ABOUT BOX ──────────────────────────────────────── */
-.about-box { max-width: 860px; margin: 16px auto 0; padding: 0 16px; }
+.about-box { max-width: 860px; margin: 14px auto 0; padding: 0 14px; }
 .about-inner {
   background: var(--gold-pale);
   border: 1px solid var(--rule); border-radius: var(--r);
-  padding: 18px 22px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px;
+  padding: 16px 18px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px;
 }
 .about-title {
   grid-column: 1/-1;
-  font-size: .68rem; font-weight: 700; letter-spacing: .12em;
-  color: var(--gold-dim); margin-bottom: 6px;
+  font-size: .65rem; font-weight: 700; letter-spacing: .12em;
+  color: var(--gold-dim); margin-bottom: 5px;
 }
 .about-body {
   grid-column: 1/-1;
-  font-family: var(--font-serif); font-size: .95rem;
-  color: var(--mid); line-height: 1.55; margin-bottom: 8px;
+  font-family: var(--font-serif); font-size: .9rem;
+  color: var(--mid); line-height: 1.5; margin-bottom: 7px;
 }
 .about-tip {
-  font-size: .78rem; color: var(--mid);
-  display: flex; gap: 7px; align-items: flex-start; line-height: 1.4;
+  font-size: .74rem; color: var(--mid);
+  display: flex; gap: 6px; align-items: flex-start; line-height: 1.4;
 }
 .about-tip-icon { flex-shrink: 0; color: var(--gold); }
 @media (max-width: 560px) { .about-inner { grid-template-columns: 1fr; } }
 
 /* ── MAIN CONTENT ───────────────────────────────────── */
-#app { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+#app { max-width: 860px; margin: 0 auto; padding: 18px 14px calc(60px + var(--safe-bottom)); }
 
 /* Section headers */
-.section-header { display: flex; align-items: center; gap: 14px; margin: 32px 0 14px; }
+.section-header { display: flex; align-items: center; gap: 12px; margin: 28px 0 12px; }
 .section-line { flex: 1; height: 1px; background: var(--rule); }
-.section-title { font-size: .67rem; font-weight: 700; letter-spacing: .18em; white-space: nowrap; }
+.section-title { font-size: .63rem; font-weight: 700; letter-spacing: .18em; white-space: nowrap; }
 .section-header.ot .section-title { color: var(--gold-dim); }
 .section-header.bridge .section-title { color: var(--bridge-c); }
 .section-header.nt .section-title { color: var(--navy); }
 .section-header.flex .section-title { color: var(--muted); }
-.section-icon { font-size: 1.1rem; }
+.section-icon { font-size: 1rem; }
 
 /* ── WEEK CARD ──────────────────────────────────────── */
 .week-card {
@@ -255,40 +281,65 @@ body {
   transition: border-color .2s, box-shadow .2s;
   overflow: hidden;
 }
-.week-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.07); }
 .week-card.done { border-left-color: var(--gold); }
 .week-card.current { border-left-color: var(--gold-lt); box-shadow: 0 0 0 2px rgba(184,134,11,.15); }
 .week-card.bridge-card { border-left-color: var(--bridge-c); background: #FEFAF5; }
 .week-card.nt-card { border-left-color: rgba(44,62,107,.3); }
 
-.week-header {
-  display: flex; align-items: center; gap: 10px;
-  padding: 11px 14px; cursor: pointer; user-select: none;
+/* LOCKED state */
+.week-card.locked {
+  background: var(--locked-bg);
+  border-left-color: rgba(180,170,155,.4);
+  opacity: .75;
 }
-.week-header:hover { background: rgba(0,0,0,.015); }
+.week-card.locked .week-header { cursor: not-allowed; }
+.week-card.locked .week-check input { pointer-events: none; cursor: not-allowed; }
+.lock-icon {
+  font-size: .85rem; color: rgba(107,107,107,.5); flex-shrink: 0;
+}
+.locked-msg {
+  display: none;
+  padding: 10px 16px;
+  font-size: .78rem; color: var(--muted); font-style: italic;
+  font-family: var(--font-serif);
+  border-top: 1px solid rgba(212,196,160,.3);
+  background: rgba(180,170,155,.06);
+}
+.week-card.locked.open .locked-msg { display: block; }
+
+.week-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 13px; cursor: pointer; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 52px;
+}
+.week-header:active { background: rgba(0,0,0,.02); }
 
 .week-check input[type=checkbox] {
-  width: 17px; height: 17px;
+  width: 18px; height: 18px;
   accent-color: var(--gold);
   cursor: pointer; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.week-label { font-weight: 700; font-size: .78rem; color: var(--gold-dim); flex-shrink: 0; min-width: 38px; }
+.week-label { font-weight: 700; font-size: .75rem; color: var(--gold-dim); flex-shrink: 0; min-width: 35px; }
 .week-card.bridge-card .week-label { color: var(--bridge-c); }
 .week-card.nt-card .week-label { color: var(--navy); }
+.week-card.locked .week-label { color: var(--muted); }
 
 .week-reading {
-  font-family: var(--font-serif); font-style: italic; font-size: .95rem;
+  font-family: var(--font-serif); font-style: italic; font-size: .9rem;
   color: var(--mid); flex: 1; min-width: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .week-card.current .week-reading { color: var(--dark); }
+.week-card.locked .week-reading { color: var(--muted); }
 
 .week-dots { display: flex; gap: 4px; flex-shrink: 0; }
 .dot {
   width: 9px; height: 9px; border-radius: 50%;
   background: rgba(0,0,0,.1); border: 1.5px solid rgba(0,0,0,.12);
-  transition: all .2s; cursor: default; position: relative;
+  transition: all .2s; cursor: default;
 }
 .dot.done { border-color: transparent; }
 .dot[data-u="0"].done { background: var(--u0); }
@@ -296,12 +347,12 @@ body {
 .dot[data-u="2"].done { background: var(--u2); }
 .dot[data-u="3"].done { background: var(--u3); }
 
-.week-date { font-size: .65rem; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
-.chevron { font-size: 1.1rem; color: var(--rule); transition: transform .25s; flex-shrink: 0; line-height: 1; }
+.week-date { font-size: .62rem; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+.chevron { font-size: 1rem; color: var(--rule); transition: transform .25s; flex-shrink: 0; line-height: 1; }
 .week-card.open .chevron { transform: rotate(90deg); }
 
 /* Week body */
-.week-body { display: none; padding: 0 16px 16px; border-top: 1px solid rgba(212,196,160,.4); }
+.week-body { display: none; padding: 0 14px 16px; border-top: 1px solid rgba(212,196,160,.4); }
 .week-card.open .week-body { display: block; }
 
 /* Prophecy block */
@@ -309,52 +360,53 @@ body {
   background: var(--red-bg); border-left: 3px solid var(--red);
   border-radius: 0 6px 6px 0; padding: 8px 12px; margin: 12px 0;
 }
-.prophecy-label { font-size: .62rem; font-weight: 700; letter-spacing: .14em; color: #A83232; margin-bottom: 4px; }
-.prophecy-text { font-family: var(--font-serif); font-style: italic; font-size: .92rem; color: var(--red); line-height: 1.5; }
+.prophecy-label { font-size: .6rem; font-weight: 700; letter-spacing: .14em; color: #A83232; margin-bottom: 4px; }
+.prophecy-text { font-family: var(--font-serif); font-style: italic; font-size: .9rem; color: var(--red); line-height: 1.5; }
 
 /* Bridge note */
 .bridge-note-block {
   background: var(--bridge-bg); border-left: 3px solid var(--bridge-c);
   border-radius: 0 6px 6px 0; padding: 10px 12px; margin: 12px 0;
 }
-.bridge-note-text { font-family: var(--font-serif); font-size: .92rem; color: var(--bridge-c); line-height: 1.6; }
+.bridge-note-text { font-family: var(--font-serif); font-size: .9rem; color: var(--bridge-c); line-height: 1.6; }
 
 /* Answer fields */
-.field { margin-top: 13px; }
+.field { margin-top: 14px; }
 .field-label {
   display: flex; align-items: center; gap: 7px;
-  font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+  font-size: .68rem; font-weight: 600; letter-spacing: .08em;
   color: var(--gold-dim); margin-bottom: 6px;
 }
 .reflection-question {
-  font-family: var(--font-serif); font-size: .97rem;
+  font-family: var(--font-serif); font-size: .95rem;
   color: var(--mid); line-height: 1.55; margin-bottom: 7px; padding-left: 2px;
 }
 .prayer-prompt {
-  font-family: var(--font-serif); font-style: italic; font-size: .92rem;
+  font-family: var(--font-serif); font-style: italic; font-size: .9rem;
   color: var(--navy); line-height: 1.55; margin-bottom: 7px;
   background: var(--navy-bg); border-left: 3px solid var(--navy);
   border-radius: 0 6px 6px 0; padding: 8px 12px;
 }
 
 textarea {
-  width: 100%; resize: vertical;
-  border: 1.5px solid var(--rule); border-radius: 6px;
-  padding: 9px 11px;
-  font-family: var(--font-serif); font-size: .95rem;
+  width: 100%; resize: none;
+  border: 1.5px solid var(--rule); border-radius: 8px;
+  padding: 10px 12px;
+  font-family: var(--font-serif); font-size: 1rem;
   color: var(--dark); line-height: 1.55;
   background: #FFFDF9;
   transition: border-color .2s, box-shadow .2s;
-  min-height: 62px; overflow-y: hidden;
+  min-height: 68px; overflow-y: hidden;
+  -webkit-appearance: none;
 }
 textarea:focus {
   outline: none; border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(184,134,11,.1);
   background: #fff;
 }
-textarea::placeholder { color: rgba(107,107,107,.5); font-style: italic; }
+textarea::placeholder { color: rgba(107,107,107,.45); font-style: italic; }
 .save-indicator {
-  font-size: .65rem; color: var(--gold-dim);
+  font-size: .64rem; color: var(--gold-dim);
   text-align: right; margin-top: 2px;
   opacity: 0; transition: opacity .4s; height: 14px;
 }
@@ -365,23 +417,25 @@ textarea::placeholder { color: rgba(107,107,107,.5); font-style: italic; }
   display: flex; align-items: center; justify-content: space-between;
   margin-top: 14px; padding-top: 12px;
   border-top: 1px dashed var(--rule);
+  flex-wrap: wrap; gap: 8px;
 }
-.week-footer-dots { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.week-footer-user { display: flex; align-items: center; gap: 5px; font-size: .7rem; color: var(--muted); }
-.week-footer-user .user-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.week-footer-dots { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.week-footer-user { display: flex; align-items: center; gap: 4px; font-size: .68rem; color: var(--muted); }
+.week-footer-user .user-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
 .group-btn {
   font-size: .7rem; font-weight: 600; color: var(--gold-dim);
   background: var(--gold-pale); border: 1px solid var(--rule);
-  border-radius: 50px; padding: 4px 12px;
+  border-radius: 50px; padding: 6px 13px;
   cursor: pointer; transition: all .2s; white-space: nowrap;
+  min-height: 34px; -webkit-tap-highlight-color: transparent;
 }
-.group-btn:hover { background: var(--gold); color: #fff; border-color: var(--gold); }
+.group-btn:active { background: var(--gold); color: #fff; border-color: var(--gold); }
 
 /* ── MILESTONE CARD ─────────────────────────────────── */
 .milestone-card {
   background: linear-gradient(135deg, #FBF3E2, var(--gold-pale));
   border: 1.5px solid var(--rule); border-radius: var(--r);
-  padding: 22px 20px; margin: 18px 0;
+  padding: 20px 18px; margin: 16px 0;
   text-align: center; position: relative; overflow: hidden;
 }
 .milestone-card::before {
@@ -389,19 +443,16 @@ textarea::placeholder { color: rgba(107,107,107,.5); font-style: italic; }
   background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(184,134,11,.1), transparent);
 }
 .milestone-card .mc-content { position: relative; z-index: 1; }
-.milestone-pct { font-family: var(--font-serif); font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: 6px; }
-.milestone-card.complete .milestone-pct { font-size: 1.8rem; }
-.milestone-msg { font-weight: 700; font-size: .9rem; color: var(--dark); margin-bottom: 10px; }
-.milestone-rule { width: 40px; height: 1px; background: var(--rule); margin: 0 auto 10px; }
-.milestone-verse { font-family: var(--font-serif); font-style: italic; font-size: .88rem; color: var(--muted); line-height: 1.5; }
+.milestone-pct { font-family: var(--font-serif); font-size: 2.4rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: 5px; }
+.milestone-card.complete .milestone-pct { font-size: 1.7rem; }
+.milestone-msg { font-weight: 700; font-size: .88rem; color: var(--dark); margin-bottom: 9px; }
+.milestone-rule { width: 36px; height: 1px; background: var(--rule); margin: 0 auto 9px; }
+.milestone-verse { font-family: var(--font-serif); font-style: italic; font-size: .86rem; color: var(--muted); line-height: 1.5; }
 .milestone-sparkle {
   position: absolute; font-size: 1rem;
   animation: sparkle 3s ease-in-out infinite; opacity: .6;
 }
-@keyframes sparkle {
-  0%,100% { opacity:.3; transform: scale(.8); }
-  50% { opacity:.9; transform: scale(1.1); }
-}
+@keyframes sparkle { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:.9;transform:scale(1.1)} }
 
 /* ── SUNDAY MODE ────────────────────────────────────── */
 #sunday-overlay {
@@ -415,112 +466,128 @@ textarea::placeholder { color: rgba(107,107,107,.5); font-style: italic; }
   overflow: hidden; box-shadow: 0 8px 48px rgba(0,0,0,.4);
 }
 .sunday-header {
-  background: var(--dark); padding: 16px 20px;
-  display: flex; align-items: center; gap: 14px;
+  background: var(--dark); padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
 }
-.sunday-title { font-family: var(--font-serif); font-size: 1.2rem; color: var(--gold-lt); flex: 1; }
-.sunday-title small { display: block; font-size: .7rem; color: var(--rule); font-family: var(--font-sans); margin-top: 1px; }
+.sunday-title { font-family: var(--font-serif); font-size: 1.15rem; color: var(--gold-lt); flex: 1; }
+.sunday-title small { display: block; font-size: .68rem; color: var(--rule); font-family: var(--font-sans); margin-top: 1px; }
 #sunday-week-select {
   border: 1.5px solid rgba(255,255,255,.2); background: rgba(255,255,255,.07);
   color: #fff; border-radius: 6px; padding: 6px 10px;
-  font-size: .8rem; cursor: pointer; max-width: 240px;
+  font-size: .78rem; cursor: pointer; max-width: 220px;
 }
-.sunday-close { background: none; border: none; color: rgba(255,255,255,.5); font-size: 1.4rem; cursor: pointer; line-height: 1; transition: color .2s; }
-.sunday-close:hover { color: #fff; }
-
-.sunday-body { flex: 1; overflow-y: auto; padding: 20px; }
-.sunday-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.sunday-close { background: none; border: none; color: rgba(255,255,255,.5); font-size: 1.4rem; cursor: pointer; line-height: 1; transition: color .2s; min-width: 34px; min-height: 34px; display:flex;align-items:center;justify-content:center; }
+.sunday-body { flex: 1; overflow-y: auto; padding: 16px; -webkit-overflow-scrolling: touch; }
+.sunday-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
 .sunday-user-col { background: #fff; border-radius: var(--r); border: 1px solid var(--rule); overflow: hidden; }
 .sunday-user-header {
-  padding: 10px 14px; font-size: .72rem; font-weight: 700; letter-spacing: .06em;
+  padding: 10px 13px; font-size: .7rem; font-weight: 700; letter-spacing: .06em;
   display: flex; align-items: center; gap: 7px;
 }
 .sunday-user-header .color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.sunday-user-body { padding: 12px 14px; }
-.sunday-field { margin-bottom: 13px; }
-.sunday-field-label { font-size: .63rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); margin-bottom: 4px; }
-.sunday-field-text { font-family: var(--font-serif); font-size: .9rem; color: var(--mid); line-height: 1.5; }
+.sunday-user-body { padding: 11px 13px; }
+.sunday-field { margin-bottom: 12px; }
+.sunday-field-label { font-size: .61rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); margin-bottom: 3px; }
+.sunday-field-text { font-family: var(--font-serif); font-size: .88rem; color: var(--mid); line-height: 1.5; }
 .sunday-field-text.empty { color: rgba(107,107,107,.4); font-style: italic; font-size: .8rem; }
-
-.sunday-footer { padding: 14px 20px; border-top: 1px solid var(--rule); display: flex; justify-content: flex-end; gap: 10px; }
-.print-btn { background: var(--dark); color: #fff; border: none; border-radius: 6px; padding: 8px 18px; font-size: .78rem; font-weight: 600; cursor: pointer; transition: all .2s; }
-.print-btn:hover { background: var(--mid); }
+.sunday-footer { padding: 12px 16px; border-top: 1px solid var(--rule); display: flex; justify-content: flex-end; gap: 10px; }
+.print-btn { background: var(--dark); color: #fff; border: none; border-radius: 6px; padding: 9px 18px; font-size: .78rem; font-weight: 600; cursor: pointer; min-height: 40px; }
 
 /* ── MILESTONE TOAST ────────────────────────────────── */
 #milestone-toast {
-  position: fixed; bottom: 24px; left: 50%;
+  position: fixed; bottom: calc(24px + var(--safe-bottom)); left: 50%;
   transform: translateX(-50%) translateY(100px);
   background: var(--dark); color: #fff;
-  padding: 14px 24px; border-radius: 50px;
+  padding: 14px 22px; border-radius: 50px;
   border: 1.5px solid var(--gold);
   text-align: center; z-index: 300;
   transition: transform .4s cubic-bezier(.34,1.56,.64,1);
-  pointer-events: none; min-width: 260px;
+  pointer-events: none; min-width: 240px;
 }
 #milestone-toast.show { transform: translateX(-50%) translateY(0); }
-.toast-pct { font-family: var(--font-serif); font-size: 1.5rem; color: var(--gold-lt); }
-.toast-msg { font-size: .8rem; color: rgba(255,255,255,.7); margin-top: 2px; }
+.toast-pct { font-family: var(--font-serif); font-size: 1.4rem; color: var(--gold-lt); }
+.toast-msg { font-size: .78rem; color: rgba(255,255,255,.7); margin-top: 2px; }
 
 /* ── RENAME TOOLTIP ─────────────────────────────────── */
 #rename-input {
   display: none; position: fixed; z-index: 400;
   background: #fff; border: 1.5px solid var(--gold);
-  border-radius: 8px; padding: 10px 14px;
-  box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  border-radius: 10px; padding: 12px 14px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.2);
+  width: 220px;
 }
 #rename-input input {
-  border: 1.5px solid var(--rule); border-radius: 5px;
-  padding: 6px 10px; font-size: .85rem; width: 160px; font-family: var(--font-sans);
+  border: 1.5px solid var(--rule); border-radius: 6px;
+  padding: 8px 10px; font-size: .9rem; width: 100%; font-family: var(--font-sans);
+  -webkit-appearance: none;
 }
 #rename-input input:focus { outline: none; border-color: var(--gold); }
-#rename-input label { display: block; font-size: .68rem; color: var(--muted); margin-bottom: 5px; }
-#rename-input .rename-actions { display: flex; gap: 6px; margin-top: 7px; }
-#rename-input button { flex: 1; padding: 5px; border-radius: 5px; font-size: .75rem; font-weight: 600; cursor: pointer; border: none; }
+#rename-input label { display: block; font-size: .68rem; color: var(--muted); margin-bottom: 6px; }
+#rename-input .rename-actions { display: flex; gap: 6px; margin-top: 8px; }
+#rename-input button { flex: 1; padding: 8px; border-radius: 6px; font-size: .78rem; font-weight: 600; cursor: pointer; border: none; min-height: 36px; }
 #rename-save { background: var(--gold); color: #fff; }
 #rename-cancel { background: var(--rule); color: var(--mid); }
 
 /* ── UTILITIES ──────────────────────────────────────── */
 .hidden { display: none !important; }
 .current-badge {
-  font-size: .6rem; font-weight: 700; letter-spacing: .08em;
+  font-size: .58rem; font-weight: 700; letter-spacing: .07em;
   background: var(--gold); color: #fff; border-radius: 50px; padding: 2px 7px; flex-shrink: 0;
 }
-.section-art { text-align: center; color: var(--rule); font-size: .8rem; letter-spacing: .3em; margin: 4px 0 0; opacity: .7; }
+.section-art { text-align: center; color: var(--rule); font-size: .78rem; letter-spacing: .3em; margin: 3px 0 0; opacity: .7; }
 .nt-intro {
   background: linear-gradient(135deg, #F0F4FC, #EEF2FA);
   border: 1px solid rgba(44,62,107,.15); border-radius: var(--r);
-  padding: 14px 18px; margin-bottom: 14px;
-  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 11px;
 }
-.nt-intro-icon { font-size: 1.6rem; }
-.nt-intro-text { font-family: var(--font-serif); font-size: .95rem; color: var(--navy); line-height: 1.5; }
+.nt-intro-icon { font-size: 1.5rem; }
+.nt-intro-text { font-family: var(--font-serif); font-size: .9rem; color: var(--navy); line-height: 1.5; }
 
 /* ── PRINT ──────────────────────────────────────────── */
 @media print {
-  #site-header, .hero-cta, .sunday-btn, .group-btn, #sunday-overlay, #milestone-toast, #rename-input, .group-snapshot { display: none !important; }
+  #site-header, .hero-cta, .sunday-btn, .group-btn, #sunday-overlay, #milestone-toast, #rename-input, .group-snapshot, #sync-banner { display: none !important; }
   .week-body { display: block !important; }
   .week-card { break-inside: avoid; border: 1px solid #ccc; margin-bottom: 14px; }
 }
 
-/* ── RESPONSIVE ─────────────────────────────────────── */
+/* ── MOBILE RESPONSIVE ──────────────────────────────── */
 @media (max-width: 600px) {
-  .header-inner { padding: 8px 12px; gap: 8px; }
-  .brand-text { font-size: 1rem; }
-  .user-btn { padding: 3px 8px; font-size: .65rem; }
-  .sunday-btn { padding: 4px 10px; font-size: .65rem; }
-  .about-inner { padding: 14px 16px; }
-  #app { padding: 16px 10px 60px; }
-  .week-reading { font-size: .88rem; }
+  .header-inner { padding: 8px 12px; gap: 6px; }
+  .brand-text { font-size: .92rem; }
+  .brand-text small { display: none; }
+  .user-btn { padding: 4px 9px; font-size: .63rem; min-height: 30px; }
+  .sunday-btn { padding: 4px 10px; font-size: .63rem; min-height: 30px; }
+  .about-inner { padding: 13px 14px; }
+  #app { padding: 14px 10px calc(60px + var(--safe-bottom)); }
+  .week-reading { font-size: .86rem; }
   .sunday-grid { grid-template-columns: 1fr 1fr; }
-  .group-snapshot-inner { gap: 14px; }
+  .group-snapshot-inner { gap: 10px; padding: 12px 14px; }
   .snap-divider { display: none; }
+  .week-header { padding: 11px 11px; gap: 7px; }
+  .week-dots { display: none; }
+  .week-body { padding: 0 11px 14px; }
+  textarea { font-size: .95rem; }
+  .hero { padding: 32px 16px 26px; }
+  .hero-meta { font-size: .69rem; }
+  .milestone-card { padding: 16px 14px; }
+  .milestone-pct { font-size: 2rem; }
 }
 @media (max-width: 400px) {
   .sunday-grid { grid-template-columns: 1fr; }
+  .brand svg { width: 20px; height: 20px; }
 }
 </style>
 </head>
 <body>
+
+<!-- ══ SYNC BANNER ══════════════════════════════════════ -->
+<div id="sync-banner">
+  <div id="sync-status">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-text">Loading data…</span>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════ HEADER ════════════ -->
 <header id="site-header">
@@ -549,7 +616,7 @@ textarea::placeholder { color: rgba(107,107,107,.5); font-style: italic; }
 <!-- ═══════════════════════════════════ HERO ══════════════ -->
 <section class="hero">
   <div class="hero-content">
-    <svg class="hero-book-svg" width="64" height="48" viewBox="0 0 64 48" fill="none">
+    <svg class="hero-book-svg" width="58" height="44" viewBox="0 0 64 48" fill="none">
       <rect x="2" y="6" width="28" height="36" rx="2" fill="#4A3520" opacity=".5"/>
       <rect x="34" y="6" width="28" height="36" rx="2" fill="#5C3D1E" opacity=".6"/>
       <rect x="30" y="4" width="4" height="40" rx="1" fill="#B8860B" opacity=".8"/>
@@ -561,16 +628,14 @@ textarea::placeholder { color: rgba(107,107,107,.5); font-style: italic; }
     <h1>Bible Book Club</h1>
     <p class="hero-sub">A One-Year Reading Schedule with Discussion Prompts</p>
     <div class="hero-divider"></div>
-    <p class="hero-meta">~23 chapters per week &nbsp;·&nbsp; 3–4 chapters per day &nbsp;·&nbsp; 15–25 minutes &nbsp;·&nbsp; Full Bible by Week 44</p>
+    <p class="hero-meta">~23 chapters per week &nbsp;·&nbsp; 3–4 chapters per day<br>15–25 minutes &nbsp;·&nbsp; Full Bible by Week 44</p>
     <button class="hero-cta" onclick="scrollToCurrent()">→ Jump to current week</button>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════ GROUP SNAPSHOT ═══ -->
 <div class="group-snapshot">
-  <div class="group-snapshot-inner" id="group-snapshot-inner">
-    <!-- rendered by JS -->
-  </div>
+  <div class="group-snapshot-inner" id="group-snapshot-inner"></div>
 </div>
 
 <!-- ═══════════════════════════════════ ABOUT ═════════════ -->
@@ -579,10 +644,10 @@ textarea::placeholder { color: rgba(107,107,107,.5); font-style: italic; }
     <div class="about-title">HOW THIS WORKS</div>
     <p class="about-body">No theology degree required. Read each week, then get together on Sunday to talk through it. You don't have to have it figured out — curiosity beats certainty every time.</p>
     <div class="about-tip"><span class="about-tip-icon">□</span><span>Check the box when you finish each week's reading.</span></div>
-    <div class="about-tip"><span class="about-tip-icon">✍</span><span>Fill in your answers anytime — they save automatically to your name.</span></div>
-    <div class="about-tip"><span class="about-tip-icon">☀</span><span>Hit <strong>Sunday</strong> to see everyone's answers side-by-side before you meet.</span></div>
-    <div class="about-tip"><span class="about-tip-icon">—</span><span>Miss a week? Don't quit. Just jump back in.</span></div>
-    <div class="about-tip"><span class="about-tip-icon">🔴</span><span>Red passages in NT weeks are Old Testament prophecies fulfilled in Christ.</span></div>
+    <div class="about-tip"><span class="about-tip-icon">✍</span><span>Fill in your answers — they sync to the cloud so everyone can see them.</span></div>
+    <div class="about-tip"><span class="about-tip-icon">☀</span><span>Hit <strong>Sunday</strong> to see everyone's answers side-by-side.</span></div>
+    <div class="about-tip"><span class="about-tip-icon">🔒</span><span>Future weeks unlock once you complete all previous weeks.</span></div>
+    <div class="about-tip"><span class="about-tip-icon">🔴</span><span>Red passages in NT weeks are OT prophecies fulfilled in Christ.</span></div>
     <div class="about-tip"><span class="about-tip-icon">✦</span><span>Long-press any name in the header to rename it.</span></div>
   </div>
 </div>
@@ -643,187 +708,58 @@ const MILESTONES = {
 };
 
 const WEEKS = [
-  // ── OLD TESTAMENT ──────────────────────────────────────
-  {id:1,  sec:'ot', label:'WK 1',  reading:'Genesis 1–23',
-   ref:null, reflection:'How does the story of creation and the fall help us understand God\'s original design for humanity — and His plan to restore it through Jesus?',
-   prayer:'Pray for wonder — that creation would feel new and God\'s design for your life would feel intentional.'},
-  {id:2,  sec:'ot', label:'WK 2',  reading:'Genesis 24–46',
-   ref:null, reflection:'In the stories of Abraham, Isaac, and Jacob, how do you see God\'s faithfulness even when His people make mistakes?',
-   prayer:'Pray for trust — that like Abraham, you\'d take God at His word even when the path isn\'t clear.'},
-  {id:3,  sec:'ot', label:'WK 3',  reading:'Genesis 47–50 · Exodus 1–10 · Job 1–12',
-   ref:null, reflection:'How does Job\'s early suffering alongside the exodus story encourage you to trust God when life feels unfair or confusing?',
-   prayer:'Pray for perspective — that suffering would deepen your faith rather than shake it.'},
-  {id:4,  sec:'ot', label:'WK 4',  reading:'Exodus 11–23 · Job 13–24',
-   ref:null, reflection:'What does the combination of the plagues and Job\'s questions teach you about God\'s justice and mercy?',
-   prayer:'Pray for honesty — the freedom to bring your hardest questions directly to God.'},
-  {id:5,  sec:'ot', label:'WK 5',  reading:'Exodus 24–40 · Leviticus 1–2 · Job 25–35',
-   ref:null, reflection:'How does the giving of the Law alongside Job\'s wrestling with God show us the importance of honest prayer?',
-   prayer:'Pray for a willing heart — that God\'s law would feel like a gift of love, not just a list of rules.'},
-  {id:6,  sec:'ot', label:'WK 6',  reading:'Leviticus 3–27 · Job 36–42',
-   ref:null, reflection:'After finishing Job, how does God\'s final answer to him change the way you view suffering and God\'s sovereignty?',
-   prayer:'Pray for surrender — release the need to understand everything and simply trust.'},
-  {id:7,  sec:'ot', label:'WK 7',  reading:'Numbers 1–21',
-   ref:null, reflection:'In the wilderness wanderings, where do you see Israel\'s struggles mirroring our own temptations to doubt God\'s provision?',
-   prayer:'Pray for contentment — that you\'d find God\'s provision enough, even in your own wilderness seasons.'},
-  {id:8,  sec:'ot', label:'WK 8',  reading:'Numbers 22–36 · Deuteronomy 1–8',
-   ref:null, reflection:'How does the story of Balaam and Moses\' final speeches prepare God\'s people — and us — for entering the promised land?',
-   prayer:'Pray for readiness — that you\'d be prepared for the next thing God is leading you toward.'},
-  {id:9,  sec:'ot', label:'WK 9',  reading:'Deuteronomy 9–31',
-   ref:null, reflection:'What does Moses\' charge to \'choose life\' reveal about the daily choice we have to follow God?',
-   prayer:'Pray for courage — for one concrete, daily decision this week to choose what honors God.'},
-  {id:10, sec:'ot', label:'WK 10', reading:'Deuteronomy 32–34 · Joshua 1–20',
-   ref:null, reflection:'How does Joshua\'s leadership after Moses show us what it looks like to step out in faith after a major transition?',
-   prayer:'Pray for boldness — to step into a new season God may be calling you into right now.'},
-  {id:11, sec:'ot', label:'WK 11', reading:'Joshua 21–24 · Judges 1–12 · Ruth 1–4 · 1 Samuel 1–5 · Psalms 1–10',
-   ref:null, reflection:'As we move from conquest to the judges and early Psalms, what does this cycle of faithfulness and failure say about our own lives?',
-   prayer:'Pray for consistency — that your faith would be a steady rhythm, not just moments of victory.'},
-  {id:12, sec:'ot', label:'WK 12', reading:'1 Samuel 6–25 · 2 Samuel 1–3 · Psalms 11–30',
-   ref:null, reflection:'How do David\'s early psalms of trust speak to you in your own seasons of waiting or uncertainty?',
-   prayer:'Pray a psalm aloud together — let David\'s words become your own this week.'},
-  {id:13, sec:'ot', label:'WK 13', reading:'2 Samuel 4–24 · 1 Kings 1–6 · Psalms 31–48 · Proverbs 1–8',
-   ref:null, reflection:'What do David\'s victories, failures, and the opening chapters of Proverbs teach us about the difference between human leadership and God as King?',
-   prayer:'Pray for wisdom — ask God for one area of your life where you need His counsel more than your own.'},
-  {id:14, sec:'ot', label:'WK 14', reading:'1 Kings 7–22 · 2 Kings 1–4 · Psalms 49–66 · Proverbs 9–20',
-   ref:null, reflection:'How does Solomon\'s temple and the wisdom of Proverbs challenge us to live with integrity when no one is watching?',
-   prayer:'Pray for integrity — to be the same person in private as you are around others.'},
-  {id:15, sec:'ot', label:'WK 15', reading:'2 Kings 5–25 · 1 Chronicles 1–7 · Psalms 67–84 · Proverbs 21–31 · Ecclesiastes 1–6',
-   ref:null, reflection:'What does Ecclesiastes\' honest look at life \'under the sun\' reveal about where true meaning is found?',
-   prayer:'Pray for eternal perspective — that you\'d invest your week in what genuinely lasts.'},
-  {id:16, sec:'ot', label:'WK 16', reading:'1 Chronicles 8–29 · 2 Chronicles 1 · Psalms 85–102 · Ecclesiastes 7–12 · Song of Solomon 1–8',
-   ref:null, reflection:'How does Song of Solomon\'s celebration of love point toward the greater love between Christ and His church?',
-   prayer:'Pray for love — ask God to deepen the love within your group and in your closest relationships.'},
-  {id:17, sec:'ot', label:'WK 17', reading:'2 Chronicles 2–24 · Psalms 103–119',
-   ref:null, reflection:'In these psalms of praise and the stories of the kings, where do you see the importance of remembering what God has already done?',
-   prayer:'Pray with gratitude — name three specific things God has done in your life and thank Him for each one.'},
-  {id:18, sec:'ot', label:'WK 18', reading:'2 Chronicles 25–36 · Ezra 1–10 · Nehemiah 1–5 · Psalms 120–150',
-   ref:null, reflection:'As we finish the Psalms and return from exile, how does the theme of restoration encourage you in your own \'exile\' moments?',
-   prayer:'Pray for restoration — bring one area of your life back to God and ask Him to rebuild it.'},
-  {id:19, sec:'ot', label:'WK 19', reading:'Nehemiah 6–13 · Esther 1–10',
-   ref:null, reflection:'What does Esther\'s courage in a culture that didn\'t share her values teach us about standing up for what\'s right today?',
-   prayer:'Pray for courage — is there a situation this week where you need to speak up or stand firm?'},
-  {id:20, sec:'ot', label:'WK 20', reading:'Isaiah 1–22',
-   ref:null, reflection:'How do Isaiah\'s early visions of judgment and hope prepare our hearts for the coming Messiah?',
-   prayer:'Pray for hope — let Isaiah\'s vision of a coming Savior feel personal and real to you today.'},
-  {id:21, sec:'ot', label:'WK 21', reading:'Isaiah 23–45',
-   ref:null, reflection:'Which of Isaiah\'s servant songs stirs you most — and what does it look like to live as God\'s servant in your daily life?',
-   prayer:'Pray for a servant\'s heart — ask God to show you one person to serve this week.'},
-  {id:22, sec:'ot', label:'WK 22', reading:'Isaiah 46–66 · Jeremiah 1–5',
-   ref:null, reflection:'How does the comfort of Isaiah alongside Jeremiah\'s call to repentance both point us toward the new covenant?',
-   prayer:'Pray for comfort — bring a specific fear or uncertainty to God and receive His peace over it.'},
-  {id:23, sec:'ot', label:'WK 23', reading:'Jeremiah 6–28',
-   ref:null, reflection:'In Jeremiah\'s warnings, what does it look like for us to \'break up our fallow ground\' — to clear out what\'s hardened in our hearts?',
-   prayer:'Pray for soft soil — ask God to prepare your heart to receive what He wants to plant.'},
-  {id:24, sec:'ot', label:'WK 24', reading:'Jeremiah 29–52 · Lamentations 1–5',
-   ref:null, reflection:'How does the raw grief of Lamentations make the hope of Jeremiah 29:11 even more powerful — and more earned?',
-   prayer:'Pray honestly — if you\'re grieving something, bring it to God without dressing it up.'},
-  {id:25, sec:'ot', label:'WK 25', reading:'Ezekiel 1–24',
-   ref:null, reflection:'What does Ezekiel\'s vision of God\'s glory leaving and returning teach us about what it means to live in God\'s presence?',
-   prayer:'Pray for reverence — ask God to increase your awareness of His presence throughout your week.'},
-  {id:26, sec:'ot', label:'WK 26', reading:'Ezekiel 25–48 · Daniel 1–6',
-   ref:null, reflection:'How do Daniel\'s faithfulness in exile and Ezekiel\'s temple vision challenge us to live with integrity wherever God has placed us?',
-   prayer:'Pray for faithfulness — name the specific place God has put you right now, and ask Him to help you honor Him there.'},
-  {id:27, sec:'ot', label:'WK 27', reading:'Daniel 7–12 · Hosea 1–14 · Joel 1–3',
-   ref:null, reflection:'Which of these end-times visions or calls to return to God stirs the most urgency in your walk with Christ?',
-   prayer:'Pray for urgency — a renewed desire to live fully, not coast.'},
-  {id:28, sec:'ot', label:'WK 28', reading:'Amos 1–9 · Obadiah · Jonah 1–4 · Micah 1–7 · Nahum 1–3',
-   ref:null, reflection:'How do these minor prophets\' messages of justice and mercy call us to live differently in our own community?',
-   prayer:'Pray for justice and compassion — ask God to help you see your neighborhood through His eyes.'},
-  {id:29, sec:'ot', label:'WK 29', reading:'Habakkuk 1–3 · Zephaniah 1–3 · Haggai 1–2 · Zechariah 1–9',
-   ref:null, reflection:'What does Habakkuk\'s stubborn decision to rejoice in God no matter what teach you about joy that isn\'t dependent on circumstances?',
-   prayer:'Pray for joy — the kind Habakkuk had, chosen and real even when life is hard.'},
-  {id:30, sec:'ot', label:'WK 30', reading:'Zechariah 10–14 · Malachi 1–4',
-   ref:null, reflection:'How do these final Old Testament prophecies build anticipation — what are you most curious or expectant about as you prepare to step into the New Testament?',
-   prayer:'Pray with expectation — open your heart and ask God to help you see Jesus fresh as you begin the Gospels.'},
-
-  // ── PROPHETIC BRIDGE ───────────────────────────────────
-  {id:'b1', sec:'bridge', label:'WK 31', title:'The Prophetic Thread',
-   reading:'Re-read: Isaiah 53 · Psalm 22 · Micah 5:2 · Zechariah 9:9 · Genesis 3:15 · Jeremiah 31:31–34',
-   note:'These passages were written 500–1,000 years before Jesus was born. Read them slowly and together — they are the fingerprints of a Savior the whole Old Testament was reaching toward. You\'ve now read the entire Old Testament. These are its highest peaks.',
-   ref:null,
-   reflection:'After 30 weeks in the Old Testament, which of these prophecies surprises you most? What does it stir in you knowing they were written centuries before Christ?',
-   prayer:'Ask God to open your eyes as you begin the New Testament — that you\'d see Jesus not as a new idea, but as the answer the whole Old Testament was building toward.'},
-  {id:'b2', sec:'bridge', label:'WK 32', title:'Four Hundred Years of Silence',
-   reading:'Re-read: Daniel 9:24–27 · Malachi 3:1–4 · Malachi 4:1–6',
-   note:'Between the last word of Malachi and the first word of Matthew, roughly 400 years passed with no new prophet, no new word from God. The world Jesus entered was one full of longing and waiting. This week is a breath — a pause before the fulfillment. Sit with the silence. Notice what waiting feels like.',
-   ref:null,
-   reflection:'What does 400 years of silence teach us about waiting on God? How does longing for something make its arrival more meaningful — and how might that change the way you read Matthew?',
-   prayer:'Pray through any silence in your own life — if God feels quiet right now, bring that honestly to Him. Waiting is not the same as absence.'},
-
-  // ── NEW TESTAMENT ──────────────────────────────────────
-  {id:33, sec:'nt', label:'WK 33', reading:'Matthew 1–14',
-   ref:'Isa 7:14 · Isa 9:6–7 · Mic 5:2 · Isa 40:3–5 · Isa 42:1–4 · Hos 11:1',
-   reflection:'How do the Old Testament prophecies fulfilled this week make the birth and ministry of Jesus feel even more personal and powerful — not just historical, but meant?',
-   prayer:'Pray for childlike wonder — ask God to help you read about Jesus as if for the very first time.'},
-  {id:34, sec:'nt', label:'WK 34', reading:'Matthew 15–28 · Mark 1–9',
-   ref:'Isa 53:1–12 · Zech 9:9 · Isa 35:5–6 · Dan 7:13–14 · Ps 118:22–26',
-   reflection:'Which fulfilled prophecy in the Gospels most strengthens your confidence that Jesus is exactly who the Old Testament promised?',
-   prayer:'Pray for faith — that like the disciples, you\'d lay down what you\'re holding and follow.'},
-  {id:35, sec:'nt', label:'WK 35', reading:'Mark 10–16 · Luke 1–16',
-   ref:'Isa 53:1–12 · Zech 12:10 · Ps 22:1–18 · Isa 50:6–9 · Jon 1:17',
-   reflection:'How does seeing the suffering Servant prophecies fulfilled in Jesus\' death and resurrection change how you face your own hardest moments?',
-   prayer:'Pray for one person by name — someone in your life who needs to know Jesus. Just bring their name to God.'},
-  {id:36, sec:'nt', label:'WK 36', reading:'Luke 17–24 · John 1–15',
-   ref:'Isa 61:1–3 · Deut 18:15–19 · Isa 6:1–10 · Isa 55:1–5',
-   reflection:'Which Old Testament promise about the Messiah helps you see Jesus as the true source of living water and light in your own life right now?',
-   prayer:'Pray for the Holy Spirit — ask God to guide your group discussions the way Jesus promised the Spirit would guide His disciples.'},
-  {id:37, sec:'nt', label:'WK 37', reading:'John 16–21 · Acts 1–17',
-   ref:'Joel 2:28–32 · Ps 16:8–11 · Ps 110:1 · Isa 55:1–5',
-   reflection:'How does the coming of the Holy Spirit in Acts fulfill Old Testament promises — and what does that same Spirit make possible in your group today?',
-   prayer:'Pray for your group — ask God to build among the four of you the same kind of community described in Acts 2.'},
-  {id:38, sec:'nt', label:'WK 38', reading:'Acts 18–28 · Romans 1–12',
-   ref:'Hab 2:4 · Isa 28:16 · Deut 30:11–14 · Isa 52:13–53:12',
-   reflection:'How does Paul\'s use of Old Testament prophecies in Romans deepen your understanding of what it means to be saved by faith alone — not effort, not tradition, not background?',
-   prayer:'Pray with honesty — bring one thing you\'ve been trying to earn on your own, and release it to God.'},
-  {id:39, sec:'nt', label:'WK 39', reading:'Romans 13–16 · 1 Corinthians 1–16 · 2 Corinthians 1–3',
-   ref:'Isa 29:14 · Jer 9:23–24 · Isa 64:4 · Jer 31:31–34',
-   reflection:'Which of Paul\'s words about love and unity in 1 Corinthians challenges your group most directly?',
-   prayer:'Pray for unity — read 1 Corinthians 13:4–7 aloud and ask God to build that love in your group.'},
-  {id:40, sec:'nt', label:'WK 40', reading:'2 Corinthians 4–13 · Galatians 1–6 · Ephesians 1–6 · Philippians 1',
-   ref:'Isa 49:1–6 · Isa 43:1–7 · Deut 21:22–23 · Isa 52:7',
-   reflection:'How does Ephesians 1 — God calling you chosen and beloved before the foundation of the world — change the way you see yourself this week?',
-   prayer:'Pray for identity — sit quietly and let Ephesians 1:4–5 sink in. You were chosen. Pray from that place.'},
-  {id:41, sec:'nt', label:'WK 41', reading:'Philippians 2–4 · Colossians 1–4 · 1–2 Thessalonians · 1 Timothy 1–6 · 2 Timothy 1–2',
-   ref:'Isa 45:23 · Isa 2:1–5 · Dan 7:13–14 · Isa 11:1–5',
-   reflection:'Which prophecy about Jesus\' authority and the coming kingdom most motivates you to live with humility and hope this week?',
-   prayer:'Pray for humility — ask God to show you one area where pride is getting in the way.'},
-  {id:42, sec:'nt', label:'WK 42', reading:'2 Timothy 3–4 · Titus 1–3 · Philemon · Hebrews 1–13 · James 1–4',
-   ref:'Jer 31:31–34 · Ps 110:1–4 · Ps 95:7–11 · Gen 14:18–20',
-   reflection:'How does Hebrews\' portrait of Jesus as our perfect High Priest — interceding for us right now — change how you think about prayer?',
-   prayer:'Pray with boldness — Hebrews 4:16 says to come boldly to the throne of grace. Bring your biggest need tonight.'},
-  {id:43, sec:'nt', label:'WK 43', reading:'James 5 · 1–2 Peter · 1–3 John · Jude · Revelation 1–6',
-   ref:'Dan 7:9–14 · Ezek 1:1–28 · Zech 4:1–14 · Isa 53:7',
-   reflection:'As we enter Revelation, how do these visions of the throne and the Lamb deepen your worship of Jesus — not just as teacher, but as risen King?',
-   prayer:'Pray with awe — read Revelation 5:12 aloud together and let it be your worship tonight.'},
-  {id:44, sec:'nt', label:'WK 44', reading:'Revelation 7–22',
-   ref:'Isa 65:17–25 · Isa 66:22–24 · Dan 12:1–13 · Zech 14:1–21 · Ezek 36:24–28, 37:1–14',
-   reflection:'How do the Old Testament promises of a new creation — everything made right, every tear wiped away — fill you with hope? What does it change about how you want to live now?',
-   prayer:'Close with Revelation 22:20 — read it aloud together: "Come, Lord Jesus." Let that be your prayer.'},
-
-  // ── FLEX / CATCH-UP ────────────────────────────────────
-  {id:45, sec:'flex', label:'WK 45', reading:'Review missed chapters or re-read favorites',
-   ref:null, reflection:'Looking back on Genesis through Job, how has this first stretch of the Bible changed the way you see God\'s role in suffering and creation?',
-   prayer:'Pray together as a group — share one thing God has shown you through this study so far.'},
-  {id:46, sec:'flex', label:'WK 46', reading:'Review missed chapters or re-read favorites',
-   ref:null, reflection:'Reflecting on the historical books and the Psalms, what one lesson from David\'s life will you carry into this week?',
-   prayer:'Pray a psalm together — read Psalm 23 or Psalm 103 aloud and let it be your prayer tonight.'},
-  {id:47, sec:'flex', label:'WK 47', reading:'Review missed chapters or re-read favorites',
-   ref:null, reflection:'As you revisit the prophets, which message of judgment or hope is speaking most directly to your life right now?',
-   prayer:'Pray for the world — ask God to move in your city and beyond the way the prophets promised He would.'},
-  {id:48, sec:'flex', label:'WK 48', reading:'Review missed chapters or re-read favorites',
-   ref:null, reflection:'How has seeing the Old Testament prophecies fulfilled in the Gospels strengthened your trust in Jesus as the promised Savior?',
-   prayer:'Pray for someone far from God — ask God to use your group as part of bringing them closer to Him.'},
-  {id:49, sec:'flex', label:'WK 49', reading:'Review missed chapters or re-read favorites',
-   ref:null, reflection:'What has Acts and Paul\'s letters taught you about being a community of faith in a world that doesn\'t always understand the gospel?',
-   prayer:'Pray for the church — ask God to make your group the kind of community Acts 2:42–47 describes.'},
-  {id:50, sec:'flex', label:'WK 50', reading:'Review missed chapters or re-read favorites',
-   ref:null, reflection:'Which of the General Epistles or Revelation\'s visions is challenging you most to live with greater faith and endurance?',
-   prayer:'Pray for holiness — ask God to show you one specific area to surrender more fully to Him.'},
-  {id:51, sec:'flex', label:'WK 51', reading:'Review missed chapters or re-read favorites',
-   ref:null, reflection:'As you look back over the whole year, which single truth from Scripture has changed you the most — and how?',
-   prayer:'Pray with gratitude — spend time simply thanking God. No requests tonight, just thanks.'},
-  {id:52, sec:'flex', label:'WK 52', reading:'Review missed chapters or re-read favorites',
-   ref:null, reflection:'How has reading the entire Bible from beginning to end — together — drawn you closer to Jesus and to each other?',
-   prayer:'Pray for each other by name. Go around the group and pray one sentence over each person. Then close with: "Come, Lord Jesus."'},
+  {id:1,  sec:'ot', label:'WK 1',  reading:'Genesis 1–23',ref:null, reflection:'How does the story of creation and the fall help us understand God\'s original design for humanity — and His plan to restore it through Jesus?',prayer:'Pray for wonder — that creation would feel new and God\'s design for your life would feel intentional.'},
+  {id:2,  sec:'ot', label:'WK 2',  reading:'Genesis 24–46',ref:null, reflection:'In the stories of Abraham, Isaac, and Jacob, how do you see God\'s faithfulness even when His people make mistakes?',prayer:'Pray for trust — that like Abraham, you\'d take God at His word even when the path isn\'t clear.'},
+  {id:3,  sec:'ot', label:'WK 3',  reading:'Genesis 47–50 · Exodus 1–10 · Job 1–12',ref:null, reflection:'How does Job\'s early suffering alongside the exodus story encourage you to trust God when life feels unfair or confusing?',prayer:'Pray for perspective — that suffering would deepen your faith rather than shake it.'},
+  {id:4,  sec:'ot', label:'WK 4',  reading:'Exodus 11–23 · Job 13–24',ref:null, reflection:'What does the combination of the plagues and Job\'s questions teach you about God\'s justice and mercy?',prayer:'Pray for honesty — the freedom to bring your hardest questions directly to God.'},
+  {id:5,  sec:'ot', label:'WK 5',  reading:'Exodus 24–40 · Leviticus 1–2 · Job 25–35',ref:null, reflection:'How does the giving of the Law alongside Job\'s wrestling with God show us the importance of honest prayer?',prayer:'Pray for a willing heart — that God\'s law would feel like a gift of love, not just a list of rules.'},
+  {id:6,  sec:'ot', label:'WK 6',  reading:'Leviticus 3–27 · Job 36–42',ref:null, reflection:'After finishing Job, how does God\'s final answer to him change the way you view suffering and God\'s sovereignty?',prayer:'Pray for surrender — release the need to understand everything and simply trust.'},
+  {id:7,  sec:'ot', label:'WK 7',  reading:'Numbers 1–21',ref:null, reflection:'In the wilderness wanderings, where do you see Israel\'s struggles mirroring our own temptations to doubt God\'s provision?',prayer:'Pray for contentment — that you\'d find God\'s provision enough, even in your own wilderness seasons.'},
+  {id:8,  sec:'ot', label:'WK 8',  reading:'Numbers 22–36 · Deuteronomy 1–8',ref:null, reflection:'How does the story of Balaam and Moses\' final speeches prepare God\'s people — and us — for entering the promised land?',prayer:'Pray for readiness — that you\'d be prepared for the next thing God is leading you toward.'},
+  {id:9,  sec:'ot', label:'WK 9',  reading:'Deuteronomy 9–31',ref:null, reflection:'What does Moses\' charge to \'choose life\' reveal about the daily choice we have to follow God?',prayer:'Pray for courage — for one concrete, daily decision this week to choose what honors God.'},
+  {id:10, sec:'ot', label:'WK 10', reading:'Deuteronomy 32–34 · Joshua 1–20',ref:null, reflection:'How does Joshua\'s leadership after Moses show us what it looks like to step out in faith after a major transition?',prayer:'Pray for boldness — to step into a new season God may be calling you into right now.'},
+  {id:11, sec:'ot', label:'WK 11', reading:'Joshua 21–24 · Judges 1–12 · Ruth 1–4 · 1 Samuel 1–5 · Psalms 1–10',ref:null, reflection:'As we move from conquest to the judges and early Psalms, what does this cycle of faithfulness and failure say about our own lives?',prayer:'Pray for consistency — that your faith would be a steady rhythm, not just moments of victory.'},
+  {id:12, sec:'ot', label:'WK 12', reading:'1 Samuel 6–25 · 2 Samuel 1–3 · Psalms 11–30',ref:null, reflection:'How do David\'s early psalms of trust speak to you in your own seasons of waiting or uncertainty?',prayer:'Pray a psalm aloud together — let David\'s words become your own this week.'},
+  {id:13, sec:'ot', label:'WK 13', reading:'2 Samuel 4–24 · 1 Kings 1–6 · Psalms 31–48 · Proverbs 1–8',ref:null, reflection:'What do David\'s victories, failures, and the opening chapters of Proverbs teach us about the difference between human leadership and God as King?',prayer:'Pray for wisdom — ask God for one area of your life where you need His counsel more than your own.'},
+  {id:14, sec:'ot', label:'WK 14', reading:'1 Kings 7–22 · 2 Kings 1–4 · Psalms 49–66 · Proverbs 9–20',ref:null, reflection:'How does Solomon\'s temple and the wisdom of Proverbs challenge us to live with integrity when no one is watching?',prayer:'Pray for integrity — to be the same person in private as you are around others.'},
+  {id:15, sec:'ot', label:'WK 15', reading:'2 Kings 5–25 · 1 Chronicles 1–7 · Psalms 67–84 · Proverbs 21–31 · Ecclesiastes 1–6',ref:null, reflection:'What does Ecclesiastes\' honest look at life \'under the sun\' reveal about where true meaning is found?',prayer:'Pray for eternal perspective — that you\'d invest your week in what genuinely lasts.'},
+  {id:16, sec:'ot', label:'WK 16', reading:'1 Chronicles 8–29 · 2 Chronicles 1 · Psalms 85–102 · Ecclesiastes 7–12 · Song of Solomon 1–8',ref:null, reflection:'How does Song of Solomon\'s celebration of love point toward the greater love between Christ and His church?',prayer:'Pray for love — ask God to deepen the love within your group and in your closest relationships.'},
+  {id:17, sec:'ot', label:'WK 17', reading:'2 Chronicles 2–24 · Psalms 103–119',ref:null, reflection:'In these psalms of praise and the stories of the kings, where do you see the importance of remembering what God has already done?',prayer:'Pray with gratitude — name three specific things God has done in your life and thank Him for each one.'},
+  {id:18, sec:'ot', label:'WK 18', reading:'2 Chronicles 25–36 · Ezra 1–10 · Nehemiah 1–5 · Psalms 120–150',ref:null, reflection:'As we finish the Psalms and return from exile, how does the theme of restoration encourage you in your own \'exile\' moments?',prayer:'Pray for restoration — bring one area of your life back to God and ask Him to rebuild it.'},
+  {id:19, sec:'ot', label:'WK 19', reading:'Nehemiah 6–13 · Esther 1–10',ref:null, reflection:'What does Esther\'s courage in a culture that didn\'t share her values teach us about standing up for what\'s right today?',prayer:'Pray for courage — is there a situation this week where you need to speak up or stand firm?'},
+  {id:20, sec:'ot', label:'WK 20', reading:'Isaiah 1–22',ref:null, reflection:'How do Isaiah\'s early visions of judgment and hope prepare our hearts for the coming Messiah?',prayer:'Pray for hope — let Isaiah\'s vision of a coming Savior feel personal and real to you today.'},
+  {id:21, sec:'ot', label:'WK 21', reading:'Isaiah 23–45',ref:null, reflection:'Which of Isaiah\'s servant songs stirs you most — and what does it look like to live as God\'s servant in your daily life?',prayer:'Pray for a servant\'s heart — ask God to show you one person to serve this week.'},
+  {id:22, sec:'ot', label:'WK 22', reading:'Isaiah 46–66 · Jeremiah 1–5',ref:null, reflection:'How does the comfort of Isaiah alongside Jeremiah\'s call to repentance both point us toward the new covenant?',prayer:'Pray for comfort — bring a specific fear or uncertainty to God and receive His peace over it.'},
+  {id:23, sec:'ot', label:'WK 23', reading:'Jeremiah 6–28',ref:null, reflection:'In Jeremiah\'s warnings, what does it look like for us to \'break up our fallow ground\' — to clear out what\'s hardened in our hearts?',prayer:'Pray for soft soil — ask God to prepare your heart to receive what He wants to plant.'},
+  {id:24, sec:'ot', label:'WK 24', reading:'Jeremiah 29–52 · Lamentations 1–5',ref:null, reflection:'How does the raw grief of Lamentations make the hope of Jeremiah 29:11 even more powerful — and more earned?',prayer:'Pray honestly — if you\'re grieving something, bring it to God without dressing it up.'},
+  {id:25, sec:'ot', label:'WK 25', reading:'Ezekiel 1–24',ref:null, reflection:'What does Ezekiel\'s vision of God\'s glory leaving and returning teach us about what it means to live in God\'s presence?',prayer:'Pray for reverence — ask God to increase your awareness of His presence throughout your week.'},
+  {id:26, sec:'ot', label:'WK 26', reading:'Ezekiel 25–48 · Daniel 1–6',ref:null, reflection:'How do Daniel\'s faithfulness in exile and Ezekiel\'s temple vision challenge us to live with integrity wherever God has placed us?',prayer:'Pray for faithfulness — name the specific place God has put you right now, and ask Him to help you honor Him there.'},
+  {id:27, sec:'ot', label:'WK 27', reading:'Daniel 7–12 · Hosea 1–14 · Joel 1–3',ref:null, reflection:'Which of these end-times visions or calls to return to God stirs the most urgency in your walk with Christ?',prayer:'Pray for urgency — a renewed desire to live fully, not coast.'},
+  {id:28, sec:'ot', label:'WK 28', reading:'Amos 1–9 · Obadiah · Jonah 1–4 · Micah 1–7 · Nahum 1–3',ref:null, reflection:'How do these minor prophets\' messages of justice and mercy call us to live differently in our own community?',prayer:'Pray for justice and compassion — ask God to help you see your neighborhood through His eyes.'},
+  {id:29, sec:'ot', label:'WK 29', reading:'Habakkuk 1–3 · Zephaniah 1–3 · Haggai 1–2 · Zechariah 1–9',ref:null, reflection:'What does Habakkuk\'s stubborn decision to rejoice in God no matter what teach you about joy that isn\'t dependent on circumstances?',prayer:'Pray for joy — the kind Habakkuk had, chosen and real even when life is hard.'},
+  {id:30, sec:'ot', label:'WK 30', reading:'Zechariah 10–14 · Malachi 1–4',ref:null, reflection:'How do these final Old Testament prophecies build anticipation — what are you most curious or expectant about as you prepare to step into the New Testament?',prayer:'Pray with expectation — open your heart and ask God to help you see Jesus fresh as you begin the Gospels.'},
+  {id:'b1', sec:'bridge', label:'WK 31', title:'The Prophetic Thread',reading:'Re-read: Isaiah 53 · Psalm 22 · Micah 5:2 · Zechariah 9:9 · Genesis 3:15 · Jeremiah 31:31–34',note:'These passages were written 500–1,000 years before Jesus was born. Read them slowly and together — they are the fingerprints of a Savior the whole Old Testament was reaching toward. You\'ve now read the entire Old Testament. These are its highest peaks.',ref:null,reflection:'After 30 weeks in the Old Testament, which of these prophecies surprises you most? What does it stir in you knowing they were written centuries before Christ?',prayer:'Ask God to open your eyes as you begin the New Testament — that you\'d see Jesus not as a new idea, but as the answer the whole Old Testament was building toward.'},
+  {id:'b2', sec:'bridge', label:'WK 32', title:'Four Hundred Years of Silence',reading:'Re-read: Daniel 9:24–27 · Malachi 3:1–4 · Malachi 4:1–6',note:'Between the last word of Malachi and the first word of Matthew, roughly 400 years passed with no new prophet, no new word from God. The world Jesus entered was one full of longing and waiting. This week is a breath — a pause before the fulfillment. Sit with the silence. Notice what waiting feels like.',ref:null,reflection:'What does 400 years of silence teach us about waiting on God? How does longing for something make its arrival more meaningful — and how might that change the way you read Matthew?',prayer:'Pray through any silence in your own life — if God feels quiet right now, bring that honestly to Him. Waiting is not the same as absence.'},
+  {id:33, sec:'nt', label:'WK 33', reading:'Matthew 1–14',ref:'Isa 7:14 · Isa 9:6–7 · Mic 5:2 · Isa 40:3–5 · Isa 42:1–4 · Hos 11:1',reflection:'How do the Old Testament prophecies fulfilled this week make the birth and ministry of Jesus feel even more personal and powerful — not just historical, but meant?',prayer:'Pray for childlike wonder — ask God to help you read about Jesus as if for the very first time.'},
+  {id:34, sec:'nt', label:'WK 34', reading:'Matthew 15–28 · Mark 1–9',ref:'Isa 53:1–12 · Zech 9:9 · Isa 35:5–6 · Dan 7:13–14 · Ps 118:22–26',reflection:'Which fulfilled prophecy in the Gospels most strengthens your confidence that Jesus is exactly who the Old Testament promised?',prayer:'Pray for faith — that like the disciples, you\'d lay down what you\'re holding and follow.'},
+  {id:35, sec:'nt', label:'WK 35', reading:'Mark 10–16 · Luke 1–16',ref:'Isa 53:1–12 · Zech 12:10 · Ps 22:1–18 · Isa 50:6–9 · Jon 1:17',reflection:'How does seeing the suffering Servant prophecies fulfilled in Jesus\' death and resurrection change how you face your own hardest moments?',prayer:'Pray for one person by name — someone in your life who needs to know Jesus. Just bring their name to God.'},
+  {id:36, sec:'nt', label:'WK 36', reading:'Luke 17–24 · John 1–15',ref:'Isa 61:1–3 · Deut 18:15–19 · Isa 6:1–10 · Isa 55:1–5',reflection:'Which Old Testament promise about the Messiah helps you see Jesus as the true source of living water and light in your own life right now?',prayer:'Pray for the Holy Spirit — ask God to guide your group discussions the way Jesus promised the Spirit would guide His disciples.'},
+  {id:37, sec:'nt', label:'WK 37', reading:'John 16–21 · Acts 1–17',ref:'Joel 2:28–32 · Ps 16:8–11 · Ps 110:1 · Isa 55:1–5',reflection:'How does the coming of the Holy Spirit in Acts fulfill Old Testament promises — and what does that same Spirit make possible in your group today?',prayer:'Pray for your group — ask God to build among the four of you the same kind of community described in Acts 2.'},
+  {id:38, sec:'nt', label:'WK 38', reading:'Acts 18–28 · Romans 1–12',ref:'Hab 2:4 · Isa 28:16 · Deut 30:11–14 · Isa 52:13–53:12',reflection:'How does Paul\'s use of Old Testament prophecies in Romans deepen your understanding of what it means to be saved by faith alone — not effort, not tradition, not background?',prayer:'Pray with honesty — bring one thing you\'ve been trying to earn on your own, and release it to God.'},
+  {id:39, sec:'nt', label:'WK 39', reading:'Romans 13–16 · 1 Corinthians 1–16 · 2 Corinthians 1–3',ref:'Isa 29:14 · Jer 9:23–24 · Isa 64:4 · Jer 31:31–34',reflection:'Which of Paul\'s words about love and unity in 1 Corinthians challenges your group most directly?',prayer:'Pray for unity — read 1 Corinthians 13:4–7 aloud and ask God to build that love in your group.'},
+  {id:40, sec:'nt', label:'WK 40', reading:'2 Corinthians 4–13 · Galatians 1–6 · Ephesians 1–6 · Philippians 1',ref:'Isa 49:1–6 · Isa 43:1–7 · Deut 21:22–23 · Isa 52:7',reflection:'How does Ephesians 1 — God calling you chosen and beloved before the foundation of the world — change the way you see yourself this week?',prayer:'Pray for identity — sit quietly and let Ephesians 1:4–5 sink in. You were chosen. Pray from that place.'},
+  {id:41, sec:'nt', label:'WK 41', reading:'Philippians 2–4 · Colossians 1–4 · 1–2 Thessalonians · 1 Timothy 1–6 · 2 Timothy 1–2',ref:'Isa 45:23 · Isa 2:1–5 · Dan 7:13–14 · Isa 11:1–5',reflection:'Which prophecy about Jesus\' authority and the coming kingdom most motivates you to live with humility and hope this week?',prayer:'Pray for humility — ask God to show you one area where pride is getting in the way.'},
+  {id:42, sec:'nt', label:'WK 42', reading:'2 Timothy 3–4 · Titus 1–3 · Philemon · Hebrews 1–13 · James 1–4',ref:'Jer 31:31–34 · Ps 110:1–4 · Ps 95:7–11 · Gen 14:18–20',reflection:'How does Hebrews\' portrait of Jesus as our perfect High Priest — interceding for us right now — change how you think about prayer?',prayer:'Pray with boldness — Hebrews 4:16 says to come boldly to the throne of grace. Bring your biggest need tonight.'},
+  {id:43, sec:'nt', label:'WK 43', reading:'James 5 · 1–2 Peter · 1–3 John · Jude · Revelation 1–6',ref:'Dan 7:9–14 · Ezek 1:1–28 · Zech 4:1–14 · Isa 53:7',reflection:'As we enter Revelation, how do these visions of the throne and the Lamb deepen your worship of Jesus — not just as teacher, but as risen King?',prayer:'Pray with awe — read Revelation 5:12 aloud together and let it be your worship tonight.'},
+  {id:44, sec:'nt', label:'WK 44', reading:'Revelation 7–22',ref:'Isa 65:17–25 · Isa 66:22–24 · Dan 12:1–13 · Zech 14:1–21 · Ezek 36:24–28, 37:1–14',reflection:'How do the Old Testament promises of a new creation — everything made right, every tear wiped away — fill you with hope? What does it change about how you want to live now?',prayer:'Close with Revelation 22:20 — read it aloud together: "Come, Lord Jesus." Let that be your prayer.'},
+  {id:45, sec:'flex', label:'WK 45', reading:'Review missed chapters or re-read favorites',ref:null, reflection:'Looking back on Genesis through Job, how has this first stretch of the Bible changed the way you see God\'s role in suffering and creation?',prayer:'Pray together as a group — share one thing God has shown you through this study so far.'},
+  {id:46, sec:'flex', label:'WK 46', reading:'Review missed chapters or re-read favorites',ref:null, reflection:'Reflecting on the historical books and the Psalms, what one lesson from David\'s life will you carry into this week?',prayer:'Pray a psalm together — read Psalm 23 or Psalm 103 aloud and let it be your prayer tonight.'},
+  {id:47, sec:'flex', label:'WK 47', reading:'Review missed chapters or re-read favorites',ref:null, reflection:'As you revisit the prophets, which message of judgment or hope is speaking most directly to your life right now?',prayer:'Pray for the world — ask God to move in your city and beyond the way the prophets promised He would.'},
+  {id:48, sec:'flex', label:'WK 48', reading:'Review missed chapters or re-read favorites',ref:null, reflection:'How has seeing the Old Testament prophecies fulfilled in the Gospels strengthened your trust in Jesus as the promised Savior?',prayer:'Pray for someone far from God — ask God to use your group as part of bringing them closer to Him.'},
+  {id:49, sec:'flex', label:'WK 49', reading:'Review missed chapters or re-read favorites',ref:null, reflection:'What has Acts and Paul\'s letters taught you about being a community of faith in a world that doesn\'t always understand the gospel?',prayer:'Pray for the church — ask God to make your group the kind of community Acts 2:42–47 describes.'},
+  {id:50, sec:'flex', label:'WK 50', reading:'Review missed chapters or re-read favorites',ref:null, reflection:'Which of the General Epistles or Revelation\'s visions is challenging you most to live with greater faith and endurance?',prayer:'Pray for holiness — ask God to show you one specific area to surrender more fully to Him.'},
+  {id:51, sec:'flex', label:'WK 51', reading:'Review missed chapters or re-read favorites',ref:null, reflection:'As you look back over the whole year, which single truth from Scripture has changed you the most — and how?',prayer:'Pray with gratitude — spend time simply thanking God. No requests tonight, just thanks.'},
+  {id:52, sec:'flex', label:'WK 52', reading:'Review missed chapters or re-read favorites',ref:null, reflection:'How has reading the entire Bible from beginning to end — together — drawn you closer to Jesus and to each other?',prayer:'Pray for each other by name. Go around the group and pray one sentence over each person. Then close with: "Come, Lord Jesus."'},
 ];
 
 // ════════════════════════════════════════════════════════════
@@ -831,22 +767,112 @@ const WEEKS = [
 // ════════════════════════════════════════════════════════════
 const USER_COLORS = ['#B8860B','#1A7A8A','#6B3A7D','#2D6A4F'];
 
+// Cloud data store - all data is stored here and synced via window.storage
+let cloudData = {
+  users: ['Person 1','Person 2','Person 3','Person 4'],
+  activeUser: 0,
+  progress: {}  // { "u0_1_done": "1", "u0_1_verse": "...", ... }
+};
+
 let state = {
-  users: JSON.parse(localStorage.getItem('bbc_users') || 'null') || ['Person 1','Person 2','Person 3','Person 4'],
-  activeUser: parseInt(localStorage.getItem('bbc_active') || '0', 10),
+  users: ['Person 1','Person 2','Person 3','Person 4'],
+  activeUser: 0,
   renameTarget: null,
+  loaded: false,
 };
 
 // ════════════════════════════════════════════════════════════
-//  STORAGE HELPERS
+//  CLOUD STORAGE (uses window.storage artifact API)
 // ════════════════════════════════════════════════════════════
-const key     = (u, id, field) => `bbc_u${u}_${id}_${field}`;
-const load    = (u, id, f)     => localStorage.getItem(key(u, id, f)) || '';
-const save    = (u, id, f, v)  => localStorage.setItem(key(u, id, f), v);
-const isDone  = (u, id)        => localStorage.getItem(key(u, id, 'done')) === '1';
-const setDone = (u, id, v)     => localStorage.setItem(key(u, id, 'done'), v ? '1' : '0');
-const getDate = (u, id)        => localStorage.getItem(key(u, id, 'date')) || '';
-const setDate = (u, id, v)     => localStorage.setItem(key(u, id, 'date'), v);
+const STORAGE_KEY = 'bbc-data-v1';
+
+function setSyncStatus(mode, text) {
+  const dot  = document.getElementById('sync-dot');
+  const span = document.getElementById('sync-text');
+  if (!dot || !span) return;
+  dot.className = 'sync-dot' + (mode === 'syncing' ? ' syncing' : mode === 'error' ? ' error' : '');
+  span.textContent = text;
+}
+
+async function loadFromCloud() {
+  setSyncStatus('syncing', 'Loading…');
+  try {
+    const result = await window.storage.get(STORAGE_KEY, true); // shared = true
+    if (result && result.value) {
+      const parsed = JSON.parse(result.value);
+      cloudData = parsed;
+      state.users = parsed.users || state.users;
+      state.activeUser = parsed.activeUser || 0;
+    }
+    setSyncStatus('ok', 'Synced — all 4 members share this data');
+  } catch (e) {
+    // storage key doesn't exist yet — that's fine
+    setSyncStatus('ok', 'Ready — data will sync for the group');
+  }
+  state.loaded = true;
+  renderAll();
+}
+
+let saveDebounce = null;
+async function saveToCloud() {
+  clearTimeout(saveDebounce);
+  saveDebounce = setTimeout(async () => {
+    setSyncStatus('syncing', 'Saving…');
+    try {
+      cloudData.users = state.users;
+      cloudData.activeUser = state.activeUser;
+      await window.storage.set(STORAGE_KEY, JSON.stringify(cloudData), true); // shared
+      setSyncStatus('ok', 'Saved · shared with group');
+    } catch (e) {
+      setSyncStatus('error', 'Save failed — check connection');
+    }
+  }, 600);
+}
+
+// ════════════════════════════════════════════════════════════
+//  STORAGE HELPERS (now operate on cloudData.progress)
+// ════════════════════════════════════════════════════════════
+const pkey    = (u, id, field) => `u${u}_${id}_${field}`;
+const load    = (u, id, f)     => (cloudData.progress[pkey(u,id,f)] || '');
+const save    = (u, id, f, v)  => { cloudData.progress[pkey(u,id,f)] = v; saveToCloud(); };
+const isDone  = (u, id)        => cloudData.progress[pkey(u,id,'done')] === '1';
+const setDone = (u, id, v)     => { cloudData.progress[pkey(u,id,'done')] = v ? '1' : '0'; saveToCloud(); };
+const getDate = (u, id)        => (cloudData.progress[pkey(u,id,'date')] || '');
+const setDate = (u, id, v)     => { cloudData.progress[pkey(u,id,'date')] = v; saveToCloud(); };
+
+// ════════════════════════════════════════════════════════════
+//  LOCKING LOGIC
+// ════════════════════════════════════════════════════════════
+// Returns the index of the first incomplete non-flex week for user u
+function getUnlockedUpTo(u) {
+  // A week is accessible if ALL previous non-flex weeks are done
+  // Flex weeks (catch-up) only unlock after WK 44 (all main weeks done)
+  const mainWeeks = WEEKS.filter(w => w.sec !== 'flex');
+  let firstIncompleteIdx = mainWeeks.length; // default: all done
+  for (let i = 0; i < mainWeeks.length; i++) {
+    if (!isDone(u, mainWeeks[i].id)) {
+      firstIncompleteIdx = i;
+      break;
+    }
+  }
+  return firstIncompleteIdx; // weeks 0..firstIncompleteIdx are unlocked (index in mainWeeks)
+}
+
+function isWeekLocked(w, u) {
+  if (w.sec === 'flex') {
+    // Flex weeks only unlock once all 44 main weeks are done
+    const mainWeeks = WEEKS.filter(x => x.sec !== 'flex');
+    return !mainWeeks.every(x => isDone(u, x.id));
+  }
+  const mainWeeks = WEEKS.filter(x => x.sec !== 'flex');
+  const idx = mainWeeks.findIndex(x => String(x.id) === String(w.id));
+  if (idx <= 0) return false; // first week always unlocked
+  // All previous main weeks must be done
+  for (let i = 0; i < idx; i++) {
+    if (!isDone(u, mainWeeks[i].id)) return true;
+  }
+  return false;
+}
 
 // Streak: count consecutive done weeks from WK 1 onward for user u
 function calcStreak(u) {
@@ -859,7 +885,6 @@ function calcStreak(u) {
   return streak;
 }
 
-// Count total done weeks for user u (non-flex)
 function countDone(u) {
   return WEEKS.filter(w => w.sec !== 'flex' && isDone(u, w.id)).length;
 }
@@ -868,6 +893,7 @@ function countDone(u) {
 //  RENDER
 // ════════════════════════════════════════════════════════════
 function renderAll() {
+  if (!state.loaded) return;
   renderUserSwitcher();
   renderGroupSnapshot();
   renderApp();
@@ -895,11 +921,8 @@ function renderUserSwitcher() {
 function renderGroupSnapshot() {
   const snap = document.getElementById('group-snapshot-inner');
   if (!snap) return;
-
-  // Find current week for the active user
   const u = state.activeUser;
   const cur = WEEKS.find(w => !isDone(u, w.id) && w.sec !== 'flex');
-
   const membersHtml = state.users.map((name, i) => {
     const streak = calcStreak(i);
     const done = countDone(i);
@@ -911,11 +934,7 @@ function renderGroupSnapshot() {
       <div class="member-weeks">${done} wk${done !== 1 ? 's' : ''}</div>
     </div>`;
   }).join('');
-
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const nextSunday = getNextSunday();
-
   snap.innerHTML = `
     <div>
       <div class="group-snap-title">YOUR GROUP</div>
@@ -932,7 +951,7 @@ function renderGroupSnapshot() {
 
 function getNextSunday() {
   const now = new Date();
-  const day = now.getDay(); // 0 = Sun
+  const day = now.getDay();
   const daysUntil = day === 0 ? 7 : 7 - day;
   const next = new Date(now);
   next.setDate(now.getDate() + daysUntil);
@@ -944,7 +963,6 @@ function renderApp() {
   const u = state.activeUser;
   let html = '';
   let currentSec = null;
-
   const firstIncomplete = WEEKS.find(w => !isDone(u, w.id) && w.sec !== 'flex');
 
   for (const w of WEEKS) {
@@ -961,7 +979,6 @@ function renderApp() {
     if (MILESTONES[w.id]) html += renderMilestone(w.id, isDone(u, w.id));
     html += renderWeekCard(w, u, firstIncomplete);
   }
-
   app.innerHTML = html;
   attachTextareaListeners();
 }
@@ -1004,42 +1021,48 @@ function renderMilestone(id, passed) {
 }
 
 function renderWeekCard(w, u, firstIncomplete) {
-  const done  = isDone(u, w.id);
-  const isCur = firstIncomplete && w.id === firstIncomplete.id;
-  const date  = getDate(u, w.id);
+  const done   = isDone(u, w.id);
+  const locked = isWeekLocked(w, u);
+  const isCur  = firstIncomplete && w.id === firstIncomplete.id;
+  const date   = getDate(u, w.id);
 
   let cls = 'week-card';
-  if (done)              cls += ' done';
-  if (isCur)             cls += ' current';
+  if (done)               cls += ' done';
+  if (isCur && !locked)   cls += ' current';
+  if (locked)             cls += ' locked';
   if (w.sec === 'bridge') cls += ' bridge-card';
-  if (w.sec === 'nt')    cls += ' nt-card';
+  if (w.sec === 'nt')     cls += ' nt-card';
 
-  // Group progress dots — all 4 users
   const dots = state.users.map((nm, i) =>
     `<span class="dot ${isDone(i, w.id) ? 'done' : ''}" data-u="${i}" title="${nm}: ${isDone(i, w.id) ? 'done ✓' : 'not done'}"></span>`
   ).join('');
 
-  const badge   = isCur ? `<span class="current-badge">Now</span>` : '';
+  const badge   = (isCur && !locked) ? `<span class="current-badge">Now</span>` : '';
   const dateStr = done && date ? `<span class="week-date">${date}</span>` : '';
+  const lockIcon = locked ? `<span class="lock-icon" title="Complete previous weeks first">🔒</span>` : '';
 
   let titleLine = `<span class="week-label">${w.label}</span>`;
-  if (w.title) titleLine += `<span class="week-label" style="color:var(--bridge-c);font-weight:400;font-size:.7rem"> — ${w.title}</span>`;
+  if (w.title) titleLine += `<span class="week-label" style="color:var(--bridge-c);font-weight:400;font-size:.68rem"> — ${w.title}</span>`;
+
+  // Checkbox: disabled when locked
+  const checkboxAttr = locked ? 'disabled' : `onchange="toggleDone('${w.id}', this)"`;
+  const checkboxVal  = done ? 'checked' : '';
 
   return `<div class="${cls}" id="card-${w.id}">
     <div class="week-header" onclick="toggleCard('${w.id}')">
       <div class="week-check" onclick="event.stopPropagation()">
-        <input type="checkbox" ${done ? 'checked' : ''} onchange="toggleDone('${w.id}', this)">
+        <input type="checkbox" ${checkboxVal} ${checkboxAttr}>
       </div>
       ${titleLine}
       <span class="week-reading">${w.reading}</span>
-      ${badge}
-      ${dateStr}
+      ${badge}${lockIcon}${dateStr}
       <div class="week-dots">${dots}</div>
       <div class="chevron">›</div>
     </div>
-    <div class="week-body" id="body-${w.id}">
-      ${renderWeekBody(w, u)}
-    </div>
+    ${locked
+      ? `<div class="locked-msg">🔒 Complete all previous weeks to unlock this one.</div>`
+      : `<div class="week-body" id="body-${w.id}">${renderWeekBody(w, u)}</div>`
+    }
   </div>`;
 }
 
@@ -1048,11 +1071,8 @@ function renderWeekBody(w, u) {
   let html = '';
 
   if (w.note) {
-    html += `<div class="bridge-note-block">
-      <div class="bridge-note-text">${w.note}</div>
-    </div>`;
+    html += `<div class="bridge-note-block"><div class="bridge-note-text">${w.note}</div></div>`;
   }
-
   if (w.ref) {
     html += `<div class="prophecy-block">
       <div class="prophecy-label">OT PROPHECIES FULFILLED THIS WEEK</div>
@@ -1075,7 +1095,6 @@ function renderWeekBody(w, u) {
     ${makeTa(id, u, 'prayer', 'Optional: notes from your prayer time...', 2)}
   </div>`;
 
-  // Group status footer
   const footerUsers = state.users.map((nm, i) => {
     const d  = isDone(i, id);
     const dt = getDate(i, id);
@@ -1110,7 +1129,7 @@ function makeTa(id, u, name, placeholder, rows) {
 }
 
 function escHtml(s) {
-  return s
+  return (s||'')
     .replace(/&/g,'&amp;')
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
@@ -1123,9 +1142,13 @@ function escHtml(s) {
 function toggleCard(id) {
   const card = document.getElementById(`card-${id}`);
   if (!card) return;
+  // If locked, just show the locked message
+  if (card.classList.contains('locked')) {
+    card.classList.toggle('open');
+    return;
+  }
   const wasOpen = card.classList.contains('open');
   card.classList.toggle('open');
-  // Auto-resize textareas when opening
   if (!wasOpen) {
     card.querySelectorAll('textarea').forEach(ta => {
       ta.style.height = 'auto';
@@ -1147,70 +1170,8 @@ function toggleDone(id, el) {
     setDate(u, id, '');
   }
 
-  // Re-render this card's header in-place
-  const card = document.getElementById(`card-${id}`);
-  if (!card) return;
-
-  // Update done class
-  card.classList.toggle('done', done);
-
-  // Update the date display
-  const existingDate = card.querySelector('.week-date');
-  if (done && getDate(u, id)) {
-    if (existingDate) {
-      existingDate.textContent = getDate(u, id);
-    } else {
-      const dotsEl = card.querySelector('.week-dots');
-      const span = document.createElement('span');
-      span.className = 'week-date';
-      span.textContent = getDate(u, id);
-      card.querySelector('.week-header').insertBefore(span, dotsEl);
-    }
-  } else if (existingDate) {
-    existingDate.remove();
-  }
-
-  // Update this user's dot in ALL week cards
-  document.querySelectorAll(`.dot[data-u="${u}"]`).forEach(dot => {
-    const dotCardId = dot.closest('.week-card').id.replace('card-', '');
-    if (String(dotCardId) === String(id)) {
-      dot.classList.toggle('done', done);
-    }
-  });
-
-  // Update footer user row color
-  const footerUsers = card.querySelectorAll('.week-footer-user');
-  if (footerUsers[u]) {
-    const dot = footerUsers[u].querySelector('.user-dot');
-    const label = footerUsers[u].querySelector('span:last-child');
-    if (dot) dot.style.background = done ? USER_COLORS[u] : '#ddd';
-    if (label) {
-      label.style.color = done ? USER_COLORS[u] : 'var(--muted)';
-      const name = state.users[u];
-      const dt = getDate(u, id);
-      label.textContent = name + (dt ? ' · ' + dt : '');
-    }
-  }
-
-  // Update "current" badge
-  const u2 = state.activeUser;
-  const firstIncomplete = WEEKS.find(w => !isDone(u2, w.id) && w.sec !== 'flex');
-  document.querySelectorAll('.current-badge').forEach(b => b.remove());
-  document.querySelectorAll('.week-card').forEach(c => c.classList.remove('current'));
-  if (firstIncomplete) {
-    const curCard = document.getElementById(`card-${firstIncomplete.id}`);
-    if (curCard) {
-      curCard.classList.add('current');
-      const label = curCard.querySelector('.week-reading');
-      if (label) {
-        const badge = document.createElement('span');
-        badge.className = 'current-badge';
-        badge.textContent = 'Now';
-        label.insertAdjacentElement('afterend', badge);
-      }
-    }
-  }
-
+  // Full re-render to update locking state of next weeks
+  renderApp();
   updateProgress();
   renderUserSwitcher();
   renderGroupSnapshot();
@@ -1223,11 +1184,9 @@ function onType(el) {
   const name = el.dataset.name;
   const u    = state.activeUser;
 
-  // Auto-resize
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
 
-  // Debounced save
   const timerKey = `${id}-${name}`;
   clearTimeout(saveTimers[timerKey]);
   saveTimers[timerKey] = setTimeout(() => {
@@ -1252,13 +1211,14 @@ function attachTextareaListeners() {
 
 function switchUser(idx) {
   state.activeUser = idx;
-  localStorage.setItem('bbc_active', idx);
+  cloudData.activeUser = idx;
+  saveToCloud();
   renderAll();
 }
 
 function updateProgress() {
   const u     = state.activeUser;
-  const total = WEEKS.filter(w => w.sec !== 'flex').length; // 44 meaningful weeks
+  const total = WEEKS.filter(w => w.sec !== 'flex').length;
   const done  = countDone(u);
   const pct   = total > 0 ? (done / total) * 100 : 0;
 
@@ -1271,13 +1231,12 @@ function updateProgress() {
     label.textContent = `${name}  ·  Week ${done} of ${total}  ·  ${Math.round(pct)}% complete`;
   }
 
-  // Milestone pips
   const milestoneWeekPcts = {5:11,10:23,15:34,20:45,25:57,30:68,36:82,40:91,44:100};
   const pipsEl = document.getElementById('milestone-pips');
   if (pipsEl) {
     pipsEl.innerHTML = Object.entries(milestoneWeekPcts).map(([wk, p]) => {
       const passed = isDone(u, parseInt(wk));
-      return `<div class="milestone-pip ${passed ? 'passed' : ''}" style="left:calc(${p}% - 3px)" title="${MILESTONES[wk]?.pct}"></div>`;
+      return `<div class="milestone-pip ${passed ? 'passed' : ''}" style="left:calc(${p}% - 3px)"></div>`;
     }).join('');
   }
 }
@@ -1296,12 +1255,12 @@ function checkMilestone(weekId, done) {
 
 function scrollToCurrent() {
   const u   = state.activeUser;
-  const cur = WEEKS.find(w => !isDone(u, w.id));
+  const cur = WEEKS.find(w => !isDone(u, w.id) && !isWeekLocked(w, u));
   if (!cur) return;
   const el = document.getElementById(`card-${cur.id}`);
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(() => el.classList.add('open'), 400);
+    setTimeout(() => { if (!el.classList.contains('locked')) el.classList.add('open'); }, 400);
   }
 }
 
@@ -1312,7 +1271,7 @@ function populateSundaySelect() {
   const sel = document.getElementById('sunday-week-select');
   if (!sel) return;
   sel.innerHTML = WEEKS.map(w =>
-    `<option value="${w.id}">${w.label}${w.title ? ' — ' + w.title : ''} · ${w.reading.substring(0,38)}${w.reading.length > 38 ? '…' : ''}</option>`
+    `<option value="${w.id}">${w.label}${w.title ? ' — ' + w.title : ''} · ${w.reading.substring(0,36)}${w.reading.length > 36 ? '…' : ''}</option>`
   ).join('');
 }
 
@@ -1320,7 +1279,6 @@ function openSunday(weekId) {
   const overlay = document.getElementById('sunday-overlay');
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-
   if (weekId !== undefined) {
     document.getElementById('sunday-week-select').value = weekId;
   } else {
@@ -1359,7 +1317,7 @@ function renderSundayAnswers() {
       <div class="sunday-user-header" style="background:${USER_COLORS[u]}18;border-bottom:2px solid ${USER_COLORS[u]}">
         <span class="color-dot" style="background:${USER_COLORS[u]}"></span>
         <strong style="color:${USER_COLORS[u]}">${name}</strong>
-        ${done ? `<span style="margin-left:auto;font-size:.65rem;color:${USER_COLORS[u]}">✓ done</span>` : ''}
+        ${done ? `<span style="margin-left:auto;font-size:.63rem;color:${USER_COLORS[u]}">✓ done</span>` : ''}
       </div>
       <div class="sunday-user-body">
         ${f('📖 VERSE THAT STOOD OUT', verse)}
@@ -1381,19 +1339,19 @@ function printSunday() {
   win.document.write(`<!DOCTYPE html><html><head><title>BBC Sunday — ${title}</title>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; padding: 24px; color: #1A1A1A; }
-    h1 { font-family: 'EB Garamond', serif; font-size: 1.4rem; margin-bottom: 6px; }
-    p { font-size: .8rem; color: #888; margin-bottom: 18px; }
-    .sunday-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
-    .sunday-user-col { border: 1px solid #D4C4A0; border-radius: 8px; overflow: hidden; }
-    .sunday-user-header { padding: 8px 12px; font-size: .75rem; font-weight: 700; display:flex;align-items:center;gap:6px; }
-    .color-dot { width:8px;height:8px;border-radius:50%;display:inline-block; }
-    .sunday-user-body { padding: 10px 12px; }
-    .sunday-field { margin-bottom: 10px; }
-    .sunday-field-label { font-size: .6rem; font-weight: 700; letter-spacing: .1em; color: #888; margin-bottom: 3px; }
-    .sunday-field-text { font-family: 'EB Garamond', serif; font-size: .9rem; color: #3D3D3D; line-height: 1.5; }
-    .sunday-field-text.empty { color: #bbb; font-style: italic; font-size: .8rem; }
-    @media (max-width: 600px) { .sunday-grid { grid-template-columns: 1fr 1fr; } }
+    body{font-family:'Inter',sans-serif;padding:24px;color:#1A1A1A}
+    h1{font-family:'EB Garamond',serif;font-size:1.4rem;margin-bottom:6px}
+    p{font-size:.8rem;color:#888;margin-bottom:18px}
+    .sunday-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .sunday-user-col{border:1px solid #D4C4A0;border-radius:8px;overflow:hidden}
+    .sunday-user-header{padding:8px 12px;font-size:.75rem;font-weight:700;display:flex;align-items:center;gap:6px}
+    .color-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+    .sunday-user-body{padding:10px 12px}
+    .sunday-field{margin-bottom:10px}
+    .sunday-field-label{font-size:.6rem;font-weight:700;letter-spacing:.1em;color:#888;margin-bottom:3px}
+    .sunday-field-text{font-family:'EB Garamond',serif;font-size:.9rem;color:#3D3D3D;line-height:1.5}
+    .sunday-field-text.empty{color:#bbb;font-style:italic;font-size:.8rem}
+    @media(max-width:600px){.sunday-grid{grid-template-columns:1fr 1fr}}
   </style></head><body>
   <h1>Bible Book Club — Sunday Discussion</h1>
   <p>${title}</p>
@@ -1412,9 +1370,7 @@ let touchHoldTimer = null;
 function touchHold(e, idx) {
   touchHoldTimer = setTimeout(() => startRename(e, idx), 600);
 }
-function touchRelease() {
-  clearTimeout(touchHoldTimer);
-}
+function touchRelease() { clearTimeout(touchHoldTimer); }
 
 function startRename(e, idx) {
   e.preventDefault();
@@ -1426,8 +1382,9 @@ function startRename(e, idx) {
   const btn = document.querySelectorAll('.user-btn')[idx];
   if (btn) {
     const r = btn.getBoundingClientRect();
+    const bLeft = Math.min(r.left, window.innerWidth - 240);
     box.style.top  = (r.bottom + 6 + window.scrollY) + 'px';
-    box.style.left = Math.min(r.left, window.innerWidth - 220) + 'px';
+    box.style.left = Math.max(8, bLeft) + 'px';
   }
   input.focus();
   input.select();
@@ -1437,7 +1394,8 @@ function saveRename() {
   const v = document.getElementById('rename-field').value.trim();
   if (v && state.renameTarget !== null) {
     state.users[state.renameTarget] = v;
-    localStorage.setItem('bbc_users', JSON.stringify(state.users));
+    cloudData.users = state.users;
+    saveToCloud();
   }
   closeRename();
   renderAll();
@@ -1452,13 +1410,8 @@ function closeRename() {
 //  KEYBOARD & CLICK OUTSIDE
 // ════════════════════════════════════════════════════════════
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeRename();
-    closeSunday();
-  }
-  if (e.key === 'Enter' && document.getElementById('rename-input').style.display !== 'none') {
-    saveRename();
-  }
+  if (e.key === 'Escape') { closeRename(); closeSunday(); }
+  if (e.key === 'Enter' && document.getElementById('rename-input').style.display !== 'none') saveRename();
 });
 
 document.getElementById('sunday-overlay').addEventListener('click', e => {
@@ -1468,7 +1421,7 @@ document.getElementById('sunday-overlay').addEventListener('click', e => {
 // ════════════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════════════
-renderAll();
+loadFromCloud();
 </script>
 </body>
 </html>
