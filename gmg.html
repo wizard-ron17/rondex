@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLB HR Pairings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #05080f;
+    --surface0: #080e1a;
+    --surface1: #0c1424;
+    --surface2: #101c30;
+    --border:   #16243a;
+    --border2:  #1e3050;
+    --text:     #c8d8ec;
+    --muted:    #3a5570;
+    --dim:      #1e3050;
+    --orange:   #35c96e;
+    --green:    #4cd46a;
+    --gmg:      #35c96e;
+    --gold:     #f0c040;
+    --silver:   #8aaac0;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-mono:    'JetBrains Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    min-height: 100vh;
+    padding: clamp(1rem, 3vw, 2rem);
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--surface0) 1px, transparent 1px),
+      linear-gradient(90deg, var(--surface0) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
+
+  /* ── HEADER ── */
+  header { margin-bottom: 1.8rem; }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+  h1 em { color: var(--gmg); font-style: normal; }
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 1.2rem;
+    font-size: 0.7rem; color: var(--muted);
+  }
+  .meta-row span { display: flex; align-items: center; gap: 0.3rem; }
+
+  /* ── STATUS BAR ── */
+  #status-bar {
+    background: var(--surface1);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 1.2rem;
+    font-size: 0.7rem;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  #status-bar .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted); flex-shrink: 0;
+    animation: pulse 2s infinite;
+  }
+  #status-bar.fetching .dot { background: var(--gold); }
+  #status-bar.ready    .dot { background: var(--green); animation: none; }
+  #status-bar.error    .dot { background: #f05050; animation: none; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+  #status-text { color: var(--text); flex: 1; }
+  #progress-bar {
+    height: 2px; background: var(--border); border-radius: 1px;
+    margin-top: 0.5rem; overflow: hidden; display: none;
+  }
+  #progress-bar.visible { display: block; }
+  #progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--orange), var(--gold));
+    border-radius: 1px; transition: width 0.3s;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 1.2rem; flex-wrap: wrap;
+  }
+  label.ctrl-label {
+    font-size: 0.65rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  select, input[type=date] {
+    background: var(--surface1); border: 1px solid var(--border2);
+    color: var(--text); font-family: var(--font-mono); font-size: 0.72rem;
+    padding: 0.4rem 0.6rem; border-radius: 5px; cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  select:hover, input[type=date]:hover { border-color: var(--orange); }
+  .date-range { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+  .date-range span { color: var(--muted); font-size: 0.65rem; }
+
+  button.fetch-btn {
+    background: var(--orange); color: #fff; border: none;
+    font-family: var(--font-display); font-size: 0.95rem; font-weight: 700;
+    letter-spacing: 0.08em; padding: 0.42rem 1.1rem;
+    border-radius: 5px; cursor: pointer; transition: background 0.15s, opacity 0.15s;
+  }
+  button.fetch-btn:hover { background: #28a056; }
+  button.fetch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex; gap: 0.3rem; margin-bottom: 1rem;
+    background: var(--surface0); padding: 0.25rem;
+    border-radius: 8px; border: 1px solid var(--border);
+  }
+  .tab-btn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.3rem;
+    background: transparent; border: none; color: var(--muted);
+    font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+    letter-spacing: 0.06em; padding: 0.45rem 0.4rem;
+    border-radius: 5px; cursor: pointer; transition: background 0.15s, color 0.15s;
+  }
+  .tab-btn .num {
+    background: var(--surface1); border-radius: 3px;
+    width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; flex-shrink: 0;
+  }
+  .tab-btn.active { background: var(--orange); color: #fff; }
+  .tab-btn.active .num { background: rgba(255,255,255,0.2); }
+  .tab-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* ── SEARCH ── */
+  #player-search {
+    width: 100%; background: var(--surface1); border: 1px solid var(--border2);
+    color: var(--text); font-family: var(--font-mono); font-size: 0.78rem;
+    padding: 0.5rem 0.8rem; border-radius: 6px; outline: none;
+    transition: border-color 0.15s;
+  }
+  #player-search:focus { border-color: var(--orange); }
+  #player-search::placeholder { color: var(--muted); }
+
+  /* ── RESULT META ── */
+  .result-meta {
+    font-size: 0.62rem; color: var(--dim); letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 0.8rem;
+  }
+
+  /* ── CARDS ── */
+  #cards { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .card {
+    border-radius: 8px; padding: 0.85rem 1rem;
+    border: 1px solid var(--border);
+    background: var(--surface0);
+    animation: fadeIn 0.15s ease;
+  }
+  .card.top    { background: #0b1e08; border-color: #2a6012; }
+  .card.high   { background: var(--surface1); border-color: var(--border2); }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform: none; } }
+
+  .card-top-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+  .card-left { display: flex; align-items: center; gap: 0.6rem; }
+
+  .rank-badge {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--surface0); display: flex; align-items: center;
+    justify-content: center; font-size: 0.62rem; font-weight: 700;
+    flex-shrink: 0; border: 2px solid var(--muted);
+  }
+  .card.top  .rank-badge { border-color: var(--gold);   color: var(--gold); }
+  .card.high .rank-badge { border-color: var(--silver); color: var(--silver); }
+
+  .count-block { display: flex; align-items: baseline; gap: 0.25rem; }
+  .count-num {
+    font-family: var(--font-display); font-size: 2rem; font-weight: 700; line-height: 1;
+    color: var(--muted);
+  }
+  .card.top  .count-num { color: #6ad040; }
+  .card.high .count-num { color: var(--orange); }
+  .count-label { font-size: 0.58rem; color: var(--silver); letter-spacing: 0.12em; }
+
+  .fresh-badge {
+    font-size: 0.62rem; font-weight: 700; padding: 0.18rem 0.5rem;
+    border-radius: 5px; border: 1px solid var(--border); color: var(--muted);
+    background: var(--surface1);
+  }
+  .fresh-badge.hot  { background: #0a2a10; border-color: #1a6020; color: var(--green); }
+  .fresh-badge.warm { background: #1a1a08; border-color: #5a5000; color: #c0b000; }
+
+  .players {
+    display: flex; flex-wrap: wrap; gap: 0.28rem; margin-bottom: 0.6rem;
+  }
+  .player-chip {
+    display: flex; align-items: center; gap: 0.22rem;
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 0.18rem 0.55rem;
+  }
+  .player-photo {
+    width: 24px; height: 24px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+    background: var(--surface0);
+  }
+  .player-name { font-size: 0.73rem; color: #bdd0e8; font-weight: 600; }
+  .player-hr   { font-size: 0.65rem; color: var(--orange); font-weight: 700; }
+  .player-hr-lbl { font-size: 0.5rem; color: var(--muted); }
+
+  .dates { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+  .date-pill {
+    background: var(--surface0); border: 1px solid var(--border);
+    border-radius: 4px; padding: 0.14rem 0.4rem;
+    font-size: 0.63rem; color: var(--muted);
+  }
+  .date-pill.latest {
+    background: #0f2a18; border-color: #1a5028;
+    color: var(--green); font-weight: 700;
+  }
+
+  /* ── EMPTY / LOADING STATES ── */
+  .empty {
+    text-align: center; padding: 4rem 1rem;
+    color: var(--dim); font-size: 0.85rem;
+    border: 1px dashed var(--border); border-radius: 8px;
+  }
+  .spinner-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 1rem;
+    padding: 4rem 1rem;
+    border: 1px dashed var(--border); border-radius: 8px;
+  }
+  .spinner {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 3px solid var(--border2);
+    border-top-color: var(--orange);
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 2rem; padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between;
+    font-size: 0.58rem; color: var(--dim);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <header>
+    <p class="eyebrow">MLB · 2026 · Stats API</p>
+    <h1>Ron's <em>GreenMeansGo</em> Tool</h1>
+    <div class="meta-row" id="meta-row">
+      <span>Which dudes dong on the same day? </span>
+    </div>
+  </header>
+
+  <!-- Status bar -->
+  <div id="status-bar">
+    <div class="dot"></div>
+    <span id="status-text">Loading…</span>
+    <div style="margin-left:auto;font-size:0.65rem;color:var(--muted)" id="progress-label"></div>
+    <button id="stop-btn" onclick="stopFetch()" style="display:none;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:var(--font-mono);font-size:0.65rem;padding:0.2rem 0.6rem;border-radius:4px;cursor:pointer;">STOP</button>
+  </div>
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-size="2" onclick="switchTab(2)" disabled><span class="num">2</span>Pairs</button>
+    <button class="tab-btn" data-size="3" onclick="switchTab(3)" disabled><span class="num">3</span>Trios</button>
+    <button class="tab-btn" data-size="4" onclick="switchTab(4)" disabled><span class="num">4</span>Quads</button>
+  </div>
+
+  <div id="search-wrap" style="display:none;margin-bottom:0.8rem;">
+    <input type="text" id="player-search" placeholder="Filter by player name…" oninput="_render(activeTab)">
+  </div>
+  <div class="result-meta" id="result-meta"></div>
+  <div id="cards"><div class="empty">Fetch data to see results</div></div>
+
+  <footer>
+    <span>Source: MLB Stats API (statsapi.mlb.com)</span>
+    <span id="footer-right"></span>
+  </footer>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────
+const MLB          = 'https://statsapi.mlb.com/api/v1';
+const SEASON_START = '2026-03-26';
+let dailyHRs    = {};
+let hrTotals    = {};
+let playerIds   = {};
+let groupCache  = {};
+let fetchedGameIds = new Set();
+let activeTab = 2;
+let abort     = false;
+let totalDates = 0;
+let fetchedDates = 0;
+
+// ── Helpers ────────────────────────────────────────────────────────────
+function dateRange(start, end) {
+  const dates = [], cur = new Date(start + 'T12:00:00Z'), last = new Date(end + 'T12:00:00Z');
+  while (cur <= last) {
+    dates.push(cur.toISOString().split('T')[0]);
+    cur.setUTCDate(cur.getUTCDate() + 1);
+  }
+  return dates;
+}
+
+function fmtDate(d) {
+  const [,m,day] = d.split('-');
+  return ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m] + ' ' + +day;
+}
+
+function daysSince(d) {
+  const [y,m,day] = d.split('-').map(Number);
+  return Math.round((new Date() - new Date(y,m-1,day)) / 86400000);
+}
+
+// ── Worker source (integer-ID keys + iterative combos, no main-thread block) ──
+const WORKER_SRC = `
+self.onmessage = function({data: {dailyHRs, size}}) {
+  const nameToId = {}, idToName = [];
+  for (const players of Object.values(dailyHRs))
+    for (const name of Object.keys(players))
+      if (!(name in nameToId)) { nameToId[name] = idToName.length; idToName.push(name); }
+
+  const playerDayCounts = {};
+  for (const players of Object.values(dailyHRs))
+    for (const name of Object.keys(players))
+      playerDayCounts[name] = (playerDayCounts[name] || 0) + 1;
+
+  const minDays = size >= 3 ? 2 : 1;
+
+  const counts = {};
+  for (const [date, players] of Object.entries(dailyHRs)) {
+    const ids = Object.keys(players)
+      .filter(n => playerDayCounts[n] >= minDays)
+      .map(n => nameToId[n]).sort((a,b) => a-b);
+    if (ids.length < size) continue;
+    const n = ids.length;
+    const idx = Array.from({length: size}, (_, i) => i);
+    while (true) {
+      const key = idx.map(i => ids[i]).join(',');
+      if (!counts[key]) counts[key] = [];
+      counts[key].push(date);
+      let i = size - 1;
+      while (i >= 0 && idx[i] === i + n - size) i--;
+      if (i < 0) break;
+      idx[i]++;
+      for (let j = i+1; j < size; j++) idx[j] = idx[j-1]+1;
+    }
+  }
+  const result = Object.entries(counts)
+    .map(([key, dates]) => ({
+      players: key.split(',').map(id => idToName[+id]),
+      count: dates.length,
+      dates: dates.sort()
+    }))
+    .sort((a,b) => b.count - a.count || a.players[0].localeCompare(b.players[0]));
+  self.postMessage(result);
+};
+`;
+function runInWorker(dailyHRs, size) {
+  return new Promise(resolve => {
+    const w = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], {type:'application/javascript'})));
+    w.onmessage = e => { resolve(e.data); w.terminate(); };
+    w.postMessage({dailyHRs, size});
+  });
+}
+
+// ── Fetch ──────────────────────────────────────────────────────────────
+async function fetchAll() {
+  abort = false;
+  dailyHRs = {}; hrTotals = {}; playerIds = {}; groupCache = {}; fetchedGameIds = new Set();
+  disableTabs(true);
+
+  const from  = SEASON_START;
+  const to    = new Date().toISOString().split('T')[0];
+  const dates = dateRange(from, to);
+  totalDates  = dates.length; fetchedDates = 0;
+
+  setStatus('fetching', `Fetching schedule…`);
+  document.getElementById('progress-bar').classList.add('visible');
+  document.getElementById('stop-btn').style.display = '';
+
+  const BATCH = 6;
+  for (let i = 0; i < dates.length; i += BATCH) {
+    if (abort) break;
+    const batch = dates.slice(i, i + BATCH);
+    setStatus('fetching', `Fetching ${fmtDate(batch[0])}…`);
+    await Promise.all(batch.map(d => fetchDay(d).catch(() => {})));
+    setProgress(Math.min(i + BATCH, dates.length), dates.length);
+    if (i + BATCH < dates.length) await sleep(40);
+  }
+
+  document.getElementById('stop-btn').style.display = 'none';
+  document.getElementById('progress-bar').classList.remove('visible');
+
+  const daysWithData = Object.keys(dailyHRs).length;
+  const totalHRCount = Object.values(dailyHRs).reduce((s,d)=>s+Object.keys(d).length,0);
+  setStatus('ready', `${daysWithData} game days · ${totalHRCount} HR events loaded`);
+
+  const allDates = Object.keys(dailyHRs).sort();
+  if (allDates.length) {
+    document.getElementById('meta-row').innerHTML = `
+      <span>📅 ${fmtDate(allDates[0])} – ${fmtDate(allDates[allDates.length-1])}</span>
+      <span>⚾ ${totalHRCount} HRs</span>
+      <span>📆 ${daysWithData} game days</span>
+    `;
+  }
+
+  disableTabs(false);
+  buildAndRender(activeTab);
+  precompute(3);
+  precompute(4);
+}
+
+async function fetchDay(date) {
+  const sched = await fetch(`${MLB}/schedule?sportId=1&date=${date}&gameType=R`).then(r=>r.json());
+  const games = sched.dates?.[0]?.games ?? [];
+  const ids   = games
+    .filter(g => g.status?.abstractGameState === 'Final' && !fetchedGameIds.has(g.gamePk))
+    .map(g => g.gamePk);
+  ids.forEach(id => fetchedGameIds.add(id));
+  if (!ids.length) return;
+
+  await Promise.all(ids.map(async id => {
+    try {
+      const box = await fetch(`${MLB}/game/${id}/boxscore`).then(r=>r.json());
+      for (const side of ['home','away']) {
+        const t = box.teams?.[side] ?? {};
+        const batters = t.batters ?? [];
+        const players = t.players ?? {};
+        for (const pid of batters) {
+          const p = players[`ID${pid}`];
+          if (!p) continue;
+          const hrs = p?.stats?.batting?.homeRuns ?? 0;
+          if (hrs < 1) continue;
+          const name = p.person?.fullName ?? `ID${pid}`;
+          if (!dailyHRs[date]) dailyHRs[date] = {};
+          dailyHRs[date][name] = (dailyHRs[date][name] || 0) + hrs;
+          hrTotals[name] = (hrTotals[name] || 0) + hrs;
+          playerIds[name] = pid;
+        }
+      }
+    } catch(e) {}
+  }));
+}
+
+function stopFetch() { abort = true; }
+
+// ── Render ─────────────────────────────────────────────────────────────
+const RENDER_LIMIT = 200;
+
+async function precompute(size) {
+  if (!groupCache[size]) groupCache[size] = await runInWorker(dailyHRs, size);
+}
+
+async function buildAndRender(size) {
+  if (!Object.keys(dailyHRs).length) return;
+  if (groupCache[size]) { _render(size); return; }
+  document.getElementById('cards').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div><span class="spinner-label">Computing…</span></div>';
+  groupCache[size] = await runInWorker(dailyHRs, size);
+  if (activeTab === size) _render(size);
+}
+
+function _render(size) {
+  const all    = groupCache[size] ?? [];
+  const names  = { 2:'pairs', 3:'trios', 4:'quads' };
+  const minCount = size === 2 ? 3 : 1;
+  const query  = document.getElementById('player-search')?.value.trim().toLowerCase() ?? '';
+
+  let groups = all.filter(item => item.count >= minCount);
+  if (query) groups = groups.filter(item => item.players.some(p => p.toLowerCase().includes(query)));
+
+  const maxCount = groups[0]?.count ?? 0;
+  const shown    = Math.min(groups.length, RENDER_LIMIT);
+
+  document.getElementById('result-meta').textContent =
+    `${groups.length.toLocaleString()} unique ${names[size]}` +
+    (size === 2 ? ' · min 3 occurrences' : '') +
+    (query ? ` · filtered` : '') +
+    (groups.length > RENDER_LIMIT ? ` · showing top ${RENDER_LIMIT}` : '');
+
+  const container = document.getElementById('cards');
+  if (!groups.length) {
+    container.innerHTML = `<div class="empty">${query ? 'No results for "' + query + '"' : 'No co-occurrences found'}</div>`;
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+  groups.slice(0, RENDER_LIMIT).forEach((item, i) => {
+    const isTop  = item.count === maxCount;
+    const isHigh = !isTop && i < 4;
+    const lastDate = item.dates[item.dates.length - 1];
+    const since  = daysSince(lastDate);
+
+    const card = document.createElement('div');
+    card.className = 'card' + (isTop?' top':isHigh?' high':'');
+
+    const freshClass = since <= 7 ? 'hot' : since <= 21 ? 'warm' : '';
+    const rankColor  = isTop ? 'gold' : isHigh ? 'silver' : '';
+
+    const playerChips = item.players.map(p => {
+      const pid = playerIds[p];
+      const photoUrl = pid
+        ? `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_60,q_auto:best/v1/people/${pid}/headshot/67/current`
+        : '';
+      return `<div class="player-chip">
+        ${photoUrl ? `<img class="player-photo" src="${photoUrl}" alt="">` : ''}
+        <span class="player-name">${p}</span>
+        <span class="player-hr">${hrTotals[p]??'—'}</span>
+        <span class="player-hr-lbl">HR</span>
+      </div>`;
+    }).join('');
+
+    const datePills = item.dates.map((d, di) => {
+      const isLast = di === item.dates.length - 1;
+      return `<span class="date-pill${isLast?' latest':''}">${fmtDate(d)}</span>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="card-top-row">
+        <div class="card-left">
+          <div class="rank-badge">${i+1}</div>
+          <div class="count-block">
+            <span class="count-num">${item.count}</span>
+            <span class="count-label">OCCURRENCES</span>
+          </div>
+        </div>
+        <div class="fresh-badge ${freshClass}">last: ${since}d ago</div>
+      </div>
+      <div class="players">${playerChips}</div>
+      <div class="dates">${datePills}</div>
+    `;
+    frag.appendChild(card);
+  });
+
+  container.innerHTML = '';
+  container.appendChild(frag);
+  document.getElementById('footer-right').textContent =
+    `${groups.length.toLocaleString()} groups · showing top ${shown}`;
+  document.getElementById('search-wrap').style.display = '';
+}
+
+// ── Tab / UI ───────────────────────────────────────────────────────────
+function switchTab(size) {
+  activeTab = size;
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', +b.dataset.size === size);
+  });
+  const s = document.getElementById('player-search');
+  if (s) s.value = '';
+  if (Object.keys(dailyHRs).length) buildAndRender(size);
+}
+
+function disableTabs(disabled) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.disabled = disabled);
+}
+
+function setStatus(type, msg) {
+  const bar = document.getElementById('status-bar');
+  bar.className = type;
+  document.getElementById('status-text').textContent = msg;
+}
+
+function setProgress(done, total) {
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${done}/${total} (${pct}%)`;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+document.addEventListener('DOMContentLoaded', fetchAll);
+</script>
+</body>
+</html>
