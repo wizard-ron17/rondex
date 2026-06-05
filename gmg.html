@@ -219,6 +219,13 @@
   .fresh-badge.hot  { background: #0a2a10; border-color: #1a6020; color: var(--green); }
   .fresh-badge.warm { background: #1a1a08; border-color: #5a5000; color: #c0b000; }
 
+  .sgp-badge {
+    font-size: 0.6rem; font-weight: 700; padding: 0.18rem 0.5rem;
+    border-radius: 5px; border: 1px solid #5a4a00;
+    color: var(--gold); background: #1e1a00;
+    letter-spacing: 0.06em;
+  }
+
   .players {
     display: flex; flex-wrap: wrap; gap: 0.28rem; margin-bottom: 0.6rem;
   }
@@ -325,6 +332,7 @@ const SEASON_START = '2026-03-26';
 let dailyHRs    = {};
 let hrTotals    = {};
 let playerIds   = {};
+let playerTeams = {};
 let groupCache  = {};
 let fetchedGameIds = new Set();
 let activeTab = 2;
@@ -392,7 +400,7 @@ self.onmessage = function({data: {dailyHRs, size}}) {
       count: dates.length,
       dates: dates.sort()
     }))
-    .sort((a,b) => b.count - a.count || a.players[0].localeCompare(b.players[0]));
+    .sort((a,b) => b.count - a.count || b.dates[b.dates.length-1].localeCompare(a.dates[a.dates.length-1]));
   self.postMessage(result);
 };
 `;
@@ -407,7 +415,7 @@ function runInWorker(dailyHRs, size) {
 // ── Fetch ──────────────────────────────────────────────────────────────
 async function fetchAll() {
   abort = false;
-  dailyHRs = {}; hrTotals = {}; playerIds = {}; groupCache = {}; fetchedGameIds = new Set();
+  dailyHRs = {}; hrTotals = {}; playerIds = {}; playerTeams = {}; groupCache = {}; fetchedGameIds = new Set();
   disableTabs(true);
 
   const from  = SEASON_START;
@@ -465,6 +473,7 @@ async function fetchDay(date) {
       const box = await fetch(`${MLB}/game/${id}/boxscore`).then(r=>r.json());
       for (const side of ['home','away']) {
         const t = box.teams?.[side] ?? {};
+        const teamAbbr = t.team?.abbreviation ?? '';
         const batters = t.batters ?? [];
         const players = t.players ?? {};
         for (const pid of batters) {
@@ -477,6 +486,7 @@ async function fetchDay(date) {
           dailyHRs[date][name] = (dailyHRs[date][name] || 0) + hrs;
           hrTotals[name] = (hrTotals[name] || 0) + hrs;
           playerIds[name] = pid;
+          if (teamAbbr) playerTeams[name] = teamAbbr;
         }
       }
     } catch(e) {}
@@ -535,7 +545,13 @@ function _render(size) {
     card.className = 'card' + (isTop?' top':isHigh?' high':'');
 
     const freshClass = since <= 7 ? 'hot' : since <= 21 ? 'warm' : '';
-    const rankColor  = isTop ? 'gold' : isHigh ? 'silver' : '';
+
+    const teamBuckets = {};
+    item.players.forEach(p => {
+      const t = playerTeams[p];
+      if (t) teamBuckets[t] = (teamBuckets[t] || []).concat(p);
+    });
+    const sharedTeams = Object.entries(teamBuckets).filter(([,ps]) => ps.length >= 2).map(([t]) => t);
 
     const playerChips = item.players.map(p => {
       const pid = playerIds[p];
@@ -563,6 +579,7 @@ function _render(size) {
             <span class="count-num">${item.count}</span>
             <span class="count-label">OCCURRENCES</span>
           </div>
+          ${sharedTeams.map(t => `<span class="sgp-badge">SGP · ${t}</span>`).join('')}
         </div>
         <div class="fresh-badge ${freshClass}">last: ${since}d ago</div>
       </div>
