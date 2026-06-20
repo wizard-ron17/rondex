@@ -286,6 +286,7 @@ let hrChart        = null;
 let lbSortCol      = null;
 let lbSortDir      = -1;
 let activeTerms    = [];
+let dueRowsCache   = null;
 
 // ── Crash-loop guard ───────────────────────────────────────────────────
 // iOS kills the tab mid-fetch and Safari reloads it, firing DOMContentLoaded
@@ -373,7 +374,7 @@ self.onmessage = function({data: {dailyHRs, size}}) {
   for (const day of Object.values(dailyHRs))
     for (const pid of Object.keys(day))
       pdc[pid] = (pdc[pid] || 0) + 1;
-  const minDays = size >= 3 ? 2 : 1, counts = {};
+  const minDays = size >= 4 ? 3 : size >= 3 ? 2 : 1, counts = {};
   for (const [date, day] of Object.entries(dailyHRs)) {
     const ids = Object.keys(day).filter(p=>pdc[p]>=minDays).map(p=>pidToIdx[p]).sort((a,b)=>a-b);
     if (ids.length < size) continue;
@@ -399,7 +400,7 @@ function computeGroupsSync(dHRs, size) {
   pidList.forEach((p,i) => pidToIdx[p] = i);
   const pdc = {};
   for (const day of Object.values(dHRs)) for (const pid of Object.keys(day)) pdc[pid] = (pdc[pid]||0)+1;
-  const minDays = size >= 3 ? 2 : 1, counts = {};
+  const minDays = size >= 4 ? 3 : size >= 3 ? 2 : 1, counts = {};
   for (const [date, day] of Object.entries(dHRs)) {
     const ids = Object.keys(day).filter(p=>pdc[p]>=minDays).map(p=>pidToIdx[p]).sort((a,b)=>a-b);
     if (ids.length < size) continue;
@@ -451,7 +452,7 @@ async function fetchAll() {
   abort = false;
   dailyHRs={}; dailyGames={}; hrTotals={}; playerNames={}; playerTeams={};
   playerABs={}; playerGames={}; playerLastHR={}; playerAbsByDate={};
-  groupCache={}; fetchedGameIds=new Set(); teamGameDays={};
+  groupCache={}; fetchedGameIds=new Set(); teamGameDays={}; dueRowsCache=null;
   computeQueue = Promise.resolve();
   disableNav(true);
 
@@ -496,6 +497,14 @@ async function fetchAll() {
   sel.innerHTML = '<option value="ALL">All Teams</option>' + teams.map(t=>`<option value="${t}">${t}</option>`).join('');
 
   disableNav(false);
+
+  // Free playerAbsByDate before heavy compute: prune to HR hitters only, cache Due results, then wipe
+  for (const pid of Object.keys(playerAbsByDate)) {
+    if (!hrTotals[pid]) delete playerAbsByDate[pid];
+  }
+  dueRowsCache = computeDueRows();
+  playerAbsByDate = {};
+
   await queueCompute(activePairSize);
   renderCurrentPanel();
   // On mobile skip quads precompute to save memory; compute on demand
@@ -585,8 +594,18 @@ async function buildAndRender(size) {
 function switchPairSize(size) {
   activePairSize = size;
   document.querySelectorAll('.sub-btn').forEach(b => b.classList.toggle('active', +b.dataset.size === size));
-  if (Object.keys(dailyHRs).length) buildAndRender(size);
+  if (!Object.keys(dailyHRs).length) return;
+  if (size === 4 && isMob() && !groupCache[4]) {
+    document.getElementById('cards').innerHTML = `
+      <div class="empty" style="padding:2rem 1rem;">
+        <div style="margin-bottom:1rem;font-size:0.75rem;color:var(--silver);">Quads computation is memory-intensive on mobile and may be slow.</div>
+        <button onclick="forceComputeQuads()" style="background:var(--accent);color:#fff;border:none;font-family:var(--font-d);font-size:1.1rem;font-weight:700;padding:0.5rem 1.4rem;border-radius:6px;cursor:pointer;">Compute Quads</button>
+      </div>`;
+    return;
+  }
+  buildAndRender(size);
 }
+function forceComputeQuads() { buildAndRender(4); }
 
 function _render(size) {
   const all       = groupCache[size] ?? [];
@@ -896,7 +915,7 @@ function computeDueRows() {
 function renderDue() {
   const pids=Object.keys(hrTotals);
   if (!pids.length) return;
-  const rows=computeDueRows();
+  const rows = dueRowsCache ?? computeDueRows();
   const metaEl=document.getElementById('due-meta');
   metaEl.textContent = rows.length
     ? `${rows.length} power hitters overdue · z = ABs since last HR vs their usual gap`
